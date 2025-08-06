@@ -1,68 +1,374 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import Button from '../components/Button';
-import { auth } from "../firebase";
-import Header from '../components/Header';
-
-// 仮の勤怠データ
-const mockData = [
-  { date: "2024-06-01", start: "09:00", end: "18:00", work: "9:00" },
-  { date: "2024-06-02", start: "09:10", end: "18:05", work: "8:55" },
-  { date: "2024-06-03", start: "09:00", end: "17:50", work: "8:50" },
-  // ...
-];
+import LoadingSpinner from '../components/LoadingSpinner';
+import Modal from '../components/Modal';
+import { useEffect } from "react";
+import { collection, query, where, getDocs, setDoc, doc, addDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function getYearMonth(dateStr) {
   const d = new Date(dateStr);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/**
+ * 実績確認・申請ページコンポーネント
+ * 月別の勤務実績を表示し、申請機能を提供
+ */
 function History() {
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState("");
+  // 年月リストを生成
+  const [selectedYM, setSelectedYM] = useState("");
+  const [rows, setRows] = useState([]);
+  const [yearMonths, setYearMonths] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [regularWorkMinutes, setRegularWorkMinutes] = useState(480); // デフォルト8時間
 
+  // 認証状態の監視
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        setUserId(user.uid);
         setUserEmail(user.email);
       } else {
-        setUserEmail("");
+        setUserId(null);
+        setUserEmail(null);
       }
       setIsAuthChecked(true);
     });
+
     return () => unsubscribe();
   }, []);
 
-  // 年月リストを生成
-  const yearMonths = Array.from(
-    new Set(mockData.map((d) => getYearMonth(d.date)))
-  );
-  const [selectedYM, setSelectedYM] = useState(yearMonths[0]);
+  // 設定データを読み込み
+  useEffect(() => {
+    if (!userId || !isAuthChecked) return;
 
-  // 選択年月のデータのみ表示
-  const filtered = mockData.filter((d) => getYearMonth(d.date) === selectedYM);
+    const loadSettings = async () => {
+      try {
+        const settingsRef = doc(db, "settings", userId);
+        const settingsSnap = await getDoc(settingsRef);
+        
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data();
+          const hours = data.regularWorkHours || 8;
+          const minutes = data.regularWorkMinutes || 0;
+          setRegularWorkMinutes(hours * 60 + minutes);
+        }
+      } catch (error) {
+        console.error("設定読み込みエラー:", error);
+      }
+    };
 
-  const handleLogout = () => {
-    navigate("/login");
+    loadSettings();
+  }, [userId, isAuthChecked]);
+
+  // Firestoreからデータ取得
+  useEffect(() => {
+    if (!userId || !isAuthChecked) {
+      setRows([]);
+      setYearMonths([]);
+      setIsDataLoaded(false);
+      return;
+    }
+    const fetchData = async () => {
+      const q = query(
+        collection(db, "attendances"),
+        where("userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      const data = [];
+      const ymSet = new Set();
+      querySnapshot.forEach((doc) => {
+        const d = doc.data();
+        data.push(d);
+        ymSet.add(getYearMonth(d.date));
+      });
+      const ymArr = Array.from(ymSet).sort().reverse();
+      setYearMonths(ymArr);
+      setRows(data);
+      if (!selectedYM && ymArr.length > 0) setSelectedYM(ymArr[0]);
+      setIsDataLoaded(true);
+    };
+    fetchData();
+  }, [userId, isAuthChecked]);
+
+  // 時間計算関数（総勤務時間）
+  const calculateWorkTime = (clockIn, clockOut) => {
+    if (!clockIn || !clockOut || clockIn === "--:--" || clockOut === "--:--") {
+      return "--:--";
+    }
+    
+    try {
+      const [inHour, inMin] = clockIn.split(":").map(Number);
+      const [outHour, outMin] = clockOut.split(":").map(Number);
+      
+      const inMinutes = inHour * 60 + inMin;
+      const outMinutes = outHour * 60 + outMin;
+      
+      if (outMinutes <= inMinutes) {
+        return "--:--"; // 退勤時刻が出勤時刻より早い場合
+      }
+      
+      const workMinutes = outMinutes - inMinutes;
+      const hours = Math.floor(workMinutes / 60);
+      const minutes = workMinutes % 60;
+      
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    } catch {
+      return "--:--";
+    }
   };
 
+  // 実働時間計算関数（総勤務時間 - 休憩時間）
+  const calculateActualWorkTime = (workTime, breakTime) => {
+    if (!workTime || workTime === "--:--") {
+      return "--:--";
+    }
+    
+    try {
+      const [workHours, workMinutes] = workTime.split(":").map(Number);
+      const totalWorkMinutes = workHours * 60 + workMinutes;
+      
+      let breakMinutes = 0;
+      if (breakTime && breakTime !== "--:--") {
+        const [breakHours, breakMins] = breakTime.split(":").map(Number);
+        breakMinutes = breakHours * 60 + breakMins;
+      }
+      
+      const actualWorkMinutes = totalWorkMinutes - breakMinutes;
+      
+      if (actualWorkMinutes <= 0) {
+        return "--:--";
+      }
+      
+      const hours = Math.floor(actualWorkMinutes / 60);
+      const minutes = actualWorkMinutes % 60;
+      
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    } catch {
+      return "--:--";
+    }
+  };
+
+  // 残業時間計算関数（実働時間ベース）
+  const calculateOverTime = (actualWorkTime) => {
+    if (!actualWorkTime || actualWorkTime === "--:--") {
+      return "--:--";
+    }
+    
+    try {
+      const [hours, minutes] = actualWorkTime.split(":").map(Number);
+      const totalWorkMinutes = hours * 60 + minutes;
+      
+      if (totalWorkMinutes <= regularWorkMinutes) {
+        return "--:--"; // 定時以内
+      }
+      
+      const overTimeMinutes = totalWorkMinutes - regularWorkMinutes;
+      const overHours = Math.floor(overTimeMinutes / 60);
+      const overMinutes = overTimeMinutes % 60;
+      
+      return `${String(overHours).padStart(2, "0")}:${String(overMinutes).padStart(2, "0")}`;
+    } catch {
+      return "--:--";
+    }
+  };
+
+  // 選択年月の全日のテーブルを生成
+  const generateMonthTable = (yearMonth) => {
+    if (!yearMonth) return [];
+    
+    const [year, month] = yearMonth.split("-").map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const table = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const existingData = rows.find((d) => d.date === dateStr);
+      
+      // 勤務時間と残業時間を計算
+      const clockIn = existingData?.clockIn || "--:--";
+      const clockOut = existingData?.clockOut || "--:--";
+      const breakTime = existingData?.breakTime || "01:00"; // デフォルト1時間
+      const workTime = calculateWorkTime(clockIn, clockOut);
+      const actualWorkTime = calculateActualWorkTime(workTime, breakTime);
+      const overTime = calculateOverTime(actualWorkTime);
+      
+      table.push({
+        date: dateStr,
+        clockIn: clockIn,
+        clockOut: clockOut,
+        breakTime: breakTime,
+        workTime: workTime,
+        actualWorkTime: actualWorkTime,
+        overTime: overTime,
+        status: existingData?.status || "",
+        comment: existingData?.comment || "",
+        userId: userId
+      });
+    }
+    
+    return table;
+  };
+
+  const monthTable = generateMonthTable(selectedYM);
+
+  // 合計勤務時間・残業時間を計算
+  function sumTimes(times) {
+    let total = 0;
+    let validCount = 0;
+    times.forEach(t => {
+      if (!t || t === "--:--") return;
+      const [h, m] = t.split(":").map(Number);
+      if (!isNaN(h) && !isNaN(m)) {
+        total += h * 60 + m;
+        validCount++;
+      }
+    });
+    
+    if (validCount === 0) return "--:--";
+    
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  }
+
+  const sumActualWorkTime = sumTimes(monthTable.map(r => r.actualWorkTime));
+  const sumOverTime = sumTimes(monthTable.map(r => r.overTime));
+  
+  // デバッグ用：残業時間の計算を確認
+  console.log("定時時間（分）:", regularWorkMinutes);
+  console.log("残業時間データ:", monthTable.map(r => ({ 
+    date: r.date, 
+    actualWorkTime: r.actualWorkTime, 
+    overTime: r.overTime 
+  })));
+  console.log("合計残業時間:", sumOverTime);
+
+  // セル編集ハンドラ
+  const handleCellEdit = (date, field, value) => {
+    setEditRows(prev => ({
+      ...prev,
+      [date]: {
+        ...prev[date],
+        [field]: value
+      }
+    }));
+  };
+
+  // セルダブルクリックで編集モード
+  const [editing, setEditing] = useState({date: null, field: null});
+
+  // 申請ボタン押下時の処理
+  const handleApply = () => {
+    if (Object.keys(editRows).length === 0) {
+      alert("申請する内容がありません。");
+      return;
+    }
+    setShowCommentModal(true);
+  };
+
+  // コメント入力後の申請処理
+  const handleSubmitApplication = async () => {
+    try {
+      // 編集された行だけFirestoreに保存
+      for (const date in editRows) {
+        const docRef = doc(db, "attendances", `${userId}_${date}`);
+        await setDoc(docRef, {
+          userId,
+          date,
+          ...editRows[date],
+          status: "申請中"
+        }, { merge: true });
+        
+        // 元のデータを取得
+        const originalData = rows.find(r => r.date === date) || {};
+        
+        // 管理者の未対応タブに表示するため、requestsコレクションにも保存
+        const requestData = {
+          item: "勤怠修正申請",
+          date: new Date().toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) + "日",
+          applicant: userEmail || "ユーザー",
+          targetDate: new Date(date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) + "日",
+          details: `出勤: ${editRows[date].clockIn || '--:--'}, 退勤: ${editRows[date].clockOut || '--:--'}, 休憩: ${editRows[date].breakTime || '--:--'}`,
+          status: "未対応",
+          userId: userId,
+          attendanceDate: date,
+          comment: comment, // コメントを追加
+          // 変更前後のデータを保存
+          originalData: {
+            clockIn: originalData.clockIn || '--:--',
+            clockOut: originalData.clockOut || '--:--',
+            breakTime: originalData.breakTime || '--:--',
+            workTime: originalData.workTime || '--:--',
+            overTime: originalData.overTime || '--:--'
+          },
+          updatedData: {
+            clockIn: editRows[date].clockIn || '--:--',
+            clockOut: editRows[date].clockOut || '--:--',
+            breakTime: editRows[date].breakTime || '--:--'
+          }
+        };
+        
+        await addDoc(collection(db, "requests"), requestData);
+      }
+      
+      // ローカルデータを更新
+      const newRows = [...rows];
+      for (const date in editRows) {
+        const existingIdx = newRows.findIndex(r => r.date === date);
+        const newData = {
+          userId,
+          date,
+          ...editRows[date],
+          status: "申請中"
+        };
+        
+        if (existingIdx !== -1) {
+          newRows[existingIdx] = { ...newRows[existingIdx], ...newData };
+        } else {
+          newRows.push(newData);
+        }
+      }
+      
+      setRows(newRows);
+      setEditRows({});
+      setEditing({date: null, field: null});
+      setShowCommentModal(false);
+      setComment("");
+      alert("申請しました。管理者が確認します。");
+    } catch (error) {
+      console.error("申請エラー:", error);
+      alert("申請に失敗しました。");
+    }
+  };
+
+  // モーダルをキャンセル
+  const handleCancelModal = () => {
+    setShowCommentModal(false);
+    setComment("");
+  };
+
+  const [editRows, setEditRows] = useState({}); // {date: {clockIn, clockOut}}
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [comment, setComment] = useState("");
+
+  // 認証状態とデータの読み込みが完了するまでローディング表示
+  if (!isAuthChecked || !isDataLoaded) {
+    return <LoadingSpinner fullScreen={true} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* ヘッダー */}
-      <Header
-        showNavigation={true}
-        onLogout={handleLogout}
-        onHome={() => navigate('/home')}
-        userEmail={isAuthChecked ? userEmail : undefined}
-        // className="mb-10"
-      />
-      {/* メイン中央配置 */}
-      <main className="flex flex-1 items-center justify-center p-8">
-        <div className="bg-white rounded-[16px] shadow p-8 w-full max-w-3xl">
-          <h2 className="text-2xl font-bold text-indigo-600 mb-6">勤怠履歴</h2>
-          <div className="mb-6 flex items-center gap-4">
-            <label className="font-bold text-gray-700">年月:</label>
+    <div className="w-full h-full p-6 pb-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <label className="font-bold text-gray-700">年月 :  </label>
             <select
               className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               value={selectedYM}
@@ -73,36 +379,151 @@ function History() {
               ))}
             </select>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border text-center">
-              <thead>
+          <Button
+            onClick={handleApply}
+            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+          >
+            申請
+          </Button>
+        </div>
+        
+        {/* テーブルコンテナ - 固定高さでスクロール */}
+        <div className="bg-white shadow overflow-hidden" style={{ height: "calc(100vh - 250px)" }}>
+          <div className="overflow-auto h-full bg-white">
+            <table className="min-w-full border text-center whitespace-nowrap">
+              <thead className="sticky top-0 z-10 bg-indigo-600 shadow-sm backdrop-blur-sm">
                 <tr className="bg-indigo-600 text-white">
-                  <th className="py-2 px-4">日付</th>
-                  <th className="py-2 px-4">出勤</th>
-                  <th className="py-2 px-4">退勤</th>
-                  <th className="py-2 px-4">勤務時間</th>
+                  <th className="py-2 px-4 whitespace-nowrap">日付</th>
+                  <th className="py-2 px-4 whitespace-nowrap">出勤時刻</th>
+                  <th className="py-2 px-4 whitespace-nowrap">退勤時刻</th>
+                  <th className="py-2 px-4 whitespace-nowrap">休憩時間</th>
+                  <th className="py-2 px-4 whitespace-nowrap">勤務時間</th>
+                  <th className="py-2 px-4 whitespace-nowrap">残業時間</th>
+                  <th className="py-2 px-4 whitespace-nowrap">承認状況</th>
                 </tr>
               </thead>
-              <tbody>
-                {filtered.length === 0 ? (
+              <tbody className="bg-white" style={{ paddingBottom: "60px" }}>
+                {monthTable.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-4 text-gray-400">データがありません</td>
+                    <td colSpan={7} className="py-4 text-gray-400">データがありません</td>
                   </tr>
                 ) : (
-                  filtered.map((row, idx) => (
-                    <tr key={row.date} className={idx % 2 ? "bg-gray-50" : ""}>
-                      <td className="py-2 px-4">{row.date}</td>
-                      <td className="py-2 px-4">{row.start}</td>
-                      <td className="py-2 px-4">{row.end}</td>
-                      <td className="py-2 px-4">{row.work}</td>
+                  monthTable.map((row, idx) => (
+                    <tr key={row.date} className={
+                      `${idx % 2 ? "bg-gray-50" : ""} ${row.status === "申請中" ? "bg-red-100" : ""}`.trim()
+                    }>
+                      <td className="py-2 px-4">{new Date(row.date).getDate()}</td>
+                      {/* 出勤時刻セル */}
+                      <td
+                        className="py-2 px-4 cursor-pointer"
+                        onDoubleClick={() => setEditing({date: row.date, field: "clockIn"})}
+                      >
+                        {editing.date === row.date && editing.field === "clockIn" ? (
+                          <input
+                            type="time"
+                            value={editRows[row.date]?.clockIn ?? row.clockIn ?? "--:--"}
+                            onChange={e => handleCellEdit(row.date, "clockIn", e.target.value)}
+                            onBlur={() => setEditing({date: null, field: null})}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            className="border rounded px-2 py-1 w-24"
+                            autoFocus
+                          />
+                        ) : (
+                          editRows[row.date]?.clockIn ?? row.clockIn ?? "--:--"
+                        )}
+                      </td>
+                      {/* 退勤時刻セル */}
+                      <td
+                        className="py-2 px-4 cursor-pointer"
+                        onDoubleClick={() => setEditing({date: row.date, field: "clockOut"})}
+                      >
+                        {editing.date === row.date && editing.field === "clockOut" ? (
+                          <input
+                            type="time"
+                            value={editRows[row.date]?.clockOut ?? row.clockOut ?? "--:--"}
+                            onChange={e => handleCellEdit(row.date, "clockOut", e.target.value)}
+                            onBlur={() => setEditing({date: null, field: null})}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            className="border rounded px-2 py-1 w-24"
+                            autoFocus
+                          />
+                        ) : (
+                          editRows[row.date]?.clockOut ?? row.clockOut ?? "--:--"
+                        )}
+                      </td>
+                      <td
+                        className="py-2 px-4 cursor-pointer"
+                        onDoubleClick={() => setEditing({date: row.date, field: "breakTime"})}
+                      >
+                        {editing.date === row.date && editing.field === "breakTime" ? (
+                          <input
+                            type="time"
+                            value={editRows[row.date]?.breakTime ?? row.breakTime ?? "--:--"}
+                            onChange={e => handleCellEdit(row.date, "breakTime", e.target.value)}
+                            onBlur={() => setEditing({date: null, field: null})}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            className="border rounded px-2 py-1 w-24"
+                            autoFocus
+                          />
+                        ) : (
+                          editRows[row.date]?.breakTime ?? row.breakTime ?? "--:--"
+                        )}
+                      </td>
+                      <td className="py-2 px-4">{row.actualWorkTime || "--:--"}</td>
+                      <td className="py-2 px-4">{row.overTime || "--:--"}</td>
+                      <td className="py-2 px-4">{row.status || ""}</td>
                     </tr>
                   ))
                 )}
               </tbody>
+              <tfoot className="sticky bottom-0 z-50 bg-gray-200 shadow-lg backdrop-blur-sm">
+                <tr className="font-bold bg-gray-200 shadow-lg">
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">合計</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumActualWorkTime}</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumOverTime}</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200"></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
-      </main>
+      </div>
+
+      {/* コメント入力モーダル */}
+      <Modal
+        isOpen={showCommentModal}
+        onClose={handleCancelModal}
+        size="md"
+        showCloseButton={false}
+      >
+        <h3 className="text-lg font-bold mb-4">申請コメント</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          申請理由や修正内容についてコメントを入力してください。
+        </p>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="申請理由を入力してください..."
+          className="w-full h-24 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            onClick={handleCancelModal}
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={handleSubmitApplication}
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          >
+            申請する
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
