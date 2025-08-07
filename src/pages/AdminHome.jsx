@@ -267,6 +267,9 @@ function AdminHome() {
                   変更後
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  コメント
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   ステータス
                 </th>
             </tr>
@@ -339,6 +342,17 @@ function AdminHome() {
                         <span className={`ml-1 ${request.originalData?.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}`}>
                           {request.updatedData.clockOut}
                         </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">--</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {request.comment ? (
+                    <div className="max-w-xs">
+                      <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded border">
+                        {request.comment}
                       </div>
                     </div>
                   ) : (
@@ -428,6 +442,16 @@ function AdminHome() {
               </div>
             </div>
           </div>
+          
+          {/* 申請コメント */}
+          {selectedRequest?.comment && (
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">申請コメント</h4>
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <p className="text-sm text-gray-700">{selectedRequest.comment}</p>
+              </div>
+            </div>
+          )}
           
           <div className="flex justify-end space-x-3 pt-4">
             <button

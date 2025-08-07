@@ -5,6 +5,7 @@ import { auth } from '../firebase';
 import { isAdmin } from '../utils/auth';
 import Button from '../components/Button';
 import Header from '../components/Header';
+import FormInput from '../components/FormInput';
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -57,32 +58,24 @@ function Login() {
                             {error}
                         </div>
                     )}
-                    <div className="mb-4">
-                        <label className="block text-gray-700 mb-2" htmlFor="email">
-                            メールアドレス
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-gray-700 mb-2" htmlFor="password">
-                            パスワード
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        type="email"
+                        label="メールアドレス"
+                        id="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required={true}
+                    />
+                    <FormInput
+                        type="password"
+                        label="パスワード"
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required={true}
+                    />
                     <div className="mb-4 text-center">
                         <a
                             href="/reset-password"

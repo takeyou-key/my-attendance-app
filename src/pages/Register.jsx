@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import Button from '../components/Button';
 import Header from '../components/Header';
+import FormInput from '../components/FormInput';
 
 function Register() {
     const [email, setEmail] = useState("");
@@ -59,45 +60,33 @@ function Register() {
                             {error}
                         </div>
                     )}
-                    <div className="mb-4">
-                        <label className="block text-gray-700 mb-2" htmlFor="email">
-                            メールアドレス
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 mb-2" htmlFor="password">
-                            パスワード
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-gray-700 mb-2" htmlFor="confirmPassword">
-                            パスワード（確認）
-                        </label>
-                        <input
-                            id="confirmPassword"
-                            type="password"
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <FormInput
+                        type="email"
+                        label="メールアドレス"
+                        id="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required={true}
+                    />
+                    <FormInput
+                        type="password"
+                        label="パスワード"
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required={true}
+                    />
+                    <FormInput
+                        type="password"
+                        label="パスワード（確認）"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required={true}
+                    />
                     <Button
                         type="submit"
                         fullWidth={true}

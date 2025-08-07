@@ -19,6 +19,7 @@ import { db } from '../firebase';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import AuthGuard from '../components/AuthGuard';
+import FormInput from '../components/FormInput';
 
 const Settings = () => {
   const [userId, setUserId] = useState(null);
@@ -100,37 +101,31 @@ const Settings = () => {
                   定時時間を設定してください。この時間を超えた勤務時間は残業時間として計算されます。
                 </p>
                 
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      時間
-                    </label>
-                    <select
-                      value={regularWorkHours}
-                      onChange={(e) => setRegularWorkHours(Number(e.target.value))}
-                      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                    >
-                      {Array.from({ length: 13 }, (_, i) => i).map(hour => (
-                        <option key={hour} value={hour}>{hour}時間</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      分
-                    </label>
-                    <select
-                      value={regularWorkMinutes}
-                      onChange={(e) => setRegularWorkMinutes(Number(e.target.value))}
-                      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
-                        <option key={minute} value={minute}>{minute}分</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                                 <div className="flex items-center space-x-4">
+                   <div className="flex-1">
+                     <FormInput
+                       type="select"
+                       label="時間"
+                       id="regularWorkHours"
+                       name="regularWorkHours"
+                       value={regularWorkHours}
+                       onChange={(e) => setRegularWorkHours(Number(e.target.value))}
+                       options={Array.from({ length: 13 }, (_, i) => ({ value: i, label: `${i}時間` }))}
+                     />
+                   </div>
+                   
+                   <div className="flex-1">
+                     <FormInput
+                       type="select"
+                       label="分"
+                       id="regularWorkMinutes"
+                       name="regularWorkMinutes"
+                       value={regularWorkMinutes}
+                       onChange={(e) => setRegularWorkMinutes(Number(e.target.value))}
+                       options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: `${i * 5}分` }))}
+                     />
+                   </div>
+                 </div>
                 
                 <div className="mt-4 p-3 bg-blue-50 rounded-md">
                   <p className="text-sm text-blue-800">

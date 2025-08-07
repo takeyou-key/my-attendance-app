@@ -3,6 +3,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
+import FormInput from "../components/FormInput";
 
 function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -33,20 +34,20 @@ function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header showNavigation={true} onLogout={() => {}} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="管理者ログイン" />
+      <Header showNavigation={true} onLogout={() => navigate('/admin-login')} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="管理者ログイン" />
       <main className="pt-[96px] min-h-screen flex items-center justify-center">
         <form onSubmit={handleSubmit} className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md flex flex-col items-center">
           <h2 className="text-3xl font-bold text-indigo-600 mb-8 text-center">パスワード再発行</h2>
           {message && <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-sm w-full text-center">{message}</div>}
           {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm w-full text-center">{error}</div>}
-          <label className="block text-gray-700 mb-2 w-full text-left" htmlFor="email">メールアドレス</label>
-          <input
-            id="email"
+          <FormInput
             type="email"
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-6"
+            label="メールアドレス"
+            id="email"
+            name="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            required
+            required={true}
           />
           <button
             type="submit"
@@ -57,11 +58,11 @@ function ResetPassword() {
           </button>
           <div className="mt-6 w-full text-center">
             <a
-              href="/login"
-              onClick={e => { e.preventDefault(); navigate('/login'); }}
+              href="/admin-login"
+              onClick={e => { e.preventDefault(); navigate('/admin-login'); }}
               className="text-indigo-600 hover:underline font-bold text-sm"
             >
-              ログイン画面に戻る
+              管理者ログインに戻る
             </a>
           </div>
         </form>

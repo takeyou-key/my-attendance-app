@@ -69,7 +69,7 @@ function Home() {
       }
     };
     fetchToday();
-  }, [now, userId, isAuthChecked]);
+  }, [userId, isAuthChecked]);
 
   // ログアウト処理
   const handleLogout = () => {
@@ -96,6 +96,16 @@ function Home() {
     setCompleteMessage("出勤の打刻が完了しました。今日も一日頑張りましょう！");
     setTimeout(() => setCompleteMessage(""), 2000);
     setTodayStatus((prev) => ({ ...prev, 出勤: timeStr }));
+    
+    // データを再取得して状態を同期
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      setTodayStatus({
+        出勤: data.clockIn || "--:--",
+        退勤: data.clockOut || "--:--"
+      });
+    }
   };
 
   // 退勤打刻
@@ -123,6 +133,16 @@ function Home() {
         setCompleteMessage("退勤の打刻が完了しました。お疲れさまでした！");
         setTimeout(() => setCompleteMessage(""), 3000);
         setTodayStatus((prev) => ({ ...prev, 退勤: end }));
+        
+        // データを再取得して状態を同期
+        const updatedDocSnap = await getDoc(docRef);
+        if (updatedDocSnap.exists()) {
+          const updatedData = updatedDocSnap.data();
+          setTodayStatus({
+            出勤: updatedData.clockIn || "--:--",
+            退勤: updatedData.clockOut || "--:--"
+          });
+        }
       }
     }
   };
