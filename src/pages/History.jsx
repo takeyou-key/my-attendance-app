@@ -3,14 +3,12 @@ import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import { useEffect } from "react";
-import { collection, query, where, getDocs, setDoc, doc, addDoc, getDoc } from "firebase/firestore";
+import { doc, addDoc, setDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-
-function getYearMonth(dateStr) {
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
+import { useAuth } from "../hooks/useAuth";
+import { calculateWorkTime, calculateActualWorkTime, calculateOverTime, sumTimes } from '../utils/timeCalculations';
+import { fetchMonthlyAttendance, fetchUserSettings, generateYearMonths } from '../utils/attendanceUtils';
+import { COLLECTIONS, generateDocId } from '../constants/firestore';
 
 /**
  * 実績確認・申請ページコンポーネント
@@ -21,28 +19,14 @@ function History() {
   const [selectedYM, setSelectedYM] = useState("");
   const [rows, setRows] = useState([]);
   const [yearMonths, setYearMonths] = useState([]);
-  const [userId, setUserId] = useState(null);
-  const [userEmail, setUserEmail] = useState(null);
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [regularWorkMinutes, setRegularWorkMinutes] = useState(480); // デフォルト8時間
 
-  // 認証状態の監視
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-        setUserEmail(user.email);
-      } else {
-        setUserId(null);
-        setUserEmail(null);
-      }
-      setIsAuthChecked(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // 認証フックを使用
+  const { userId, userEmail, isAuthChecked } = useAuth({
+    requireAuth: true,
+    redirectTo: '/login'
+  });
 
   // 設定データを読み込み
   useEffect(() => {
@@ -50,13 +34,10 @@ function History() {
 
     const loadSettings = async () => {
       try {
-        const settingsRef = doc(db, "settings", userId);
-        const settingsSnap = await getDoc(settingsRef);
-        
-        if (settingsSnap.exists()) {
-          const data = settingsSnap.data();
-          const hours = data.regularWorkHours || 8;
-          const minutes = data.regularWorkMinutes || 0;
+        const settings = await fetchUserSettings(userId);
+        if (settings) {
+          const hours = settings.regularWorkHours || 8;
+          const minutes = settings.regularWorkMinutes || 0;
           setRegularWorkMinutes(hours * 60 + minutes);
         }
       } catch (error) {
@@ -75,109 +56,29 @@ function History() {
       setIsDataLoaded(false);
       return;
     }
+    
     const fetchData = async () => {
-      const q = query(
-        collection(db, "attendances"),
-        where("userId", "==", userId)
-      );
-      const querySnapshot = await getDocs(q);
-      const data = [];
-      const ymSet = new Set();
-      querySnapshot.forEach((doc) => {
-        const d = doc.data();
-        data.push(d);
-        ymSet.add(getYearMonth(d.date));
-      });
-      const ymArr = Array.from(ymSet).sort().reverse();
-      setYearMonths(ymArr);
-      setRows(data);
-      if (!selectedYM && ymArr.length > 0) setSelectedYM(ymArr[0]);
-      setIsDataLoaded(true);
+      try {
+        const data = await fetchMonthlyAttendance(userId);
+        const ymArr = generateYearMonths(data);
+        setYearMonths(ymArr);
+        setRows(data);
+        if (!selectedYM && ymArr.length > 0) setSelectedYM(ymArr[0]);
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error("データ取得エラー:", error);
+        setIsDataLoaded(true);
+      }
     };
+    
     fetchData();
   }, [userId, isAuthChecked]);
 
-  // 時間計算関数（総勤務時間）
-  const calculateWorkTime = (clockIn, clockOut) => {
-    if (!clockIn || !clockOut || clockIn === "--:--" || clockOut === "--:--") {
-      return "--:--";
-    }
-    
-    try {
-      const [inHour, inMin] = clockIn.split(":").map(Number);
-      const [outHour, outMin] = clockOut.split(":").map(Number);
-      
-      const inMinutes = inHour * 60 + inMin;
-      const outMinutes = outHour * 60 + outMin;
-      
-      if (outMinutes <= inMinutes) {
-        return "--:--"; // 退勤時刻が出勤時刻より早い場合
-      }
-      
-      const workMinutes = outMinutes - inMinutes;
-      const hours = Math.floor(workMinutes / 60);
-      const minutes = workMinutes % 60;
-      
-      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-    } catch {
-      return "--:--";
-    }
-  };
+  // 時間計算関数は utils/timeCalculations.js からインポート
 
-  // 実働時間計算関数（総勤務時間 - 休憩時間）
-  const calculateActualWorkTime = (workTime, breakTime) => {
-    if (!workTime || workTime === "--:--") {
-      return "--:--";
-    }
-    
-    try {
-      const [workHours, workMinutes] = workTime.split(":").map(Number);
-      const totalWorkMinutes = workHours * 60 + workMinutes;
-      
-      let breakMinutes = 0;
-      if (breakTime && breakTime !== "--:--") {
-        const [breakHours, breakMins] = breakTime.split(":").map(Number);
-        breakMinutes = breakHours * 60 + breakMins;
-      }
-      
-      const actualWorkMinutes = totalWorkMinutes - breakMinutes;
-      
-      if (actualWorkMinutes <= 0) {
-        return "--:--";
-      }
-      
-      const hours = Math.floor(actualWorkMinutes / 60);
-      const minutes = actualWorkMinutes % 60;
-      
-      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-    } catch {
-      return "--:--";
-    }
-  };
 
-  // 残業時間計算関数（実働時間ベース）
-  const calculateOverTime = (actualWorkTime) => {
-    if (!actualWorkTime || actualWorkTime === "--:--") {
-      return "--:--";
-    }
-    
-    try {
-      const [hours, minutes] = actualWorkTime.split(":").map(Number);
-      const totalWorkMinutes = hours * 60 + minutes;
-      
-      if (totalWorkMinutes <= regularWorkMinutes) {
-        return "--:--"; // 定時以内
-      }
-      
-      const overTimeMinutes = totalWorkMinutes - regularWorkMinutes;
-      const overHours = Math.floor(overTimeMinutes / 60);
-      const overMinutes = overTimeMinutes % 60;
-      
-      return `${String(overHours).padStart(2, "0")}:${String(overMinutes).padStart(2, "0")}`;
-    } catch {
-      return "--:--";
-    }
-  };
+
+
 
   // 選択年月の全日のテーブルを生成
   const generateMonthTable = (yearMonth) => {
@@ -197,7 +98,7 @@ function History() {
       const breakTime = existingData?.breakTime || "01:00"; // デフォルト1時間
       const workTime = calculateWorkTime(clockIn, clockOut);
       const actualWorkTime = calculateActualWorkTime(workTime, breakTime);
-      const overTime = calculateOverTime(actualWorkTime);
+      const overTime = calculateOverTime(actualWorkTime, regularWorkMinutes);
       
       table.push({
         date: dateStr,
@@ -218,28 +119,11 @@ function History() {
 
   const monthTable = generateMonthTable(selectedYM);
 
-  // 合計勤務時間・残業時間を計算
-  function sumTimes(times) {
-    let total = 0;
-    let validCount = 0;
-    times.forEach(t => {
-      if (!t || t === "--:--") return;
-      const [h, m] = t.split(":").map(Number);
-      if (!isNaN(h) && !isNaN(m)) {
-        total += h * 60 + m;
-        validCount++;
-      }
-    });
-    
-    if (validCount === 0) return "--:--";
-    
-    const h = Math.floor(total / 60);
-    const m = total % 60;
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  }
+  // 合計計算関数は utils/timeCalculations.js からインポート
 
   const sumActualWorkTime = sumTimes(monthTable.map(r => r.actualWorkTime));
   const sumOverTime = sumTimes(monthTable.map(r => r.overTime));
+  const sumBreakTime = sumTimes(monthTable.map(r => r.breakTime));
   
   // デバッグ用：残業時間の計算を確認
   console.log("定時時間（分）:", regularWorkMinutes);
@@ -278,7 +162,7 @@ function History() {
     try {
       // 編集された行だけFirestoreに保存
       for (const date in editRows) {
-        const docRef = doc(db, "attendances", `${userId}_${date}`);
+        const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, date));
         await setDoc(docRef, {
           userId,
           date,
@@ -315,7 +199,7 @@ function History() {
           }
         };
         
-        await addDoc(collection(db, "requests"), requestData);
+        await addDoc(collection(db, COLLECTIONS.CHANGE_REQUESTS), requestData);
       }
       
       // ローカルデータを更新
@@ -481,7 +365,7 @@ function History() {
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">合計</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
-                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
+                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumBreakTime}</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumActualWorkTime}</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumOverTime}</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200"></td>

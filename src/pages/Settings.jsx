@@ -20,6 +20,7 @@ import Header from '../components/Header';
 import Button from '../components/Button';
 import AuthGuard from '../components/AuthGuard';
 import FormInput from '../components/FormInput';
+import { COLLECTIONS, generateDocId } from '../constants/firestore';
 
 const Settings = () => {
   const [userId, setUserId] = useState(null);
@@ -44,7 +45,7 @@ const Settings = () => {
 
     const loadSettings = async () => {
       try {
-        const settingsRef = doc(db, "settings", userId);
+        const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
         const settingsSnap = await getDoc(settingsRef);
         
         if (settingsSnap.exists()) {
@@ -69,7 +70,7 @@ const Settings = () => {
     setSaveStatus('');
 
     try {
-      const settingsRef = doc(db, "settings", userId);
+              const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
       await setDoc(settingsRef, {
         regularWorkHours: regularWorkHours,
         regularWorkMinutes: regularWorkMinutes,

@@ -4,6 +4,7 @@ import Modal from "../components/Modal";
 import TabNavigation from "../components/TabNavigation";
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { COLLECTIONS, generateDocId } from '../constants/firestore';
 
 /**
  * 管理者用ホーム画面コンポーネント
@@ -21,7 +22,7 @@ function AdminHome() {
   React.useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "requests"));
+        const querySnapshot = await getDocs(collection(db, COLLECTIONS.CHANGE_REQUESTS));
         const requestsData = [];
         querySnapshot.forEach((doc) => {
           requestsData.push({ id: doc.id, ...doc.data() });
@@ -74,11 +75,11 @@ function AdminHome() {
           
           // 初期データをFirestoreに追加
           for (const request of initialRequests) {
-            await addDoc(collection(db, "requests"), request);
+            await addDoc(collection(db, COLLECTIONS.CHANGE_REQUESTS), request);
           }
           
           // 追加したデータを再取得
-          const newQuerySnapshot = await getDocs(collection(db, "requests"));
+          const newQuerySnapshot = await getDocs(collection(db, COLLECTIONS.CHANGE_REQUESTS));
           const newRequestsData = [];
           newQuerySnapshot.forEach((doc) => {
             newRequestsData.push({ id: doc.id, ...doc.data() });
@@ -127,7 +128,7 @@ function AdminHome() {
   const handleStatusUpdate = async (requestId, newStatus) => {
     try {
       // 申請データを取得
-      const requestRef = doc(db, "requests", requestId);
+              const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, requestId);
       const requestSnap = await getDoc(requestRef);
       const requestData = requestSnap.data();
       
@@ -136,7 +137,7 @@ function AdminHome() {
       
       // 勤怠データも更新（申請が承認された場合）
       if (requestData.userId && requestData.attendanceDate) {
-        const attendanceRef = doc(db, "attendances", `${requestData.userId}_${requestData.attendanceDate}`);
+        const attendanceRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(requestData.userId, requestData.attendanceDate));
         await updateDoc(attendanceRef, { 
           status: newStatus === "承認" ? "承認済み" : "否認"
         });
@@ -167,7 +168,7 @@ function AdminHome() {
       
       // Firestoreを一括更新
       const updatePromises = selectedItems.map(async (requestId) => {
-        const requestRef = doc(db, "requests", requestId);
+        const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, requestId);
         await updateDoc(requestRef, { status: "承認" });
       });
       await Promise.all(updatePromises);
@@ -175,7 +176,7 @@ function AdminHome() {
       // 勤怠データも一括更新
       const attendanceUpdatePromises = selectedRequests.map(async (request) => {
         if (request.userId && request.attendanceDate) {
-          const attendanceRef = doc(db, "attendances", `${request.userId}_${request.attendanceDate}`);
+          const attendanceRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(request.userId, request.attendanceDate));
           await updateDoc(attendanceRef, { status: "承認済み" });
         }
       });

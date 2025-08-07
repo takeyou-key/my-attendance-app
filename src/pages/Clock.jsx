@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Modal from "../components/Modal";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useAuth } from "../hooks/useAuth";
+import { useClock } from "../hooks/useClock";
 
 /**
  * 打刻ページコンポーネント
@@ -12,30 +11,22 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
  */
 function Clock() {
   const [now, setNow] = useState(new Date());
-  const [todayStatus, setTodayStatus] = useState({
-    出勤: "--:--",
-    退勤: "--:--"
+
+  // 認証フックを使用
+  const { userId, isAuthChecked } = useAuth({
+    requireAuth: true,
+    redirectTo: '/login'
   });
-  const [completeMessage, setCompleteMessage] = useState("");
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
-  const auth = getAuth();
-  const [userId, setUserId] = useState(null);
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
-
-  // 認証状態の監視
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
-      }
-      setIsAuthChecked(true);
-    });
-
-    return () => unsubscribe();
-  }, [auth]);
+  // 打刻フックを使用
+  const {
+    todayStatus,
+    completeMessage,
+    isDataLoaded,
+    handleClockIn,
+    handleClockOut,
+    setCompleteMessage
+  } = useClock(userId, isAuthChecked);
 
   // 現在時刻を1秒ごとに更新
   useEffect(() => {
@@ -43,82 +34,7 @@ function Clock() {
     return () => clearInterval(timer);
   }, []);
 
-  // 今日の出勤・退勤状況を取得
-  useEffect(() => {
-    if (!userId || !isAuthChecked) {
-      setTodayStatus({ 出勤: "--:--", 退勤: "--:--" });
-      setIsDataLoaded(false);
-      return;
-    }
-    const fetchToday = async () => {
-      const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10);
-      const docRef = doc(db, "attendances", `${userId}_${dateStr}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setTodayStatus({
-          出勤: data.clockIn || "--:--",
-          退勤: data.clockOut || "--:--"
-        });
-      } else {
-        setTodayStatus({ 出勤: "--:--", 退勤: "--:--" });
-      }
-      setIsDataLoaded(true);
-    };
-    fetchToday();
-  }, [now, userId, isAuthChecked]);
-
-  // 出勤打刻
-  const handleClockIn = async () => {
-    if (!userId) return;
-    const today = new Date();
-    const dateStr = today.toISOString().slice(0, 10);
-    const timeStr = today.toTimeString().slice(0, 5);
-    const docRef = doc(db, "attendances", `${userId}_${dateStr}`);
-    await setDoc(docRef, {
-      userId,
-      date: dateStr,
-      clockIn: timeStr,
-      clockOut: "--:--",
-      workTime: "",
-      overTime: "",
-      status: "",
-      comment: ""
-    }, { merge: true });
-    setCompleteMessage("出勤の打刻が完了しました。今日も一日頑張りましょう！");
-    setTimeout(() => setCompleteMessage(""), 2000);
-    setTodayStatus((prev) => ({ ...prev, 出勤: timeStr }));
-  };
-
-  // 退勤打刻
-  const handleClockOut = async () => {
-    if (!userId) return;
-    const today = new Date();
-    const dateStr = today.toISOString().slice(0, 10);
-    const timeStr = today.toTimeString().slice(0, 5);
-    const docRef = doc(db, "attendances", `${userId}_${dateStr}`);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const start = data.clockIn;
-      const end = timeStr;
-      if (start && start !== "--:--") {
-        const [sh, sm] = start.split(":").map(Number);
-        const [eh, em] = end.split(":").map(Number);
-        let workMinutes = (eh * 60 + em) - (sh * 60 + sm);
-        if (workMinutes < 0) workMinutes += 24 * 60;
-        const workTime = `${String(Math.floor(workMinutes / 60)).padStart(2, "0")}:${String(workMinutes % 60).padStart(2, "0")}`;
-        await updateDoc(docRef, {
-          clockOut: end,
-          workTime
-        });
-        setCompleteMessage("退勤の打刻が完了しました。お疲れさまでした！");
-        setTimeout(() => setCompleteMessage(""), 3000);
-        setTodayStatus((prev) => ({ ...prev, 退勤: end }));
-      }
-    }
-  };
+  // 打刻処理は useClock フックで管理
 
   // 認証状態とデータの読み込みが完了するまでローディング表示
   if (!isAuthChecked || !isDataLoaded) {
