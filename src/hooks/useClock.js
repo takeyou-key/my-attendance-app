@@ -134,8 +134,7 @@ export const useClock = (userId, isAuthChecked) => {
             workTime
           });
 
-          setCompleteMessage("退勤の打刻が完了しました。お疲れさまでした！");
-          setTimeout(() => setCompleteMessage(""), 3000);
+          setCompleteMessage("退勤の打刻が完了しました。お疲れさまでした！\nログアウトしますか？");
           setTodayStatus((prev) => ({ ...prev, 退勤: end }));
 
           // データを再取得して状態を同期
