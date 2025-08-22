@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -10,8 +11,12 @@ import Clock from "./pages/Clock";
 import RequestList from "./pages/RequestList";
 import AdminHome from "./pages/AdminHome";
 import Settings from "./pages/Settings";
+// import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 function App() {
+  // セッションタイムアウト機能を有効化（30分）
+  // useSessionTimeout(30, true);
+
   return (
     <BrowserRouter>
       <Routes>

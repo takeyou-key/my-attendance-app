@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
@@ -15,6 +16,7 @@ import { COLLECTIONS, generateDocId } from '../constants/firestore';
  * 月別の勤務実績を表示し、申請機能を提供
  */
 function History() {
+  const navigate = useNavigate();
   // 年月リストを生成
   const [selectedYM, setSelectedYM] = useState("");
   const [rows, setRows] = useState([]);
@@ -56,7 +58,7 @@ function History() {
       setIsDataLoaded(false);
       return;
     }
-    
+
     const fetchData = async () => {
       try {
         const data = await fetchMonthlyAttendance(userId);
@@ -70,7 +72,7 @@ function History() {
         setIsDataLoaded(true);
       }
     };
-    
+
     fetchData();
   }, [userId, isAuthChecked]);
 
@@ -83,15 +85,15 @@ function History() {
   // 選択年月の全日のテーブルを生成
   const generateMonthTable = (yearMonth) => {
     if (!yearMonth) return [];
-    
+
     const [year, month] = yearMonth.split("-").map(Number);
     const daysInMonth = new Date(year, month, 0).getDate();
     const table = [];
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
       const existingData = rows.find((d) => d.date === dateStr);
-      
+
       // 勤務時間と残業時間を計算
       const clockIn = existingData?.clockIn || "--:--";
       const clockOut = existingData?.clockOut || "--:--";
@@ -99,7 +101,7 @@ function History() {
       const workTime = calculateWorkTime(clockIn, clockOut);
       const actualWorkTime = calculateActualWorkTime(workTime, breakTime);
       const overTime = calculateOverTime(actualWorkTime, regularWorkMinutes);
-      
+
       table.push({
         date: dateStr,
         clockIn: clockIn,
@@ -113,7 +115,7 @@ function History() {
         userId: userId
       });
     }
-    
+
     return table;
   };
 
@@ -124,13 +126,13 @@ function History() {
   const sumActualWorkTime = sumTimes(monthTable.map(r => r.actualWorkTime));
   const sumOverTime = sumTimes(monthTable.map(r => r.overTime));
   const sumBreakTime = sumTimes(monthTable.map(r => r.breakTime));
-  
+
   // デバッグ用：残業時間の計算を確認
   console.log("定時時間（分）:", regularWorkMinutes);
-  console.log("残業時間データ:", monthTable.map(r => ({ 
-    date: r.date, 
-    actualWorkTime: r.actualWorkTime, 
-    overTime: r.overTime 
+  console.log("残業時間データ:", monthTable.map(r => ({
+    date: r.date,
+    actualWorkTime: r.actualWorkTime,
+    overTime: r.overTime
   })));
   console.log("合計残業時間:", sumOverTime);
 
@@ -146,7 +148,7 @@ function History() {
   };
 
   // セルダブルクリックで編集モード
-  const [editing, setEditing] = useState({date: null, field: null});
+  const [editing, setEditing] = useState({ date: null, field: null });
 
   // 申請ボタン押下時の処理
   const handleApply = () => {
@@ -163,22 +165,29 @@ function History() {
       // 編集された行だけFirestoreに保存
       for (const date in editRows) {
         const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, date));
-        await setDoc(docRef, {
+        const originalData = rows.find(r => r.date === date) || {};
+
+        // 元のデータと編集されたデータをマージ
+        const updatedData = {
           userId,
           date,
-          ...editRows[date],
+          clockIn: editRows[date].clockIn || originalData.clockIn || "--:--",
+          clockOut: editRows[date].clockOut || originalData.clockOut || "--:--",
+          breakTime: editRows[date].breakTime || originalData.breakTime || "01:00",
           status: "申請中"
-        }, { merge: true });
-        
-        // 元のデータを取得
-        const originalData = rows.find(r => r.date === date) || {};
-        
+        };
+
+        await setDoc(docRef, updatedData, { merge: true });
+
+        // 元のデータを取得（申請データ用）
+        const originalDataForRequest = rows.find(r => r.date === date) || {};
+
         // 管理者の未対応タブに表示するため、requestsコレクションにも保存
         const requestData = {
           item: "勤怠修正申請",
-          date: new Date().toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) + "日",
+          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' }),
           applicant: userEmail || "ユーザー",
-          targetDate: new Date(date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) + "日",
+          targetDate: new Date(date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' }),
           details: `出勤: ${editRows[date].clockIn || '--:--'}, 退勤: ${editRows[date].clockOut || '--:--'}, 休憩: ${editRows[date].breakTime || '--:--'}`,
           status: "未対応",
           userId: userId,
@@ -186,46 +195,53 @@ function History() {
           comment: comment, // コメントを追加
           // 変更前後のデータを保存
           originalData: {
-            clockIn: originalData.clockIn || '--:--',
-            clockOut: originalData.clockOut || '--:--',
-            breakTime: originalData.breakTime || '--:--',
-            workTime: originalData.workTime || '--:--',
-            overTime: originalData.overTime || '--:--'
+            clockIn: originalDataForRequest.clockIn || '--:--',
+            clockOut: originalDataForRequest.clockOut || '--:--',
+            breakTime: originalDataForRequest.breakTime || '--:--',
+            workTime: originalDataForRequest.workTime || '--:--',
+            overTime: originalDataForRequest.overTime || '--:--'
           },
           updatedData: {
-            clockIn: editRows[date].clockIn || '--:--',
-            clockOut: editRows[date].clockOut || '--:--',
-            breakTime: editRows[date].breakTime || '--:--'
+            clockIn: editRows[date].clockIn || originalDataForRequest.clockIn || '--:--',
+            clockOut: editRows[date].clockOut || originalDataForRequest.clockOut || '--:--',
+            breakTime: editRows[date].breakTime || originalDataForRequest.breakTime || '01:00'
           }
         };
-        
+
         await addDoc(collection(db, COLLECTIONS.CHANGE_REQUESTS), requestData);
       }
-      
+
       // ローカルデータを更新
       const newRows = [...rows];
       for (const date in editRows) {
         const existingIdx = newRows.findIndex(r => r.date === date);
+        const originalData = rows.find(r => r.date === date) || {};
+
+        // 元のデータと編集されたデータをマージ
         const newData = {
           userId,
           date,
-          ...editRows[date],
+          clockIn: editRows[date].clockIn || originalData.clockIn || "--:--",
+          clockOut: editRows[date].clockOut || originalData.clockOut || "--:--",
+          breakTime: editRows[date].breakTime || originalData.breakTime || "01:00",
           status: "申請中"
         };
-        
+
         if (existingIdx !== -1) {
           newRows[existingIdx] = { ...newRows[existingIdx], ...newData };
         } else {
           newRows.push(newData);
         }
       }
-      
+
       setRows(newRows);
       setEditRows({});
-      setEditing({date: null, field: null});
+      setEditing({ date: null, field: null });
       setShowCommentModal(false);
       setComment("");
       alert("申請しました。管理者が確認します。");
+      // 申請後にrequestlistページに遷移
+      navigate('/home/requestlist');
     } catch (error) {
       console.error("申請エラー:", error);
       alert("申請に失敗しました。");
@@ -270,7 +286,7 @@ function History() {
             申請
           </Button>
         </div>
-        
+
         {/* テーブルコンテナ - 固定高さでスクロール */}
         <div className="bg-white shadow overflow-hidden" style={{ height: "calc(100vh - 250px)" }}>
           <div className="overflow-auto h-full bg-white">
@@ -283,32 +299,38 @@ function History() {
                   <th className="py-2 px-4 whitespace-nowrap">休憩時間</th>
                   <th className="py-2 px-4 whitespace-nowrap">勤務時間</th>
                   <th className="py-2 px-4 whitespace-nowrap">残業時間</th>
-                  <th className="py-2 px-4 whitespace-nowrap">承認状況</th>
                 </tr>
               </thead>
               <tbody className="bg-white" style={{ paddingBottom: "60px" }}>
                 {monthTable.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-4 text-gray-400">データがありません</td>
+                    <td colSpan={6} className="py-4 text-gray-400">データがありません</td>
                   </tr>
                 ) : (
                   monthTable.map((row, idx) => (
                     <tr key={row.date} className={
-                      `${idx % 2 ? "bg-gray-50" : ""} ${row.status === "申請中" ? "bg-red-100" : ""}`.trim()
+                      `${idx % 2 ? "bg-gray-50" : ""} ${row.status === "申請中" || row.status === "未対応"
+                          ? "bg-red-100"
+                          : row.status === "否認"
+                            ? "bg-yellow-200"
+                            : row.status === "承認済み"
+                              ? "bg-green-100"
+                              : ""
+                        }`.trim()
                     }>
                       <td className="py-2 px-4">{new Date(row.date).getDate()}</td>
                       {/* 出勤時刻セル */}
                       <td
                         className="py-2 px-4 cursor-pointer"
-                        onDoubleClick={() => setEditing({date: row.date, field: "clockIn"})}
+                        onDoubleClick={() => setEditing({ date: row.date, field: "clockIn" })}
                       >
                         {editing.date === row.date && editing.field === "clockIn" ? (
                           <input
                             type="time"
                             value={editRows[row.date]?.clockIn ?? row.clockIn ?? "--:--"}
                             onChange={e => handleCellEdit(row.date, "clockIn", e.target.value)}
-                            onBlur={() => setEditing({date: null, field: null})}
-                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            onBlur={() => setEditing({ date: null, field: null })}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({ date: null, field: null }); }}
                             className="border rounded px-2 py-1 w-24"
                             autoFocus
                           />
@@ -319,15 +341,15 @@ function History() {
                       {/* 退勤時刻セル */}
                       <td
                         className="py-2 px-4 cursor-pointer"
-                        onDoubleClick={() => setEditing({date: row.date, field: "clockOut"})}
+                        onDoubleClick={() => setEditing({ date: row.date, field: "clockOut" })}
                       >
                         {editing.date === row.date && editing.field === "clockOut" ? (
                           <input
                             type="time"
                             value={editRows[row.date]?.clockOut ?? row.clockOut ?? "--:--"}
                             onChange={e => handleCellEdit(row.date, "clockOut", e.target.value)}
-                            onBlur={() => setEditing({date: null, field: null})}
-                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            onBlur={() => setEditing({ date: null, field: null })}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({ date: null, field: null }); }}
                             className="border rounded px-2 py-1 w-24"
                             autoFocus
                           />
@@ -337,15 +359,15 @@ function History() {
                       </td>
                       <td
                         className="py-2 px-4 cursor-pointer"
-                        onDoubleClick={() => setEditing({date: row.date, field: "breakTime"})}
+                        onDoubleClick={() => setEditing({ date: row.date, field: "breakTime" })}
                       >
                         {editing.date === row.date && editing.field === "breakTime" ? (
                           <input
                             type="time"
                             value={editRows[row.date]?.breakTime ?? row.breakTime ?? "--:--"}
                             onChange={e => handleCellEdit(row.date, "breakTime", e.target.value)}
-                            onBlur={() => setEditing({date: null, field: null})}
-                            onKeyDown={e => { if (e.key === "Enter") setEditing({date: null, field: null}); }}
+                            onBlur={() => setEditing({ date: null, field: null })}
+                            onKeyDown={e => { if (e.key === "Enter") setEditing({ date: null, field: null }); }}
                             className="border rounded px-2 py-1 w-24"
                             autoFocus
                           />
@@ -355,7 +377,6 @@ function History() {
                       </td>
                       <td className="py-2 px-4">{row.actualWorkTime || "--:--"}</td>
                       <td className="py-2 px-4">{row.overTime || "--:--"}</td>
-                      <td className="py-2 px-4">{row.status || ""}</td>
                     </tr>
                   ))
                 )}
@@ -368,7 +389,6 @@ function History() {
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumBreakTime}</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumActualWorkTime}</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">{sumOverTime}</td>
-                  <td className="py-2 px-4 whitespace-nowrap bg-gray-200"></td>
                 </tr>
               </tfoot>
             </table>

@@ -2,6 +2,7 @@ import React from "react";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import TabNavigation from "../components/TabNavigation";
+import SortableTable from "../components/SortableTable";
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { COLLECTIONS, generateDocId } from '../constants/firestore';
@@ -15,8 +16,10 @@ function AdminHome() {
   const [selectedItems, setSelectedItems] = React.useState([]);
   const [requests, setRequests] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [selectedRequest, setSelectedRequest] = React.useState(null);
+  const [selectedRequest] = React.useState(null);
   const [showDetailModal, setShowDetailModal] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState(""); // 検索キーワード
+  const [filterItem, setFilterItem] = React.useState("all"); // 項目フィルター
 
   // Firestoreからデータを取得
   React.useEffect(() => {
@@ -38,38 +41,6 @@ function AdminHome() {
               targetDate: "7月25日",
               details: "家族旅行のため有給休暇を申請いたします",
               status: "未対応"
-            },
-            {
-              item: "残業申請",
-              date: "7月31日",
-              applicant: "田中花子",
-              targetDate: "7月26日",
-              details: "プロジェクト締切のため残業申請いたします",
-              status: "未対応"
-            },
-            {
-              item: "遅刻申請",
-              date: "7月31日",
-              applicant: "山田太郎",
-              targetDate: "7月27日",
-              details: "電車遅延のため遅刻申請いたします",
-              status: "未対応"
-            },
-            {
-              item: "有給休暇申請",
-              date: "7月30日",
-              applicant: "鈴木一郎",
-              targetDate: "7月20日",
-              details: "体調不良のため有給休暇を申請いたします",
-              status: "承認"
-            },
-            {
-              item: "残業申請",
-              date: "7月29日",
-              applicant: "高橋美咲",
-              targetDate: "7月22日",
-              details: "納期のため残業申請いたします",
-              status: "否認"
             }
           ];
           
@@ -108,6 +79,133 @@ function AdminHome() {
     return false;
   });
 
+  // カラム定義
+  const columns = [
+    { key: "item", label: "申請項目", sortable: true },
+    { key: "date", label: "申請日", sortable: true },
+    { key: "applicant", label: "申請者名", sortable: true },
+    { key: "targetDate", label: "対象日", sortable: true },
+    { key: "originalData", label: "変更前", sortable: false },
+    { key: "updatedData", label: "変更後", sortable: false },
+    { key: "comment", label: "コメント", sortable: false },
+    { key: "status", label: "ステータス", sortable: true }
+  ];
+
+  // フィルターオプション
+  const filterOptions = [
+    { value: "勤怠修正申請", label: "勤怠修正申請" }
+    // { value: "有給休暇申請", label: "有給休暇申請" },
+    // { value: "残業申請", label: "残業申請" },
+    // { value: "遅刻申請", label: "遅刻申請" }
+  ];
+
+  // 行レンダリング関数
+  const renderRow = (request) => (
+    <>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        <div className="flex items-center">
+          <span>{request.item}</span>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {request.date}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {request.applicant}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {request.targetDate}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {request.originalData ? (
+          <div className="text-xs">
+            <div className="mb-1">
+              <span className="font-medium text-gray-600">出勤:</span> 
+              <span className={`ml-1 ${request.originalData.clockIn !== request.updatedData?.clockIn ? 'line-through text-red-500' : ''}`}>
+                {request.originalData.clockIn}
+              </span>
+            </div>
+            <div className="mb-1">
+              <span className="font-medium text-gray-600">退勤:</span> 
+              <span className={`ml-1 ${request.originalData.clockOut !== request.updatedData?.clockOut ? 'line-through text-red-500' : ''}`}>
+                {request.originalData.clockOut}
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">休憩:</span> 
+              <span className={`ml-1 ${request.originalData.breakTime !== request.updatedData?.breakTime ? 'line-through text-red-500' : ''}`}>
+                {request.originalData.breakTime}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <span className="text-gray-400">--</span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+        {request.updatedData ? (
+          <div className="text-xs">
+            <div className="mb-1">
+              <span className="font-medium text-grey-600">出勤:</span> 
+              <span className={`ml-1 ${request.originalData?.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}`}>
+                {request.updatedData.clockIn}
+              </span>
+            </div>
+            <div className="mb-1">
+              <span className="font-medium text-grey-600">退勤:</span> 
+              <span className={`ml-1 ${request.originalData?.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}`}>
+                {request.updatedData.clockOut}
+              </span>
+            </div>
+            <div>
+              <span className="font-medium text-grey-600">休憩:</span> 
+              <span className={`ml-1 ${request.originalData?.breakTime !== request.updatedData.breakTime ? 'text-green-600 font-bold' : ''}`}>
+                {request.updatedData.breakTime}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <span className="text-gray-400">--</span>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {request.comment || "コメントなし"}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        {request.status === "未対応" ? (
+          <div className="flex space-x-2">
+            <Button
+              variant="none"
+              className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded min-h-[44px]"
+              onClick={() => handleStatusUpdate(request.id, "否認")}
+            >
+              否認
+            </Button>
+            <Button
+              variant="none"
+              className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded min-h-[44px]"
+              onClick={() => handleStatusUpdate(request.id, "承認")}
+            >
+              承認
+            </Button>
+          </div>
+        ) : (
+          <span className={`px-2 py-1 text-xs rounded ${
+            request.status === "承認"
+              ? "bg-green-100 text-green-800"
+              : request.status === "否認"
+              ? "bg-yellow-100 text-yellow-800"
+              : request.status === "未対応"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}>
+            {request.status}
+          </span>
+        )}
+      </td>
+    </>
+  );
+
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectedItems(filteredRequests.map(item => item.id));
@@ -135,12 +233,27 @@ function AdminHome() {
       // requestsコレクションを更新
       await updateDoc(requestRef, { status: newStatus });
       
-      // 勤怠データも更新（申請が承認された場合）
+      // 勤怠データも更新
       if (requestData.userId && requestData.attendanceDate) {
         const attendanceRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(requestData.userId, requestData.attendanceDate));
-        await updateDoc(attendanceRef, { 
-          status: newStatus === "承認" ? "承認済み" : "否認"
-        });
+        
+        if (newStatus === "承認") {
+          // 承認された場合：申請された変更内容を適用
+          await updateDoc(attendanceRef, { 
+            status: "承認済み",
+            clockIn: requestData.updatedData?.clockIn || requestData.originalData?.clockIn,
+            clockOut: requestData.updatedData?.clockOut || requestData.originalData?.clockOut,
+            breakTime: requestData.updatedData?.breakTime || requestData.originalData?.breakTime
+          });
+        } else if (newStatus === "否認") {
+          // 否認された場合：元のデータに戻す
+          await updateDoc(attendanceRef, { 
+            status: "否認",
+            clockIn: requestData.originalData?.clockIn,
+            clockOut: requestData.originalData?.clockOut,
+            breakTime: requestData.originalData?.breakTime
+          });
+        }
       }
       
       // ローカル状態を更新
@@ -164,7 +277,7 @@ function AdminHome() {
     
     try {
       // 選択された申請の詳細を取得
-      const selectedRequests = requests.filter(request => selectedItems.includes(request.id));
+      const selectedRequests = filteredRequests.filter(request => selectedItems.includes(request.id));
       
       // Firestoreを一括更新
       const updatePromises = selectedItems.map(async (requestId) => {
@@ -205,9 +318,9 @@ function AdminHome() {
   }
 
   return (
-    <div className="w-full h-full p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">申請一覧</h1>
+    <div className="w-full h-full p-4 md:p-6">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
         
         {/* タブ */}
         <TabNavigation
@@ -221,178 +334,153 @@ function AdminHome() {
         />
       </div>
 
-      {/* 一括承認ボタン */}
-      {activeTab === "未対応" && (
-        <div className="flex justify-end mb-4">
-          <Button
-            variant="none"
-            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
-            onClick={handleBulkApprove}
-            disabled={selectedItems.length === 0}
-          >
-            一括承認 ({selectedItems.length})
-          </Button>
-        </div>
-      )}
+      {/* デスクトップ用テーブル */}
+      <div className="hidden lg:block">
+        <SortableTable
+          data={filteredRequests}
+          columns={columns}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          filterValue={filterItem}
+          onFilterChange={setFilterItem}
+          filterOptions={filterOptions}
+          filterLabel="項目"
+          searchPlaceholder="申請日、申請者名、対象日"
+          showCheckbox={true}
+          selectedItems={selectedItems}
+          onSelectAll={handleSelectAll}
+          onSelectItem={handleSelectItem}
+          renderRow={renderRow}
+          extraControls={
+            activeTab === "未対応" && (
+              <Button
+                variant="none"
+                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                onClick={handleBulkApprove}
+                disabled={selectedItems.length === 0}
+              >
+                一括承認 ({selectedItems.length})
+              </Button>
+            )
+          }
+        />
+      </div>
 
-      {/* テーブル */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
-          <table className="min-w-full whitespace-nowrap">
-          <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
-            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.length === filteredRequests.length && filteredRequests.length > 0}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  申請項目
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  申請日
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  申請者名
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  対象日
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  変更前
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  変更後
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  コメント
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                  ステータス
-                </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredRequests.map((request) => (
-              <tr key={request.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(request.id)}
-                    onChange={(e) => handleSelectItem(request.id, e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div className="flex items-center">
-                    <span>{request.item}</span>
-                    <button
-                      onClick={() => {
-                        setSelectedRequest(request);
-                        setShowDetailModal(true);
-                      }}
-                      className="ml-2 text-xs text-blue-600 hover:text-blue-800 underline"
-                    >
-                      詳細
-                    </button>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.date}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.applicant}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.targetDate}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.originalData ? (
-                    <div className="text-xs">
-                      <div className="mb-1">
-                        <span className="font-medium text-gray-600">出勤:</span> 
-                        <span className={`ml-1 ${request.originalData.clockIn !== request.updatedData?.clockIn ? 'line-through text-red-500' : ''}`}>
-                          {request.originalData.clockIn}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-600">退勤:</span> 
-                        <span className={`ml-1 ${request.originalData.clockOut !== request.updatedData?.clockOut ? 'line-through text-red-500' : ''}`}>
-                          {request.originalData.clockOut}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">--</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.updatedData ? (
-                    <div className="text-xs">
-                      <div className="mb-1">
-                        <span className="font-medium text-green-600">出勤:</span> 
-                        <span className={`ml-1 ${request.originalData?.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}`}>
-                          {request.updatedData.clockIn}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-green-600">退勤:</span> 
-                        <span className={`ml-1 ${request.originalData?.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}`}>
-                          {request.updatedData.clockOut}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">--</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {request.comment ? (
-                    <div className="max-w-xs">
-                      <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded border">
-                        {request.comment}
-                      </div>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">--</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {request.status === "未対応" ? (
+      {/* モバイル・タブレット用カード表示 */}
+      <div className="lg:hidden space-y-4">
+        {filteredRequests.map((request) => (
+          <div key={request.id} className="bg-white rounded-lg shadow-md p-3 md:p-4 border">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes(request.id)}
+                  onChange={(e) => handleSelectItem(request.id, e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <span className="font-medium text-gray-900">{request.item}</span>
+              </div>
+              <span className={`px-2 py-1 text-xs rounded-full ${
+                request.status === "承認"
+                  ? "bg-green-100 text-green-800"
+                  : request.status === "否認"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+              }`}>
+                {request.status}
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+              <div>
+                <span className="text-gray-600">申請日:</span>
+                <span className="ml-1 font-medium">{request.date}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">対象日:</span>
+                <span className="ml-1 font-medium">{request.targetDate}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">申請者:</span>
+                <span className="ml-1 font-medium">{request.applicant}</span>
+              </div>
+            </div>
+
+            {/* 変更内容 */}
+            {request.originalData && request.updatedData && (
+              <div className="bg-gray-50 rounded p-3 mb-3">
+                <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span>出勤:</span>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="none"
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
-                        onClick={() => handleStatusUpdate(request.id, "否認")}
-                      >
-                        否認
-                      </Button>
-                      <Button
-                        variant="none"
-                        className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded"
-                        onClick={() => handleStatusUpdate(request.id, "承認")}
-                      >
-                        承認
-                      </Button>
+                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'line-through text-red-500' : ''}>
+                        {request.originalData.clockIn}
+                      </span>
+                      <span>→</span>
+                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}>
+                        {request.updatedData.clockIn}
+                      </span>
                     </div>
-                  ) : (
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      request.status === "承認" 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-red-100 text-red-800"
-                    }`}>
-                      {request.status}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>退勤:</span>
+                    <div className="flex space-x-2">
+                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'line-through text-red-500' : ''}>
+                        {request.originalData.clockOut}
+                      </span>
+                      <span>→</span>
+                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}>
+                        {request.updatedData.clockOut}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* コメント */}
+            {request.comment && (
+              <div className="mb-3">
+                <span className="text-gray-600 text-sm">コメント:</span>
+                <p className="text-sm mt-1">{request.comment}</p>
+              </div>
+            )}
+
+            {/* アクションボタン */}
+            {request.status === "未対応" && (
+              <div className="flex space-x-2">
+                <Button
+                  variant="none"
+                  className="flex-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded"
+                  onClick={() => handleStatusUpdate(request.id, "否認")}
+                >
+                  否認
+                </Button>
+                <Button
+                  variant="none"
+                  className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+                  onClick={() => handleStatusUpdate(request.id, "承認")}
+                >
+                  承認
+                </Button>
+              </div>
+            )}
+          </div>
+        ))}
+        
+        {/* 一括承認ボタン（モバイル） */}
+        {activeTab === "未対応" && selectedItems.length > 0 && (
+          <div className="sticky bottom-4">
+            <Button
+              variant="none"
+              className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-base"
+              onClick={handleBulkApprove}
+            >
+              一括承認 ({selectedItems.length})
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* 詳細モーダル */}

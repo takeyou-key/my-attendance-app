@@ -17,10 +17,7 @@ export const COLLECTIONS = {
   CHANGE_REQUESTS: 'change_requests',
   
   // ユーザー設定（旧: settings）
-  USER_SETTINGS: 'user_settings',
-  
-  // ユーザープロフィール（旧: users）
-  USER_PROFILES: 'user_profiles'
+  USER_SETTINGS: 'user_settings'
 };
 
 // ドキュメントID生成ヘルパー
@@ -29,8 +26,5 @@ export const generateDocId = {
   timeRecord: (userId, date) => `${userId}_${date}`,
   
   // ユーザー設定のドキュメントID生成
-  userSetting: (userId) => userId,
-  
-  // ユーザープロフィールのドキュメントID生成
-  userProfile: (userId) => userId
+  userSetting: (userId) => userId
 }; 

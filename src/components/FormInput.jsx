@@ -80,8 +80,8 @@ const FormInput = ({
   return (
     <div className="mb-4">
       {label && (
-        <label 
-          htmlFor={id} 
+        <label
+          htmlFor={id}
           className="block text-gray-700 mb-2 font-medium"
         >
           {label}

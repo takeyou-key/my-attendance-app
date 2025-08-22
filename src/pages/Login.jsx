@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { isAdmin } from '../utils/auth';
 import Button from '../components/Button';
@@ -18,6 +18,9 @@ function Login() {
         setError("");
         
         try {
+            // 既存の認証をクリア
+            await signOut(auth);
+            
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             console.log("ログイン成功", userCredential.user);
             
@@ -65,7 +68,7 @@ function Login() {
                         name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required={true}
+                        // required={true}
                     />
                     <FormInput
                         type="password"
@@ -74,7 +77,7 @@ function Login() {
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required={true}
+                        // required={true}
                     />
                     <div className="mb-4 text-center">
                         <a
