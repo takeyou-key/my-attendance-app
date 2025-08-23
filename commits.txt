@@ -1,0 +1,110 @@
+ee00d02|モバイルでのカードを調整
+98a8a1c|カードをスタックに変更
+a88f4a4|表示件数上限を設定。ユーザー20件、admin100件
+e955828|ボタンUIを統一。モバイルの一括承認ボタンが2つあったのを1つ削除
+29f1acf|READMEを更新
+6988531|PWAがデプロイ時更新されないのを解決
+1a8fb1f|PWAがデプロイ時更新されないのを解決
+81439a8|PWAがデプロイ時更新されないのを解決
+0706727|検索欄日にちリセットできない不具合を修正
+02fd8c8|カードの位置を修正
+6dee63a|feat: mobile-safe tutorial auto start + build id log
+f98d673|ボタン修正、ポップアップ追加
+89ade15|ID表示を修正
+6725bdb|チュートリアルをログインしコンテンツアクセス時1度自動表示に変更
+0439524|PWAに対応
+e018eac|一括承認ボタンを削除修正
+d7c8d56|adminのテーブルヘッダーの色を修正
+122a108|検索・フィルター機能修正 一括承認ボタン修正 チェックボックス修正
+5c0cba7|IDをDefaultで短縮表示、クリックですべて表示に変更
+462fb44|node verを22に更新
+9196a80|メニュー群の動きを削除しシンプルに変更
+db85d14|申請一覧のテーブルをviewportの可変に合わせて縮小拡大するように変更
+0761712|fix: モバイルでのテーブルの背景色を削除してテーブル全体の動きを防止
+bade9c6|テーブル全体が動いてしまう問題を修正
+69da515|テーブルの背景のちらつき修正
+a01c0ea|Vercel設定をシンプルに戻す
+3946f0a|Vercelデプロイ設定を最適化
+24c7e6e|GitHub連携テスト用コミット
+ed2b810|ビルド最適化後のデプロイ
+e97401c|依存関係の競合を解決
+bcf2d02|デプロイ修正用コミット
+5067e1c|強制デプロイ用の空コミット
+d9dc168|申請一覧のカードを修正
+757a39f|ツアーガイド機能を修正
+62c8076|アニメーションを追加
+d8ef0f5|ツアーガイド機能を追加
+0decd8a|チュートリアルを追加
+595a41e|メールアドレスをタップできないように
+01fe5f8|メールアドレスをタップできないように修正
+f2f7369|メールアドレス表示を変更
+9b1fc4b|アドレス表示の修正
+e7a22dc|Clockのモーダルの表示を変更
+77ccd39|モバイルでの表示微修正
+2b1158e|モバイルでのアドレス表示を変更（@→＠）
+7855fc2|RequestListの検索ボックスとテーブルの日付の表示を共通化
+021887c|RequestListの検索ボックスラベルを変更
+910d670|全体的に微調整
+c5e9969|readmeのデータ構造の項目を追加
+9ff1295|最終調整2
+c275ebc|最終調整
+de3cdc6|ステータス表示を追加
+b208930|メニュー群current追加
+f106e13|レイアウト調整
+87b58c5|AdminHomeのレイアウト調整
+3a8a958|勤怠リセット時間を0時に設定
+5cf322b|カードの修正
+725e1c6|AdminHomeのコンテンツとヘッダーの重なりを調整
+69bf020|AdminLoginのヘッダー内のボタンを削除
+bc734ea|ヘッダー内ボタン位置を調整
+24fc5f3|メールアドレスのタップ防止機能を強化（ID：プレフィックスと全角＠記号を追加）
+65a57de|IDを選択できなように再修正2
+c6f5504|IDを選択できないように再修正
+5b1ce92|IDを選択できないように修正
+08bba5e|AdminLogin.jsxを修正
+b678094|adminヘッダーを再修正
+bbbb41f|管理者ログインページのヘッダー色を緑色に修正
+9d6e897|パスワード再発行ページのborder-radiusを統一
+0fff995|モバイルでのビューポート高さ問題を修正 - 100dvhを使用して動的ビューポート高さに対応
+d131b59|アドレスバーに対応した画面の高さに変更
+7fed4be|iPhone用にレイアウト調整
+034ae66|Merge branch 'main' of https://github.com/takeyou-key/my-attendance-app
+3eac814|ファイル変更有
+fdab578|縦向き固定を削除
+b541782|画面縦固定JavaScript追加
+4c4c264|メタタグを追加（モバイル画面縦固定推奨）
+56619a3|ログイン前の遷移画面のテキストサイズを統一
+62daa75|READEME更新更新
+eced047|README更新
+7a36f29|Add autoprefixer dependency
+cae0b67|Fix Service Worker error and add Firebase error handling for Vercel deployment
+426a146|Fix Vercel deployment configuration for Vite and add root route
+8d75bb9|Fix Vite configuration and PostCSS setup for development server
+a80ddf2|fix: Disable ESLint plugin to resolve build compatibility issues
+669ba80|fix: Add .js and .jsx extensions to import paths for ES module compatibility
+cb1532b|fix: add .jsx extension to App import in index.js
+b6b35d4|fix: add Create React App required src/index.js entry point
+39c56c8|fix: add Create React App required files (index.html, manifest.json, favicon.ico)
+604ffb6|fix: switch from Vite to Create React App for maximum Vercel compatibility
+a70b28f|fix: remove invalid functions configuration from vercel.json
+316d3e6|fix: add esbuild v0.14.54 and update vercel.json for Vite v2 compatibility
+4b6b0d9|fix: use minimal vite v2.9.18 setup without esbuild for maximum Vercel compatibility
+df56d48|fix: downgrade vite to v3.2.11 and plugin-react to v2.2.0 for better Vercel compatibility
+fc78bcd|fix: add @esbuild/linux-x64 and update vercel.json for esbuild compatibility
+514d1db|fix: remove invalid runtime configuration from vercel.json
+9141a0f|fix: add esbuild dependency and update vercel.json
+6cec8e7|fix: downgrade vite to v4.5.14 for Vercel compatibility
+1af44d6|fix: downgrade rollup to v3.29.5 for Vercel compatibility
+73b860c|fix: update pnpm-lock.yaml and add vercel.json config
+373336b|chore: remove package-lock.json (using pnpm only)
+5faef1e|fix: update pnpm-lock.yaml to match package.json
+1bb7565|chore: switch to pnpm
+b35a1e1|chore: force install optionalDependencies
+7cebf4e|fix: use Node 20 on Vercel
+3ec5480|chore: specify node version 20 for Vercel
+102a25d|ビルドコード再構築
+78c3f20|fix: move vite and plugins to dependencies
+6e985bc|コレクション名を定数化し、休憩時間合計を実装
+d66bf6d|バックアップ08061313
+88752d9|バックアップ: 現在の状態を保存
+f912126|Initial commit
