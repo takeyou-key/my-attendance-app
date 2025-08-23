@@ -1,10 +1,5 @@
 {
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "framework": "vite",
-  "build": {
-    "env": {
-      "ESBUILD_BINARY_PATH": "node_modules/esbuild/bin/esbuild"
-    }
-  }
+  "framework": "create-react-app"
 }
