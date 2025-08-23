@@ -6,10 +6,5 @@
     "env": {
       "ESBUILD_BINARY_PATH": "node_modules/esbuild/bin/esbuild"
     }
-  },
-  "functions": {
-    "**/*.js": {
-      "maxDuration": 30
-    }
   }
 }
