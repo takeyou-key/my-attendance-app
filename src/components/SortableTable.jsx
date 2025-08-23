@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import Button from './Button';
+import Button from './Button.jsx';
 
 /**
  * ソート・検索機能付きテーブルコンポーネント

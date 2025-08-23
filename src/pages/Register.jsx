@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
-import Button from '../components/Button';
-import Header from '../components/Header';
-import FormInput from '../components/FormInput';
+import { auth } from '../firebase.js';
+import Button from '../components/Button.jsx';
+import Header from '../components/Header.jsx';
+import FormInput from '../components/FormInput.jsx';
 
 function Register() {
     const [email, setEmail] = useState("");

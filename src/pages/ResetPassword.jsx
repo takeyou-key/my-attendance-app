@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
-import Header from "../components/Header";
+import { auth } from "../firebase.js";
+import Header from "../components/Header.jsx";
 import { useNavigate } from "react-router-dom";
-import FormInput from "../components/FormInput";
+import FormInput from "../components/FormInput.jsx";
 
 function ResetPassword() {
   const [email, setEmail] = useState("");

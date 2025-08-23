@@ -1,11 +1,11 @@
 import React from "react";
-import Button from "../components/Button";
-import Modal from "../components/Modal";
-import TabNavigation from "../components/TabNavigation";
-import SortableTable from "../components/SortableTable";
+import Button from "../components/Button.jsx";
+import Modal from "../components/Modal.jsx";
+import TabNavigation from "../components/TabNavigation.jsx";
+import SortableTable from "../components/SortableTable.jsx";
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { COLLECTIONS, generateDocId } from '../constants/firestore';
+import { db } from '../firebase.js';
+import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 
 /**
  * 管理者用ホーム画面コンポーネント

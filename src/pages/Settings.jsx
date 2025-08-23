@@ -15,12 +15,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import Header from '../components/Header';
-import Button from '../components/Button';
-import AuthGuard from '../components/AuthGuard';
-import FormInput from '../components/FormInput';
-import { COLLECTIONS, generateDocId } from '../constants/firestore';
+import { db } from '../firebase.js';
+import Header from '../components/Header.jsx';
+import Button from '../components/Button.jsx';
+import AuthGuard from '../components/AuthGuard.jsx';
+import FormInput from '../components/FormInput.jsx';
+import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 
 const Settings = () => {
   const [userId, setUserId] = useState(null);
