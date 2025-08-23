@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
-import { isAdmin } from '../utils/auth';
-import Button from '../components/Button';
-import Header from '../components/Header';
-import FormInput from '../components/FormInput';
+import { auth } from '../firebase.js';
+import { isAdmin } from '../utils/auth.js';
+import Button from '../components/Button.jsx';
+import Header from '../components/Header.jsx';
+import FormInput from '../components/FormInput.jsx';
 
 /**
  * 管理者専用ログイン画面コンポーネント

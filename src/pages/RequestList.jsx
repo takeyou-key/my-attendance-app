@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import LoadingSpinner from "../components/LoadingSpinner";
-import TabNavigation from "../components/TabNavigation";
-import SortableTable from "../components/SortableTable";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import TabNavigation from "../components/TabNavigation.jsx";
+import SortableTable from "../components/SortableTable.jsx";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../firebase.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { COLLECTIONS } from "../constants/firestore";
+import { COLLECTIONS } from "../constants/firestore.js";
 
 /**
  * 申請一覧画面コンポーネント

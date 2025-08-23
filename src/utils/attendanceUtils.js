@@ -14,8 +14,8 @@
  */
 
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
-import { COLLECTIONS, generateDocId } from '../constants/firestore';
+import { db } from '../firebase.js';
+import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 
 /**
  * 今日の勤怠データを取得する

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import Button from "./Button";
-import Header from "./Header";
+import Button from "./Button.jsx";
+import Header from "./Header.jsx";
 
 
 /**

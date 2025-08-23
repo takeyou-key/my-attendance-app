@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ResetPassword from "./pages/ResetPassword";
-import AdminLogin from "./pages/AdminLogin";
-import Layout from "./components/Layout";
-import AdminLayout from "./components/AdminLayout";
-import History from "./pages/History";
-import Clock from "./pages/Clock";
-import RequestList from "./pages/RequestList";
-import AdminHome from "./pages/AdminHome";
-import Settings from "./pages/Settings";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+import AdminLogin from "./pages/AdminLogin.jsx";
+import Layout from "./components/Layout.jsx";
+import AdminLayout from "./components/AdminLayout.jsx";
+import History from "./pages/History.jsx";
+import Clock from "./pages/Clock.jsx";
+import RequestList from "./pages/RequestList.jsx";
+import AdminHome from "./pages/AdminHome.jsx";
+import Settings from "./pages/Settings.jsx";
 // import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 function App() {

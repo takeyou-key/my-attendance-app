@@ -15,9 +15,9 @@
 
 import { useState, useEffect } from 'react';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { calculateWorkTime } from '../utils/timeCalculations';
-import { COLLECTIONS, generateDocId } from '../constants/firestore';
+import { db } from '../firebase.js';
+import { calculateWorkTime } from '../utils/timeCalculations.js';
+import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 
 /**
  * 打刻処理フック

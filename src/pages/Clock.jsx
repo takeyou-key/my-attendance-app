@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Button from "../components/Button";
-import LoadingSpinner from "../components/LoadingSpinner";
-import Modal from "../components/Modal";
-import { useAuth } from "../hooks/useAuth";
-import { useClock } from "../hooks/useClock";
+import Button from "../components/Button.jsx";
+import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import Modal from "../components/Modal.jsx";
+import { useAuth } from "../hooks/useAuth.js";
+import { useClock } from "../hooks/useClock.js";
 
 /**
  * 打刻ページコンポーネント

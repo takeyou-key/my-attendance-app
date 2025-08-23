@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from '../components/Button';
-import LoadingSpinner from '../components/LoadingSpinner';
-import Modal from '../components/Modal';
+import Button from '../components/Button.jsx';
+import LoadingSpinner from '../components/LoadingSpinner.jsx';
+import Modal from '../components/Modal.jsx';
 import { useEffect } from "react";
 import { doc, addDoc, setDoc, collection } from "firebase/firestore";
-import { db } from "../firebase";
-import { useAuth } from "../hooks/useAuth";
-import { calculateWorkTime, calculateActualWorkTime, calculateOverTime, sumTimes } from '../utils/timeCalculations';
-import { fetchMonthlyAttendance, fetchUserSettings, generateYearMonths } from '../utils/attendanceUtils';
-import { COLLECTIONS, generateDocId } from '../constants/firestore';
+import { db } from "../firebase.js";
+import { useAuth } from "../hooks/useAuth.js";
+import { calculateWorkTime, calculateActualWorkTime, calculateOverTime, sumTimes } from '../utils/timeCalculations.js';
+import { fetchMonthlyAttendance, fetchUserSettings, generateYearMonths } from '../utils/attendanceUtils.js';
+import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 
 /**
  * 実績確認・申請ページコンポーネント
