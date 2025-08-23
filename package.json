@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@esbuild/linux-x64": "^0.25.9",
     "@vitejs/plugin-react": "^4.5.2",
     "esbuild": "^0.18.20",
     "firebase": "^11.10.0",
