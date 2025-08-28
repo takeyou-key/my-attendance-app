@@ -37,6 +37,12 @@ const Header = ({
     msUserSelect: 'text'
   };
 
+  // メールアドレスを表示用に変換（@を全角に）
+  const formatEmail = (email) => {
+    if (!email) return '';
+    return email.replace('@', '＠');
+  };
+
   return (
     <header className={combinedClasses} style={headerStyle}>
       {showNavigation ? (
@@ -48,7 +54,7 @@ const Header = ({
                 <span className="animate-pulse">...</span>
               ) : userEmail ? (
                 <span style={emailStyle} data-email={userEmail}>
-                  {userEmail.split('@')[0]}<span style={{ pointerEvents: 'none' }}>@</span>{userEmail.split('@')[1]}
+                  {formatEmail(userEmail)}
                 </span>
               ) : null}
             </div>
@@ -73,7 +79,7 @@ const Header = ({
               <span className="animate-pulse">...</span>
             ) : userEmail ? (
               <span style={emailStyle} data-email={userEmail}>
-                ( {userEmail.split('@')[0]}<span style={{ pointerEvents: 'none' }}>@</span>{userEmail.split('@')[1]} )
+                ( {formatEmail(userEmail)} )
               </span>
             ) : null}
           </div>
