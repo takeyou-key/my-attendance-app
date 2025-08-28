@@ -48,7 +48,7 @@ const Header = ({
       {showNavigation ? (
         <div className="flex items-center justify-between w-full">
           <div className="text-white text-lg md:text-2xl font-bold">勤怠管理アプリ</div>
-          <div className="flex flex-col items-center gap-1 md:gap-2">
+          <div className="flex flex-col items-end gap-1 md:gap-2">
             <div className="text-xs md:text-sm text-white">
               {userEmail === undefined ? (
                 <span className="animate-pulse">...</span>
