@@ -50,14 +50,14 @@ function Login() {
     return (
         <div className="min-h-screen bg-gray-100">
             <Header showNavigation={true} onLogout={() => navigate('/admin-login')} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="管理者ログイン" />
-            <div className="flex min-h-screen items-center justify-center pt-[78px] md:pt-[116px] pb-4">
+            <div className="flex min-h-screen items-center justify-center pt-[78px] md:pt-[116px] px-4">
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-white p-8 rounded shadow-md w-full max-w-sm"
+                    className="bg-white p-6 md:p-8 rounded shadow-md w-full max-w-sm"
                 >
-                    <h2 className="text-2xl font-bold mb-6 text-center text-indigo-600">ログイン</h2>
+                    <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-indigo-600">ログイン</h2>
                     {error && (
-                        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
+                        <div className="mb-3 md:mb-4 p-2 md:p-3 bg-red-100 text-red-700 rounded text-xs md:text-sm">
                             {error}
                         </div>
                     )}
@@ -79,11 +79,11 @@ function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         // required={true}
                     />
-                    <div className="mb-4 text-center">
+                    <div className="mb-3 md:mb-4 text-center">
                         <a
                             href="/reset-password"
                             onClick={(e) => { e.preventDefault(); navigate('/reset-password'); }}
-                            className="text-red-600 hover:underline font-bold text-sm cursor-pointer"
+                            className="text-red-600 hover:underline font-bold text-xs md:text-sm cursor-pointer"
                         >
                             パスワードを忘れた方はこちら
                         </a>
@@ -91,7 +91,7 @@ function Login() {
                     <Button
                         type="submit"
                         fullWidth={true}
-                        className="py-2 mb-3"
+                        className="py-2 mb-2 md:mb-3"
                     >
                         ログイン
                     </Button>
