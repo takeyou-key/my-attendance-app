@@ -234,7 +234,7 @@ function RequestList() {
                   </span>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-3">
                   <div>
                     <span className="text-gray-600">申請日:</span>
                     <span className="ml-1 font-medium">{request.date}</span>
