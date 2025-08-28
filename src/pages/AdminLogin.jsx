@@ -51,13 +51,13 @@ function AdminLogin() {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Header showNavigation={true} onLogout={handleBackToLogin} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="ユーザーログイン" />
+            <Header showNavigation={true} onLogout={handleBackToLogin} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="ユーザーログイン" bgColor="#059669" textColor="#059669" />
             <div className="flex flex-1 min-h-[calc(100vh-104px)] items-center justify-center pt-[116px]">
                 <form
                     onSubmit={handleSubmit}
                     className="bg-white p-8 rounded shadow-md w-full max-w-sm"
                 >
-                    <h2 className="text-2xl font-bold mb-6 text-center text-indigo-600">管理者ログイン</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: '#059669', opacity: 0.6 }}>管理者ログイン</h2>
                     {error && (
                         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
                             {error}
@@ -85,6 +85,8 @@ function AdminLogin() {
                         type="submit"
                         fullWidth={true}
                         className="py-2 mb-3"
+                        bgColor="#059669"
+                        textColor="#FFFFFF"
                     >
                         管理者ログイン
                     </Button>
@@ -94,6 +96,7 @@ function AdminLogin() {
                         variant="text"
                         fullWidth={true}
                         className="py-2"
+                        textColor="#059669"
                     >
                         ユーザーログインに戻る
                     </Button>

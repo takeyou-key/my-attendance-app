@@ -355,7 +355,7 @@ function AdminHome() {
             activeTab === "未対応" && (
               <Button
                 variant="none"
-                className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                className="px-6 py-2 bg-blue-600 hover:bg-purple-700 text-white rounded-lg"
                 onClick={handleBulkApprove}
                 disabled={selectedItems.length === 0}
               >
