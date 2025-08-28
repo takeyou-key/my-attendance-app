@@ -3,34 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="screen-orientation" content="portrait" />
-    <meta name="x5-orientation" content="portrait" />
-    <meta name="msapplication-orientation" content="portrait" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>勤怠管理アプリ</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // 画面の向きを縦向きに固定
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('portrait').catch(() => {
-          console.log('画面の向きを固定できませんでした');
-        });
-      }
-      
-      // 画面の向き変更を検知して縦向きに戻す
-      window.addEventListener('orientationchange', function() {
-        setTimeout(function() {
-          if (window.orientation !== 0 && window.orientation !== 180) {
-            // 横向きの場合は縦向きに戻す
-            if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('portrait');
-            }
-          }
-        }, 100);
-      });
-    </script>
+
   </body>
 </html>

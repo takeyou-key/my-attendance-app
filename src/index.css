@@ -2,23 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 画面の安定性向上 - ブロスタ風固定 */
-html, body {
-  overflow: hidden;
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  touch-action: none;
-  -webkit-overflow-scrolling: touch;
-}
 
-#root {
-  width: 100vw;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  -webkit-overflow-scrolling: touch;
-}
