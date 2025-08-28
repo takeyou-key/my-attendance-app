@@ -52,7 +52,7 @@ function AdminLogin() {
     return (
         <div className="min-h-screen bg-gray-100">
             <Header showNavigation={true} onLogout={handleBackToLogin} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="ユーザーログイン" bgColor="#059669" textColor="#059669" />
-            <div className="flex flex-1 min-h-[calc(100vh-104px)] items-center justify-center pt-[116px]">
+            <div className="flex min-h-screen items-center justify-center pt-[78px] md:pt-[116px] pb-4">
                 <form
                     onSubmit={handleSubmit}
                     className="bg-white p-8 rounded shadow-md w-full max-w-sm"

@@ -13,7 +13,7 @@ const Header = ({
   bgColor,
   textColor
 }) => {
-  const baseClasses = "w-full h-16 md:h-[116px] flex items-center";
+  const baseClasses = "w-full h-[78px] md:h-[116px] flex items-center";
   const navigationClasses = showNavigation ? "px-4 md:px-8" : "mb-8";
   const combinedClasses = `${baseClasses} ${navigationClasses} ${className}`.trim();
 

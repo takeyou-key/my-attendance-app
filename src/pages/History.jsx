@@ -264,9 +264,9 @@ function History() {
   }
 
   return (
-    <div className="w-full h-full p-6 pb-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="w-full h-full p-2 md:p-6 lg:pb-8">
+      <div className="max-w-6xl mx-auto h-full flex flex-col">
+        <div className="mb-4 md:mb-6 flex items-center justify-between">
           <div>
             <label className="font-bold text-gray-700">年月 :  </label>
             <select
@@ -287,8 +287,8 @@ function History() {
           </Button>
         </div>
 
-        {/* テーブルコンテナ - 固定高さでスクロール */}
-        <div className="bg-white shadow overflow-hidden" style={{ height: "calc(100vh - 250px)" }}>
+        {/* テーブルコンテナ - 最大高さでスクロール */}
+        <div className="bg-white shadow overflow-hidden flex-1">
           <div className="overflow-auto h-full bg-white">
             <table className="min-w-full border text-center whitespace-nowrap">
               <thead className="sticky top-0 z-10 bg-indigo-600 shadow-sm backdrop-blur-sm">
@@ -301,7 +301,7 @@ function History() {
                   <th className="py-2 px-4 whitespace-nowrap">残業時間</th>
                 </tr>
               </thead>
-              <tbody className="bg-white" style={{ paddingBottom: "60px" }}>
+              <tbody className="bg-white">
                 {monthTable.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-4 text-gray-400">データがありません</td>

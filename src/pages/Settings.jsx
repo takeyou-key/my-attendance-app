@@ -47,7 +47,7 @@ const Settings = () => {
       try {
         const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
         const settingsSnap = await getDoc(settingsRef);
-        
+
         if (settingsSnap.exists()) {
           const data = settingsSnap.data();
           setRegularWorkHours(data.regularWorkHours || 8);
@@ -70,7 +70,7 @@ const Settings = () => {
     setSaveStatus('');
 
     try {
-              const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
+      const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
       await setDoc(settingsRef, {
         regularWorkHours: regularWorkHours,
         regularWorkMinutes: regularWorkMinutes,
@@ -89,65 +89,64 @@ const Settings = () => {
 
   return (
     <AuthGuard onAuthStateChange={handleAuthStateChange}>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">設定</h1>
+      <div className="h-full">
+        <div className="max-w-4xl mx-auto p-3 md:p-6 pb-20 lg:pb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
             
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* 定時設定 */}
-              <div className="border-b pb-6">
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">定時設定</h2>
-                <p className="text-sm text-gray-600 mb-4">
+              <div className="border-b pb-4 md:pb-6">
+                <h2 className="text-base md:text-lg font-semibold text-gray-700 mb-3 md:mb-4">定時設定</h2>
+                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
                   定時時間を設定してください。この時間を超えた勤務時間は残業時間として計算されます。
                 </p>
                 
-                                 <div className="flex items-center space-x-4">
-                   <div className="flex-1">
-                     <FormInput
-                       type="select"
-                       label="時間"
-                       id="regularWorkHours"
-                       name="regularWorkHours"
-                       value={regularWorkHours}
-                       onChange={(e) => setRegularWorkHours(Number(e.target.value))}
-                       options={Array.from({ length: 13 }, (_, i) => ({ value: i, label: `${i}時間` }))}
-                     />
-                   </div>
-                   
-                   <div className="flex-1">
-                     <FormInput
-                       type="select"
-                       label="分"
-                       id="regularWorkMinutes"
-                       name="regularWorkMinutes"
-                       value={regularWorkMinutes}
-                       onChange={(e) => setRegularWorkMinutes(Number(e.target.value))}
-                       options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: `${i * 5}分` }))}
-                     />
-                   </div>
-                 </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex-1">
+                    <FormInput
+                      type="select"
+                      label="時間"
+                      id="regularWorkHours"
+                      name="regularWorkHours"
+                      value={regularWorkHours}
+                      onChange={(e) => setRegularWorkHours(Number(e.target.value))}
+                      options={Array.from({ length: 13 }, (_, i) => ({ value: i, label: `${i}時間` }))}
+                    />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <FormInput
+                      type="select"
+                      label="分"
+                      id="regularWorkMinutes"
+                      name="regularWorkMinutes"
+                      value={regularWorkMinutes}
+                      onChange={(e) => setRegularWorkMinutes(Number(e.target.value))}
+                      options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: `${i * 5}分` }))}
+                    />
+                  </div>
+                </div>
                 
-                <div className="mt-4 p-3 bg-blue-50 rounded-md">
-                  <p className="text-sm text-blue-800">
+                <div className="mt-3 md:mt-4 p-2 md:p-3 bg-blue-50 rounded-md">
+                  <p className="text-xs md:text-sm text-blue-800">
                     設定時間: <span className="font-semibold">{regularWorkHours}時間{regularWorkMinutes}分</span>
                   </p>
                 </div>
               </div>
               
               {/* ボタン群 */}
-              <div className="flex justify-end space-x-4 pt-6">
+              <div className="flex justify-end space-x-4 pt-4 md:pt-6">
                 <Button
                   onClick={() => navigate('/home')}
                   variant="secondary"
-                  className="px-6 py-2"
+                  className="px-4 md:px-6 py-2 text-sm md:text-base"
                 >
                   キャンセル
                 </Button>
                 <Button
                   onClick={handleSave}
                   disabled={isLoading}
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+                  className="px-4 md:px-6 py-2 text-sm md:text-base bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
                 >
                   {isLoading ? '保存中...' : '保存'}
                 </Button>
@@ -155,7 +154,7 @@ const Settings = () => {
               
               {/* 保存ステータス */}
               {saveStatus && (
-                <div className={`mt-4 p-3 rounded-md ${
+                <div className={`mt-3 md:mt-4 p-2 md:p-3 rounded-md text-xs md:text-sm ${
                   saveStatus.includes('失敗') 
                     ? 'bg-red-50 text-red-800' 
                     : 'bg-green-50 text-green-800'
