@@ -46,7 +46,7 @@ function Layout() {
 
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden" style={{ height: '100dvh' }}>
       {/* ヘッダー（上部固定） */}
       <Header 
         showNavigation={true} 
