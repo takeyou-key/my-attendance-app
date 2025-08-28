@@ -40,7 +40,7 @@ const Header = ({
   // メールアドレスを表示用に変換（@を全角に）
   const formatEmail = (email) => {
     if (!email) return '';
-    return email.replace('@', '＠');
+    return `ID：${email.replace('@', '＠')}`;
   };
 
   return (
