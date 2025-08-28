@@ -318,7 +318,7 @@ function AdminHome() {
   }
 
   return (
-    <div className="w-full h-full p-4 md:p-6">
+    <div className="w-full h-full p-4 md:p-6 pt-8 md:pt-12">
       <div className="mb-4 md:mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
         

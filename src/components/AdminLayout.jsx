@@ -50,9 +50,9 @@ function AdminLayout() {
         />
         
         {/* メインコンテンツ */}
-        <main className="w-full bg-gray-200 pt-16 md:pt-[116px] flex overflow-hidden" style={{ height: '100dvh' }}>
+        <main className="w-full bg-gray-200 pt-[78px] md:pt-[116px] flex overflow-hidden" style={{ height: '100dvh' }}>
           {/* デスクトップ用メニュー */}
-          <div className="hidden lg:block bg-white flex flex-col m-0 p-0 shadow-lg fixed left-0 top-16 md:top-[116px] h-[calc(100vh-4rem)] md:h-[calc(100vh-116px)] overflow-hidden" style={{ width: "250px", boxShadow: "4px 0 4px -4px rgba(0,0,0,0.42)" }}>
+          <div className="hidden lg:block bg-white flex flex-col m-0 p-0 shadow-lg fixed left-0 top-[78px] md:top-[116px] h-[calc(100vh-78px)] md:h-[calc(100vh-116px)] overflow-hidden" style={{ width: "250px", boxShadow: "4px 0 4px -4px rgba(0,0,0,0.42)" }}>
             <Button
               onClick={() => navigate('/admin')}
               variant="none"
@@ -80,7 +80,7 @@ function AdminLayout() {
           </div>
           
           {/* メインコンテンツ */}
-          <div className="flex-1 bg-gray-100 relative overflow-auto lg:ml-[250px]" style={{ height: "calc(100vh - 4rem)", "@media (min-width: 768px)": { height: "calc(100vh - 116px)" } }}>
+          <div className="flex-1 bg-gray-100 relative overflow-auto lg:ml-[250px]" style={{ height: "calc(100vh - 78px)", "@media (min-width: 768px)": { height: "calc(100vh - 116px)" } }}>
             <div className="pb-16 lg:pb-0">
               <Outlet />
             </div>
