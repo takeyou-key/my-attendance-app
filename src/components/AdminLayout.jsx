@@ -43,6 +43,8 @@ function AdminLayout() {
         onLogout={handleLogout} 
         userEmail={isAuthChecked ? userEmail : undefined} 
         className="fixed top-0 left-0 w-full z-10"
+        bgColor="#059669"
+        textColor="#059669"
       />
       
       {/* メインコンテンツ */}
@@ -52,7 +54,7 @@ function AdminLayout() {
           <Button
             onClick={() => navigate('/admin')}
             variant="none"
-            className="text-lg font-bold px-4 h-20 w-full bg-white text-purple-600 border-b border-gray-300 hover:bg-purple-50 flex items-center justify-between"
+            className="text-lg font-bold px-4 h-20 w-full bg-white text-green-600 border-b border-gray-300 hover:bg-purple-50 flex items-center justify-between"
           >
             <span>申請確認・承認</span>
           </Button>

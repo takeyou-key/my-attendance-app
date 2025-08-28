@@ -7,7 +7,9 @@ const Button = ({
   variant = "primary", 
   disabled = false, 
   className = "",
-  fullWidth = false 
+  fullWidth = false,
+  bgColor,
+  textColor
 }) => {
   const baseClasses = "font-bold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400";
   
@@ -23,12 +25,22 @@ const Button = ({
   
   const combinedClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses} ${disabledClasses} ${className}`.trim();
   
+  const buttonStyle = {};
+  if (bgColor) {
+    buttonStyle.backgroundColor = bgColor;
+    buttonStyle.opacity = 0.6;
+  }
+  if (textColor) {
+    buttonStyle.color = textColor;
+  }
+  
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
       className={combinedClasses}
+      style={buttonStyle}
     >
       {children}
     </button>

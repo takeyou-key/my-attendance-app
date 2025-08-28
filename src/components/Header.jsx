@@ -9,14 +9,27 @@ const Header = ({
   userEmail,
   logoutLabel = "ログアウト",
   onMenuToggle,
-  isMenuOpen
+  isMenuOpen,
+  bgColor,
+  textColor
 }) => {
-  const baseClasses = "w-full h-16 md:h-[116px] bg-indigo-600 flex items-center";
+  const baseClasses = "w-full h-16 md:h-[116px] flex items-center";
   const navigationClasses = showNavigation ? "px-4 md:px-8" : "mb-8";
   const combinedClasses = `${baseClasses} ${navigationClasses} ${className}`.trim();
 
+  const headerStyle = {};
+  if (bgColor) {
+    headerStyle.backgroundColor = bgColor;
+    headerStyle.opacity = 0.6;
+  } else {
+    headerStyle.backgroundColor = '#4f46e5';
+  }
+  if (textColor) {
+    headerStyle.color = textColor;
+  }
+
   return (
-    <header className={combinedClasses}>
+    <header className={combinedClasses} style={headerStyle}>
       {showNavigation ? (
         <div className="flex items-center justify-between w-full">
           <div className="text-white text-lg md:text-2xl font-bold">勤怠管理アプリ</div>
@@ -33,6 +46,7 @@ const Header = ({
                 onClick={onLogout}
                 variant="secondary"
                 className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-full"
+                textColor={textColor}
               >
                 {logoutLabel}
               </Button>
@@ -55,6 +69,7 @@ const Header = ({
               onClick={onLogout}
               variant="secondary"
               className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-full"
+              textColor={textColor}
             >
               {logoutLabel}
             </Button>
