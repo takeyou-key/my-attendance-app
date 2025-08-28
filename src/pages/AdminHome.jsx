@@ -30,7 +30,7 @@ function AdminHome() {
         querySnapshot.forEach((doc) => {
           requestsData.push({ id: doc.id, ...doc.data() });
         });
-        
+
         // データが空の場合は初期データを追加
         if (requestsData.length === 0) {
           const initialRequests = [
@@ -43,12 +43,12 @@ function AdminHome() {
               status: "未対応"
             }
           ];
-          
+
           // 初期データをFirestoreに追加
           for (const request of initialRequests) {
             await addDoc(collection(db, COLLECTIONS.CHANGE_REQUESTS), request);
           }
-          
+
           // 追加したデータを再取得
           const newQuerySnapshot = await getDocs(collection(db, COLLECTIONS.CHANGE_REQUESTS));
           const newRequestsData = [];
@@ -120,19 +120,19 @@ function AdminHome() {
         {request.originalData ? (
           <div className="text-xs">
             <div className="mb-1">
-              <span className="font-medium text-gray-600">出勤:</span> 
+              <span className="font-medium text-gray-600">出勤:</span>
               <span className={`ml-1 ${request.originalData.clockIn !== request.updatedData?.clockIn ? 'line-through text-red-500' : ''}`}>
                 {request.originalData.clockIn}
               </span>
             </div>
             <div className="mb-1">
-              <span className="font-medium text-gray-600">退勤:</span> 
+              <span className="font-medium text-gray-600">退勤:</span>
               <span className={`ml-1 ${request.originalData.clockOut !== request.updatedData?.clockOut ? 'line-through text-red-500' : ''}`}>
                 {request.originalData.clockOut}
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-600">休憩:</span> 
+              <span className="font-medium text-gray-600">休憩:</span>
               <span className={`ml-1 ${request.originalData.breakTime !== request.updatedData?.breakTime ? 'line-through text-red-500' : ''}`}>
                 {request.originalData.breakTime}
               </span>
@@ -146,19 +146,19 @@ function AdminHome() {
         {request.updatedData ? (
           <div className="text-xs">
             <div className="mb-1">
-              <span className="font-medium text-grey-600">出勤:</span> 
+              <span className="font-medium text-grey-600">出勤:</span>
               <span className={`ml-1 ${request.originalData?.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}`}>
                 {request.updatedData.clockIn}
               </span>
             </div>
             <div className="mb-1">
-              <span className="font-medium text-grey-600">退勤:</span> 
+              <span className="font-medium text-grey-600">退勤:</span>
               <span className={`ml-1 ${request.originalData?.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}`}>
                 {request.updatedData.clockOut}
               </span>
             </div>
             <div>
-              <span className="font-medium text-grey-600">休憩:</span> 
+              <span className="font-medium text-grey-600">休憩:</span>
               <span className={`ml-1 ${request.originalData?.breakTime !== request.updatedData.breakTime ? 'text-green-600 font-bold' : ''}`}>
                 {request.updatedData.breakTime}
               </span>
@@ -190,15 +190,14 @@ function AdminHome() {
             </Button>
           </div>
         ) : (
-          <span className={`px-2 py-1 text-xs rounded ${
-            request.status === "承認"
+          <span className={`px-2 py-1 text-xs rounded ${request.status === "承認"
               ? "bg-green-100 text-green-800"
               : request.status === "否認"
-              ? "bg-yellow-100 text-yellow-800"
-              : request.status === "未対応"
-              ? "bg-red-100 text-red-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}>
+                ? "bg-yellow-100 text-yellow-800"
+                : request.status === "未対応"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-yellow-100 text-yellow-800"
+            }`}>
             {request.status}
           </span>
         )}
@@ -226,20 +225,20 @@ function AdminHome() {
   const handleStatusUpdate = async (requestId, newStatus) => {
     try {
       // 申請データを取得
-              const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, requestId);
+      const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, requestId);
       const requestSnap = await getDoc(requestRef);
       const requestData = requestSnap.data();
-      
+
       // requestsコレクションを更新
       await updateDoc(requestRef, { status: newStatus });
-      
+
       // 勤怠データも更新
       if (requestData.userId && requestData.attendanceDate) {
         const attendanceRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(requestData.userId, requestData.attendanceDate));
-        
+
         if (newStatus === "承認") {
           // 承認された場合：申請された変更内容を適用
-          await updateDoc(attendanceRef, { 
+          await updateDoc(attendanceRef, {
             status: "承認済み",
             clockIn: requestData.updatedData?.clockIn || requestData.originalData?.clockIn,
             clockOut: requestData.updatedData?.clockOut || requestData.originalData?.clockOut,
@@ -247,7 +246,7 @@ function AdminHome() {
           });
         } else if (newStatus === "否認") {
           // 否認された場合：元のデータに戻す
-          await updateDoc(attendanceRef, { 
+          await updateDoc(attendanceRef, {
             status: "否認",
             clockIn: requestData.originalData?.clockIn,
             clockOut: requestData.originalData?.clockOut,
@@ -255,11 +254,11 @@ function AdminHome() {
           });
         }
       }
-      
+
       // ローカル状態を更新
-      setRequests(prevRequests => 
-        prevRequests.map(request => 
-          request.id === requestId 
+      setRequests(prevRequests =>
+        prevRequests.map(request =>
+          request.id === requestId
             ? { ...request, status: newStatus }
             : request
         )
@@ -274,18 +273,18 @@ function AdminHome() {
   // 一括承認処理
   const handleBulkApprove = async () => {
     if (selectedItems.length === 0) return;
-    
+
     try {
       // 選択された申請の詳細を取得
       const selectedRequests = filteredRequests.filter(request => selectedItems.includes(request.id));
-      
+
       // Firestoreを一括更新
       const updatePromises = selectedItems.map(async (requestId) => {
         const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, requestId);
         await updateDoc(requestRef, { status: "承認" });
       });
       await Promise.all(updatePromises);
-      
+
       // 勤怠データも一括更新
       const attendanceUpdatePromises = selectedRequests.map(async (request) => {
         if (request.userId && request.attendanceDate) {
@@ -294,10 +293,10 @@ function AdminHome() {
         }
       });
       await Promise.all(attendanceUpdatePromises);
-      
+
       // ローカル状態を更新
-      setRequests(prevRequests => 
-        prevRequests.map(request => 
+      setRequests(prevRequests =>
+        prevRequests.map(request =>
           selectedItems.includes(request.id) && request.status === "未対応"
             ? { ...request, status: "承認" }
             : request
@@ -319,20 +318,38 @@ function AdminHome() {
 
   return (
     <div className="w-full h-full p-4 md:p-6 pt-8 md:pt-12">
-      <div className="mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
-        
-        {/* タブ */}
-        <TabNavigation
-          tabs={[
-            { id: "未対応", label: "未対応" },
-            { id: "対応済み", label: "対応済み" }
-          ]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          variant="underline"
-        />
-      </div>
+             <div className="mb-4 md:mb-6">
+         <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
+ 
+         {/* タブ */}
+         <TabNavigation
+           tabs={[
+             { id: "未対応", label: "未対応" },
+             { id: "対応済み", label: "対応済み" }
+           ]}
+           activeTab={activeTab}
+           onTabChange={setActiveTab}
+           variant="underline"
+         >
+           {/* 一括承認ボタン（モバイル） */}
+           <div className="lg:hidden">
+             {activeTab === "未対応" && (
+               <Button
+                 variant="none"
+                 className={`px-4 py-2 rounded-lg text-sm shadow-lg ${
+                   selectedItems.length > 0 
+                     ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                 }`}
+                 onClick={selectedItems.length > 0 ? handleBulkApprove : undefined}
+                 disabled={selectedItems.length === 0}
+               >
+                 一括承認 ({selectedItems.length})
+               </Button>
+             )}
+           </div>
+         </TabNavigation>
+       </div>
 
       {/* デスクトップ用テーブル */}
       <div className="hidden lg:block">
@@ -366,9 +383,24 @@ function AdminHome() {
         />
       </div>
 
-      {/* モバイル・タブレット用カード表示 */}
-      <div className="lg:hidden space-y-4">
-        {filteredRequests.map((request) => (
+             {/* モバイル・タブレット用カード表示 */}
+       <div className="lg:hidden space-y-4">
+         {/* 全選択ボタン（モバイル） */}
+         {activeTab === "未対応" && filteredRequests.length > 0 && (
+           <div className="flex items-center space-x-2 mb-3">
+             <input
+               type="checkbox"
+               checked={selectedItems.length === filteredRequests.length}
+               onChange={(e) => handleSelectAll(e.target.checked)}
+               className="rounded border-gray-300"
+             />
+             <span className="text-sm text-gray-700">
+               全選択 ({selectedItems.length}/{filteredRequests.length})
+             </span>
+           </div>
+         )}
+         
+         {filteredRequests.map((request) => (
           <div key={request.id} className="bg-white rounded-lg shadow-md p-3 md:p-4 border">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
@@ -380,72 +412,71 @@ function AdminHome() {
                 />
                 <span className="font-medium text-gray-900">{request.item}</span>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                request.status === "承認"
+              <span className={`px-2 py-1 text-xs rounded-full ${request.status === "承認"
                   ? "bg-green-100 text-green-800"
                   : request.status === "否認"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
-              }`}>
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-red-100 text-red-800"
+                }`}>
                 {request.status}
               </span>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-3">
-              <div>
-                <span className="text-gray-600">申請日:</span>
-                <span className="ml-1 font-medium">{request.date}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">対象日:</span>
-                <span className="ml-1 font-medium">{request.targetDate}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">申請者:</span>
-                <span className="ml-1 font-medium">{request.applicant}</span>
-              </div>
-            </div>
 
-            {/* 変更内容 */}
-            {request.originalData && request.updatedData && (
-              <div className="bg-gray-50 rounded p-3 mb-3">
-                <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span>出勤:</span>
-                    <div className="flex space-x-2">
-                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'line-through text-red-500' : ''}>
-                        {request.originalData.clockIn}
-                      </span>
-                      <span>→</span>
-                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}>
-                        {request.updatedData.clockIn}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>退勤:</span>
-                    <div className="flex space-x-2">
-                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'line-through text-red-500' : ''}>
-                        {request.originalData.clockOut}
-                      </span>
-                      <span>→</span>
-                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}>
-                        {request.updatedData.clockOut}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                         <div className="grid grid-cols-2 gap-2 text-sm mb-2">
+               <div>
+                 <span className="text-gray-600">申請日:</span>
+                 <span className="ml-1 font-medium">{request.date}</span>
+               </div>
+               <div>
+                 <span className="text-gray-600">対象日:</span>
+                 <span className="ml-1 font-medium">{request.targetDate}</span>
+               </div>
+               <div className="col-span-2">
+                 <span className="text-gray-600">申請者:</span>
+                 <span className="ml-1 font-medium">{request.applicant}</span>
+               </div>
+             </div>
 
-            {/* コメント */}
-            {request.comment && (
-              <div className="mb-3">
-                <span className="text-gray-600 text-sm">コメント:</span>
-                <p className="text-sm mt-1">{request.comment}</p>
-              </div>
-            )}
+                         {/* 変更内容 */}
+             {request.originalData && request.updatedData && (
+               <div className="bg-gray-50 rounded p-3 mb-2">
+                 <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
+                 <div className="flex items-center space-x-4 text-xs">
+                   <div className="flex items-center space-x-2">
+                     <span>出勤:</span>
+                     <div className="flex space-x-1">
+                       <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'line-through text-red-500' : ''}>
+                         {request.originalData.clockIn}
+                       </span>
+                       <span>→</span>
+                       <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}>
+                         {request.updatedData.clockIn}
+                       </span>
+                     </div>
+                   </div>
+                   <div className="flex items-center space-x-2">
+                     <span>退勤:</span>
+                     <div className="flex space-x-1">
+                       <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'line-through text-red-500' : ''}>
+                         {request.originalData.clockOut}
+                       </span>
+                       <span>→</span>
+                       <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}>
+                         {request.updatedData.clockOut}
+                       </span>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             )}
+
+                         {/* コメント */}
+             {request.comment && (
+               <div className="mb-2">
+                 <span className="text-gray-600 text-sm">コメント:</span>
+                 <span className="text-sm ml-1">{request.comment}</span>
+               </div>
+             )}
 
             {/* アクションボタン */}
             {request.status === "未対応" && (
@@ -468,19 +499,8 @@ function AdminHome() {
             )}
           </div>
         ))}
+
         
-        {/* 一括承認ボタン（モバイル） */}
-        {activeTab === "未対応" && selectedItems.length > 0 && (
-          <div className="sticky bottom-4">
-            <Button
-              variant="none"
-              className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-base"
-              onClick={handleBulkApprove}
-            >
-              一括承認 ({selectedItems.length})
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* 詳細モーダル */}
@@ -500,7 +520,7 @@ function AdminHome() {
               <p className="text-sm text-gray-600">{selectedRequest?.targetDate}</p>
             </div>
           </div>
-          
+
           <div>
             <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
             <div className="bg-gray-50 rounded-lg p-4">
@@ -531,7 +551,7 @@ function AdminHome() {
               </div>
             </div>
           </div>
-          
+
           {/* 申請コメント */}
           {selectedRequest?.comment && (
             <div>
@@ -541,7 +561,7 @@ function AdminHome() {
               </div>
             </div>
           )}
-          
+
           <div className="flex justify-end space-x-3 pt-4">
             <button
               onClick={() => setShowDetailModal(false)}

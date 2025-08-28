@@ -10,15 +10,17 @@ import React from 'react';
  * @param {function} props.onTabChange - タブ変更時のコールバック関数
  * @param {string} props.className - 追加のCSSクラス
  * @param {string} props.variant - タブのスタイルバリエーション（"default", "underline"）（デフォルト: "default"）
+ * @param {React.ReactNode} props.children - タブの右側に表示する子要素
  */
 const TabNavigation = ({ 
   tabs, 
   activeTab, 
   onTabChange, 
   className = "",
-  variant = "default"
+  variant = "default",
+  children
 }) => {
-  const baseClasses = "flex border-b border-gray-300 mb-6";
+  const baseClasses = "flex items-center justify-between border-b border-gray-300 mb-4";
   const combinedClasses = `${baseClasses} ${className}`.trim();
 
   const getTabClasses = (tabId) => {
@@ -42,15 +44,22 @@ const TabNavigation = ({
 
   return (
     <div className={combinedClasses}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={getTabClasses(tab.id)}
-        >
-          {tab.label}
-        </button>
-      ))}
+      <div className="flex items-center">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={getTabClasses(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {children && (
+        <div className="ml-auto">
+          {children}
+        </div>
+      )}
     </div>
   );
 };
