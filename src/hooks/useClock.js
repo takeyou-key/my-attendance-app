@@ -44,7 +44,12 @@ export const useClock = (userId, isAuthChecked) => {
     const fetchToday = async () => {
       try {
         const today = new Date();
-        const dateStr = today.toISOString().slice(0, 10);
+        // 日本時間で日付を取得
+        const dateStr = today.toLocaleDateString('ja-JP', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit' 
+        }).replace(/\//g, '-');
         const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
         const docSnap = await getDoc(docRef);
         
@@ -74,7 +79,12 @@ export const useClock = (userId, isAuthChecked) => {
 
     try {
       const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10);
+      // 日本時間で日付を取得
+      const dateStr = today.toLocaleDateString('ja-JP', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      }).replace(/\//g, '-');
       const timeStr = today.toTimeString().slice(0, 5);
       const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
 
@@ -115,7 +125,12 @@ export const useClock = (userId, isAuthChecked) => {
 
     try {
       const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10);
+      // 日本時間で日付を取得
+      const dateStr = today.toLocaleDateString('ja-JP', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      }).replace(/\//g, '-');
       const timeStr = today.toTimeString().slice(0, 5);
       const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
       

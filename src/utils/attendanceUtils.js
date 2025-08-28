@@ -25,7 +25,12 @@ import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 export const fetchTodayAttendance = async (userId) => {
   try {
     const today = new Date();
-    const dateStr = today.toISOString().slice(0, 10);
+    // 日本時間で日付を取得
+    const dateStr = today.toLocaleDateString('ja-JP', { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    }).replace(/\//g, '-');
     const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
     const docSnap = await getDoc(docRef);
     
