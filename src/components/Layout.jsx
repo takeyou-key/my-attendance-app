@@ -46,7 +46,7 @@ function Layout() {
 
 
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* ヘッダー（上部固定） */}
       <Header 
         showNavigation={true} 
@@ -56,9 +56,9 @@ function Layout() {
       />
       
       {/* メインコンテンツ */}
-      <main className="min-h-screen w-full bg-gray-200 pt-16 md:pt-[116px] flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden pt-[78px] md:pt-[116px]">
         {/* デスクトップ用メニュー */}
-        <div className="hidden lg:block bg-white flex flex-col m-0 p-0 shadow-lg fixed left-0 top-16 md:top-[116px] h-[calc(100vh-4rem)] md:h-[calc(100vh-116px)] overflow-hidden" style={{ width: "250px", boxShadow: "4px 0 4px -4px rgba(0,0,0,0.42)" }}>
+        <div className="hidden lg:block bg-white flex flex-col shadow-lg" style={{ width: "250px" }}>
           <Button
             onClick={() => navigate('/home')}
             variant="none"
@@ -138,10 +138,8 @@ function Layout() {
         </div>
         
         {/* メインコンテンツ */}
-        <div className="flex-1 bg-gray-100 relative overflow-auto lg:ml-[250px]" style={{ height: "calc(100vh - 4rem)", "@media (min-width: 768px)": { height: "calc(100vh - 116px)" } }}>
-          <div className="h-full pb-16 lg:pb-0">
-            <Outlet />
-          </div>
+        <div className="flex-1 bg-gray-100 overflow-auto p-4 pb-20 lg:pb-4">
+          <Outlet />
         </div>
       </main>
     </div>

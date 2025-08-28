@@ -35,7 +35,7 @@ function ResetPassword() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header showNavigation={true} onLogout={() => navigate('/admin-login')} userEmail={""} className="fixed top-0 left-0 w-full z-10" logoutLabel="管理者ログイン" />
-      <main className="pt-[96px] min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center pt-[78px] md:pt-[116px] pb-4">
         <form onSubmit={handleSubmit} className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md">
           <h2 className="text-2xl font-bold text-indigo-600 mb-6 text-center">パスワード再発行</h2>
           {message && <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-sm w-full text-center">{message}</div>}
@@ -66,7 +66,7 @@ function ResetPassword() {
               </a>
             </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 }
