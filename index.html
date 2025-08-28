@@ -12,5 +12,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // 画面の向きを縦向きに固定
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('portrait').catch(() => {
+          console.log('画面の向きを固定できませんでした');
+        });
+      }
+      
+      // 画面の向き変更を検知して縦向きに戻す
+      window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+          if (window.orientation !== 0 && window.orientation !== 180) {
+            // 横向きの場合は縦向きに戻す
+            if (screen.orientation && screen.orientation.lock) {
+              screen.orientation.lock('portrait');
+            }
+          }
+        }, 100);
+      });
+    </script>
   </body>
 </html>
