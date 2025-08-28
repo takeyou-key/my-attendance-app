@@ -38,7 +38,9 @@ const Header = ({
               {userEmail === undefined ? (
                 <span className="animate-pulse">...</span>
               ) : userEmail ? (
-                <span className="pointer-events-none select-text">{userEmail}</span>
+                <span className="pointer-events-none select-text" style={{ pointerEvents: 'none', userSelect: 'text' }}>
+                  {userEmail.split('@')[0]}@{userEmail.split('@')[1]}
+                </span>
               ) : null}
             </div>
             {onLogout && (
@@ -61,7 +63,9 @@ const Header = ({
             {userEmail === undefined ? (
               <span className="animate-pulse">...</span>
             ) : userEmail ? (
-              <span className="pointer-events-none select-text">( {userEmail} )</span>
+              <span className="pointer-events-none select-text" style={{ pointerEvents: 'none', userSelect: 'text' }}>
+                ( {userEmail.split('@')[0]}@{userEmail.split('@')[1]} )
+              </span>
             ) : null}
           </div>
           {onLogout && (
