@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import Button from "./Button.jsx";
 import Header from "./Header.jsx";
+import AuthGuard from "./AuthGuard.jsx";
 
 
 /**
@@ -40,12 +41,12 @@ function AdminLayout() {
       <div className="flex flex-col overflow-hidden" style={{ height: '100dvh' }}>
         {/* ヘッダー */}
         <Header 
-          showNavigation={false} 
+          showNavigation={true} 
           onLogout={handleLogout} 
           userEmail={userEmail} 
           className="fixed top-0 left-0 w-full z-10"
           bgColor="#059669"
-          textColor="#ffffff"
+          textColor="#10b981"
         />
         
         {/* メインコンテンツ */}

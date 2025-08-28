@@ -13,8 +13,8 @@ const Header = ({
   bgColor,
   textColor
 }) => {
-  const baseClasses = "w-full h-[78px] md:h-[116px] flex items-center";
-  const navigationClasses = showNavigation ? "px-4 md:px-8" : "mb-8";
+  const baseClasses = "w-full h-[78px] md:h-[116px] flex items-center px-4 md:px-8";
+  const navigationClasses = showNavigation ? "" : "";
   const combinedClasses = `${baseClasses} ${navigationClasses} ${className}`.trim();
 
   const headerStyle = {};
@@ -38,7 +38,7 @@ const Header = ({
               {userEmail === undefined ? (
                 <span className="animate-pulse">...</span>
               ) : userEmail ? (
-                `${userEmail}`
+                <span className="pointer-events-none select-text">{userEmail}</span>
               ) : null}
             </div>
             {onLogout && (
@@ -61,7 +61,7 @@ const Header = ({
             {userEmail === undefined ? (
               <span className="animate-pulse">...</span>
             ) : userEmail ? (
-              `( ${userEmail} )`
+              <span className="pointer-events-none select-text">( {userEmail} )</span>
             ) : null}
           </div>
           {onLogout && (
