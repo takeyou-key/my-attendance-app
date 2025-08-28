@@ -2,6 +2,18 @@
 
 React + Vite + Firebase を使用した勤怠管理システムです。出勤・退勤の打刻機能、履歴表示機能、申請機能を提供します。
 
+## UI/UX デザイン
+
+### 色分けシステム
+- **ユーザー画面**: 紫（インディゴ `#4f46e5`）- 一般ユーザー向け
+- **管理者画面**: 緑（エメラルド `#059669`）- 管理者向け
+
+### 統一されたデザイン
+- レスポンシブデザイン（モバイル・タブレット・デスクトップ対応）
+- 統一されたヘッダーコンポーネント（高さ116px固定）
+- モダンなUI（Tailwind CSS使用）
+- カスタマイズ可能なボタン・ヘッダーコンポーネント
+
 ## 機能
 
 ### 認証機能
@@ -41,24 +53,26 @@ React + Vite + Firebase を使用した勤怠管理システムです。出勤�
 
 ## 技術スタック
 
-- **フロントエンド**: React 18 + Vite
-- **スタイリング**: Tailwind CSS
+- **フロントエンド**: React 18 + Vite 4.5.2
+- **スタイリング**: Tailwind CSS + PostCSS
 - **バックエンド**: Firebase
   - Authentication (認証)
   - Firestore (データベース)
 - **ルーティング**: React Router v6
 - **状態管理**: React Hooks
 - **カスタムフック**: useAuth, useClock, useSessionTimeout
+- **デプロイ**: Vercel
+- **パッケージマネージャー**: npm
 
 ## プロジェクト構造
 
 ```
 src/
 ├── components/          # 再利用可能なコンポーネント
-│   ├── Button.jsx      # 統一されたボタンコンポーネント
-│   ├── Header.jsx      # ヘッダーコンポーネント（高さ116px固定）
+│   ├── Button.jsx      # 統一されたボタンコンポーネント（bgColor, textColor対応）
+│   ├── Header.jsx      # ヘッダーコンポーネント（bgColor, textColor対応）
 │   ├── Layout.jsx      # レイアウトコンポーネント
-│   ├── AdminLayout.jsx # 管理者用レイアウト
+│   ├── AdminLayout.jsx # 管理者用レイアウト（緑色テーマ）
 │   ├── Modal.jsx       # モーダルダイアログ
 │   ├── LoadingSpinner.jsx # ローディングスピナー
 │   ├── TabNavigation.jsx # タブナビゲーション
@@ -66,15 +80,15 @@ src/
 │   ├── FormInput.jsx   # フォーム入力コンポーネント
 │   └── AuthGuard.jsx   # 認証ガード
 ├── pages/              # ページコンポーネント
-│   ├── Login.jsx       # ユーザーログインページ
-│   ├── AdminLogin.jsx  # 管理者ログインページ
+│   ├── Login.jsx       # ユーザーログインページ（紫テーマ）
+│   ├── AdminLogin.jsx  # 管理者ログインページ（緑テーマ）
 │   ├── Register.jsx    # ユーザー登録ページ
 │   ├── ResetPassword.jsx # パスワードリセット
 │   ├── Home.jsx        # メインページ（打刻機能）
 │   ├── Clock.jsx       # 打刻ページ
 │   ├── History.jsx     # 履歴・申請ページ
 │   ├── RequestList.jsx # 申請一覧ページ
-│   ├── AdminHome.jsx   # 管理者ホームページ
+│   ├── AdminHome.jsx   # 管理者ホームページ（緑テーマ）
 │   └── Settings.jsx    # 設定ページ
 ├── hooks/              # カスタムフック
 │   ├── useAuth.js      # 認証フック
@@ -93,8 +107,8 @@ src/
 ## セットアップ
 
 ### 前提条件
-- Node.js (v16以上)
-- npm または yarn
+- Node.js (v20以上推奨)
+- npm
 
 ### インストール
 ```bash
@@ -103,6 +117,18 @@ npm install
 
 # 開発サーバーの起動
 npm run dev
+
+# ビルド
+npm run build
+
+# プレビュー
+npm run preview
+```
+
+### デプロイ
+```bash
+# Vercelへのデプロイ（自動）
+git push origin main
 ```
 
 ### Firebase設定
@@ -110,6 +136,12 @@ npm run dev
 2. Authentication を有効化（メール/パスワード認証）
 3. Firestore データベースを作成
 4. `src/firebase.js` に設定情報を追加
+
+### 設定ファイル
+- `vite.config.js` - Vite設定（Vite 4.5.2対応）
+- `vercel.json` - Vercelデプロイ設定
+- `postcss.config.js` - PostCSS設定（ESM形式）
+- `tailwind.config.js` - Tailwind CSS設定
 
 ## データ構造
 
@@ -180,6 +212,9 @@ npm run dev
 - [x] 申請機能
 - [x] 管理者機能
 - [x] セッションタイムアウト
+- [x] UI/UXデザインの統一（色分けシステム）
+- [x] Vercelデプロイ対応
+- [x] Service Workerエラーハンドリング
 - [ ] 月次レポート機能
 - [ ] 有給休暇申請機能
 - [ ] 残業申請機能
