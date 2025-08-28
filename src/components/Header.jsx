@@ -28,6 +28,15 @@ const Header = ({
     headerStyle.color = textColor;
   }
 
+  // メールアドレス表示用のスタイル
+  const emailStyle = {
+    pointerEvents: 'none',
+    userSelect: 'text',
+    WebkitUserSelect: 'text',
+    MozUserSelect: 'text',
+    msUserSelect: 'text'
+  };
+
   return (
     <header className={combinedClasses} style={headerStyle}>
       {showNavigation ? (
@@ -38,8 +47,8 @@ const Header = ({
               {userEmail === undefined ? (
                 <span className="animate-pulse">...</span>
               ) : userEmail ? (
-                <span className="pointer-events-none select-text" style={{ pointerEvents: 'none', userSelect: 'text' }}>
-                  {userEmail.split('@')[0]}@{userEmail.split('@')[1]}
+                <span style={emailStyle} data-email={userEmail}>
+                  {userEmail.split('@')[0]}<span style={{ pointerEvents: 'none' }}>@</span>{userEmail.split('@')[1]}
                 </span>
               ) : null}
             </div>
@@ -63,8 +72,8 @@ const Header = ({
             {userEmail === undefined ? (
               <span className="animate-pulse">...</span>
             ) : userEmail ? (
-              <span className="pointer-events-none select-text" style={{ pointerEvents: 'none', userSelect: 'text' }}>
-                ( {userEmail.split('@')[0]}@{userEmail.split('@')[1]} )
+              <span style={emailStyle} data-email={userEmail}>
+                ( {userEmail.split('@')[0]}<span style={{ pointerEvents: 'none' }}>@</span>{userEmail.split('@')[1]} )
               </span>
             ) : null}
           </div>
