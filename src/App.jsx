@@ -11,11 +11,11 @@ import Clock from "./pages/Clock.jsx";
 import RequestList from "./pages/RequestList.jsx";
 import AdminHome from "./pages/AdminHome.jsx";
 import Settings from "./pages/Settings.jsx";
-// import { useSessionTimeout } from './hooks/useSessionTimeout';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 function App() {
   // セッションタイムアウト機能を有効化（30分）
-  // useSessionTimeout(30, true);
+  useSessionTimeout(30, true);
 
   return (
     <BrowserRouter>

@@ -191,12 +191,12 @@ function AdminHome() {
           </div>
         ) : (
           <span className={`px-2 py-1 text-xs rounded ${request.status === "承認"
-              ? "bg-green-100 text-green-800"
-              : request.status === "否認"
-                ? "bg-yellow-100 text-yellow-800"
-                : request.status === "未対応"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
+            ? "bg-green-100 text-green-800"
+            : request.status === "否認"
+              ? "bg-yellow-100 text-yellow-800"
+              : request.status === "未対応"
+                ? "bg-red-100 text-red-800"
+                : "bg-yellow-100 text-yellow-800"
             }`}>
             {request.status}
           </span>
@@ -310,46 +310,45 @@ function AdminHome() {
 
   if (loading) {
     return (
-      <div className="w-full h-full p-6 flex items-center justify-center">
+      <div className="w-full min-h-screen p-6 flex items-center justify-center">
         <div className="text-lg text-gray-600">読み込み中...</div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full p-4 md:p-6 pt-8 md:pt-12">
-             <div className="mb-4 md:mb-6">
-         <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
- 
-         {/* タブ */}
-         <TabNavigation
-           tabs={[
-             { id: "未対応", label: "未対応" },
-             { id: "対応済み", label: "対応済み" }
-           ]}
-           activeTab={activeTab}
-           onTabChange={setActiveTab}
-           variant="underline"
-         >
-           {/* 一括承認ボタン（モバイル） */}
-           <div className="lg:hidden">
-             {activeTab === "未対応" && (
-               <Button
-                 variant="none"
-                 className={`px-4 py-2 rounded-lg text-sm shadow-lg ${
-                   selectedItems.length > 0 
-                     ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                 }`}
-                 onClick={selectedItems.length > 0 ? handleBulkApprove : undefined}
-                 disabled={selectedItems.length === 0}
-               >
-                 一括承認 ({selectedItems.length})
-               </Button>
-             )}
-           </div>
-         </TabNavigation>
-       </div>
+    <div className="w-full min-h-screen p-4 md:p-6 md:pt-12">
+      <div className="mb-4 md:mb-6">
+        <h1 className="hidden md:block text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
+
+        {/* タブ */}
+        <TabNavigation
+          tabs={[
+            { id: "未対応", label: "未対応" },
+            { id: "対応済み", label: "対応済み" }
+          ]}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          variant="underline"
+        >
+          {/* 一括承認ボタン（モバイル） */}
+          <div className="lg:hidden">
+            {activeTab === "未対応" && (
+              <Button
+                variant="none"
+                className={`px-4 py-2 rounded-lg text-sm shadow-lg ${selectedItems.length > 0
+                    ? "bg-blue-600 hover:bg-purple-700 text-white"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                onClick={selectedItems.length > 0 ? handleBulkApprove : undefined}
+                disabled={selectedItems.length === 0}
+              >
+                一括承認 ({selectedItems.length})
+              </Button>
+            )}
+          </div>
+        </TabNavigation>
+      </div>
 
       {/* デスクトップ用テーブル */}
       <div className="hidden lg:block">
@@ -383,24 +382,24 @@ function AdminHome() {
         />
       </div>
 
-             {/* モバイル・タブレット用カード表示 */}
-       <div className="lg:hidden space-y-4">
-         {/* 全選択ボタン（モバイル） */}
-         {activeTab === "未対応" && filteredRequests.length > 0 && (
-           <div className="flex items-center space-x-2 mb-3">
-             <input
-               type="checkbox"
-               checked={selectedItems.length === filteredRequests.length}
-               onChange={(e) => handleSelectAll(e.target.checked)}
-               className="rounded border-gray-300"
-             />
-             <span className="text-sm text-gray-700">
-               全選択 ({selectedItems.length}/{filteredRequests.length})
-             </span>
-           </div>
-         )}
-         
-         {filteredRequests.map((request) => (
+      {/* モバイル・タブレット用カード表示 */}
+      <div className="lg:hidden space-y-4">
+        {/* 全選択ボタン（モバイル） */}
+        {activeTab === "未対応" && filteredRequests.length > 0 && (
+          <div className="flex items-center space-x-2 mb-3">
+            <input
+              type="checkbox"
+              checked={selectedItems.length === filteredRequests.length}
+              onChange={(e) => handleSelectAll(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm text-gray-700">
+              全選択 ({selectedItems.length}/{filteredRequests.length})
+            </span>
+          </div>
+        )}
+
+        {filteredRequests.map((request) => (
           <div key={request.id} className="bg-white rounded-lg shadow-md p-3 md:p-4 border">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
@@ -413,70 +412,70 @@ function AdminHome() {
                 <span className="font-medium text-gray-900">{request.item}</span>
               </div>
               <span className={`px-2 py-1 text-xs rounded-full ${request.status === "承認"
-                  ? "bg-green-100 text-green-800"
-                  : request.status === "否認"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
+                ? "bg-green-100 text-green-800"
+                : request.status === "否認"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
                 }`}>
                 {request.status}
               </span>
             </div>
 
-                         <div className="grid grid-cols-2 gap-2 text-sm mb-2">
-               <div>
-                 <span className="text-gray-600">申請日:</span>
-                 <span className="ml-1 font-medium">{request.date}</span>
-               </div>
-               <div>
-                 <span className="text-gray-600">対象日:</span>
-                 <span className="ml-1 font-medium">{request.targetDate}</span>
-               </div>
-               <div className="col-span-2">
-                 <span className="text-gray-600">申請者:</span>
-                 <span className="ml-1 font-medium">{request.applicant}</span>
-               </div>
-             </div>
+            <div className="grid grid-cols-2 gap-2 text-sm mb-2">
+              <div>
+                <span className="text-gray-600">申請日:</span>
+                <span className="ml-1 font-medium">{request.date}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">対象日:</span>
+                <span className="ml-1 font-medium">{request.targetDate}</span>
+              </div>
+              <div className="col-span-2">
+                <span className="text-gray-600">申請者:</span>
+                <span className="ml-1 font-medium">{request.applicant}</span>
+              </div>
+            </div>
 
-                         {/* 変更内容 */}
-             {request.originalData && request.updatedData && (
-               <div className="bg-gray-50 rounded p-3 mb-2">
-                 <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
-                 <div className="flex items-center space-x-4 text-xs">
-                   <div className="flex items-center space-x-2">
-                     <span>出勤:</span>
-                     <div className="flex space-x-1">
-                       <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'line-through text-red-500' : ''}>
-                         {request.originalData.clockIn}
-                       </span>
-                       <span>→</span>
-                       <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}>
-                         {request.updatedData.clockIn}
-                       </span>
-                     </div>
-                   </div>
-                   <div className="flex items-center space-x-2">
-                     <span>退勤:</span>
-                     <div className="flex space-x-1">
-                       <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'line-through text-red-500' : ''}>
-                         {request.originalData.clockOut}
-                       </span>
-                       <span>→</span>
-                       <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}>
-                         {request.updatedData.clockOut}
-                       </span>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             )}
+            {/* 変更内容 */}
+            {request.originalData && request.updatedData && (
+              <div className="bg-gray-50 rounded p-3 mb-2">
+                <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
+                <div className="flex items-center space-x-4 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <span>出勤:</span>
+                    <div className="flex space-x-1">
+                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'line-through text-red-500' : ''}>
+                        {request.originalData.clockIn}
+                      </span>
+                      <span>→</span>
+                      <span className={request.originalData.clockIn !== request.updatedData.clockIn ? 'text-green-600 font-bold' : ''}>
+                        {request.updatedData.clockIn}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span>退勤:</span>
+                    <div className="flex space-x-1">
+                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'line-through text-red-500' : ''}>
+                        {request.originalData.clockOut}
+                      </span>
+                      <span>→</span>
+                      <span className={request.originalData.clockOut !== request.updatedData.clockOut ? 'text-green-600 font-bold' : ''}>
+                        {request.updatedData.clockOut}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-                         {/* コメント */}
-             {request.comment && (
-               <div className="mb-2">
-                 <span className="text-gray-600 text-sm">コメント:</span>
-                 <span className="text-sm ml-1">{request.comment}</span>
-               </div>
-             )}
+            {/* コメント */}
+            {request.comment && (
+              <div className="mb-2">
+                <span className="text-gray-600 text-sm">コメント:</span>
+                <span className="text-sm ml-1">{request.comment}</span>
+              </div>
+            )}
 
             {/* アクションボタン */}
             {request.status === "未対応" && (
@@ -500,7 +499,7 @@ function AdminHome() {
           </div>
         ))}
 
-        
+
       </div>
 
       {/* 詳細モーダル */}
