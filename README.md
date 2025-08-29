@@ -179,6 +179,29 @@ git push origin main
 }
 ```
 
+### Firestore コレクション: `user_settings`
+```javascript
+{
+  userId: "user123",
+  regularWorkHours: 8,        // 定時時間（時間）
+  workDaysPerMonth: 22,       // 月間勤務日数
+  breakTime: "01:00",         // 休憩時間
+  createdAt: "2024-01-01",    // 作成日
+  updatedAt: "2024-01-15"     // 更新日
+}
+```
+
+### Firestore コレクション: `users`
+```javascript
+{
+  userId: "user123",
+  email: "user@example.com",
+  role: "user",               // "user" | "admin"
+  createdAt: "2024-01-01",    // 作成日
+  lastLoginAt: "2024-01-15"   // 最終ログイン日
+}
+```
+
 ## 主要機能の実装詳細
 
 ### 認証システム
