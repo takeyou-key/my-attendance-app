@@ -1,0 +1,702 @@
+勤怠管理アプリ - 自作関数一覧
+=====================================
+
+【認証関連関数 (utils/auth.js)】
+=====================================
+
+/**
+ * ユーザーが管理者かどうかを確認する
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<boolean>} 管理者の場合はtrue、そうでなければfalse
+ */
+export const isAdmin = async (userId) => {
+  try {
+    const userDoc = doc(db, "users", userId);
+    const userSnap = await getDoc(userDoc);
+    
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      return userData.role === "admin";
+    }
+    return false;
+  } catch (error) {
+    console.error("管理者権限確認エラー:", error);
+    return false;
+  }
+};
+
+/**
+ * ユーザー情報を取得する
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<Object|null>} ユーザー情報、存在しない場合はnull
+ */
+export const getUserInfo = async (userId) => {
+  try {
+    const userDoc = doc(db, "users", userId);
+    const userSnap = await getDoc(userDoc);
+    
+    if (userSnap.exists()) {
+      return userSnap.data();
+    }
+    return null;
+  } catch (error) {
+    console.error("ユーザー情報取得エラー:", error);
+    return null;
+  }
+};
+
+【時間計算関数 (utils/timeCalculations.js)】
+=====================================
+
+/**
+ * 総勤務時間を計算する
+ * @param {string} clockIn - 出勤時刻 ("HH:MM"形式)
+ * @param {string} clockOut - 退勤時刻 ("HH:MM"形式)
+ * @returns {string} 勤務時間 ("HH:MM"形式、無効な場合は "--:--")
+ */
+export const calculateWorkTime = (clockIn, clockOut) => {
+  if (!clockIn || !clockOut || clockIn === "--:--" || clockOut === "--:--") {
+    return "--:--";
+  }
+  
+  try {
+    const [inHour, inMin] = clockIn.split(":").map(Number);
+    const [outHour, outMin] = clockOut.split(":").map(Number);
+    
+    const inMinutes = inHour * 60 + inMin;
+    const outMinutes = outHour * 60 + outMin;
+    
+    if (outMinutes <= inMinutes) {
+      return "--:--"; // 退勤時刻が出勤時刻より早い場合
+    }
+    
+    const workMinutes = outMinutes - inMinutes;
+    const hours = Math.floor(workMinutes / 60);
+    const minutes = workMinutes % 60;
+    
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  } catch {
+    return "--:--";
+  }
+};
+
+/**
+ * 実働時間を計算する（総勤務時間 - 休憩時間）
+ * @param {string} workTime - 総勤務時間 ("HH:MM"形式)
+ * @param {string} breakTime - 休憩時間 ("HH:MM"形式)
+ * @returns {string} 実働時間 ("HH:MM"形式、無効な場合は "--:--")
+ */
+export const calculateActualWorkTime = (workTime, breakTime) => {
+  if (!workTime || workTime === "--:--") {
+    return "--:--";
+  }
+  
+  try {
+    const [workHours, workMinutes] = workTime.split(":").map(Number);
+    const totalWorkMinutes = workHours * 60 + workMinutes;
+    
+    let breakMinutes = 0;
+    if (breakTime && breakTime !== "--:--") {
+      const [breakHours, breakMins] = breakTime.split(":").map(Number);
+      breakMinutes = breakHours * 60 + breakMins;
+    }
+    
+    const actualWorkMinutes = totalWorkMinutes - breakMinutes;
+    
+    if (actualWorkMinutes <= 0) {
+      return "--:--";
+    }
+    
+    const hours = Math.floor(actualWorkMinutes / 60);
+    const minutes = actualWorkMinutes % 60;
+    
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  } catch {
+    return "--:--";
+  }
+};
+
+/**
+ * 残業時間を計算する（実働時間ベース）
+ * @param {string} actualWorkTime - 実働時間 ("HH:MM"形式)
+ * @param {number} regularWorkMinutes - 定時時間（分）
+ * @returns {string} 残業時間 ("HH:MM"形式、定時以内の場合は "--:--")
+ */
+export const calculateOverTime = (actualWorkTime, regularWorkMinutes) => {
+  if (!actualWorkTime || actualWorkTime === "--:--") {
+    return "--:--";
+  }
+  
+  try {
+    const [hours, minutes] = actualWorkTime.split(":").map(Number);
+    const totalWorkMinutes = hours * 60 + minutes;
+    
+    if (totalWorkMinutes <= regularWorkMinutes) {
+      return "--:--"; // 定時以内
+    }
+    
+    const overTimeMinutes = totalWorkMinutes - regularWorkMinutes;
+    const overHours = Math.floor(overTimeMinutes / 60);
+    const overMinutes = overTimeMinutes % 60;
+    
+    return `${String(overHours).padStart(2, "0")}:${String(overMinutes).padStart(2, "0")}`;
+  } catch {
+    return "--:--";
+  }
+};
+
+/**
+ * 時間の合計を計算する
+ * @param {string[]} times - 時間の配列 ("HH:MM"形式)
+ * @returns {string} 合計時間 ("HH:MM"形式、無効な場合は "--:--")
+ */
+export const sumTimes = (times) => {
+  let total = 0;
+  let validCount = 0;
+  
+  times.forEach(t => {
+    if (!t || t === "--:--") return;
+    const [h, m] = t.split(":").map(Number);
+    if (!isNaN(h) && !isNaN(m)) {
+      total += h * 60 + m;
+      validCount++;
+    }
+  });
+  
+  if (validCount === 0) return "--:--";
+  
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
+
+【勤怠データ取得関数 (utils/attendanceUtils.js)】
+=====================================
+
+/**
+ * 今日の勤怠データを取得する
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<Object|null>} 勤怠データ（存在しない場合はnull）
+ */
+export const fetchTodayAttendance = async (userId) => {
+  try {
+    const today = new Date();
+    // 日本時間で日付を取得
+    const dateStr = today.toLocaleDateString('ja-JP', { 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    }).replace(/\//g, '-');
+    const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    return null;
+  } catch (error) {
+    console.error('今日の勤怠データ取得エラー:', error);
+    throw error;
+  }
+};
+
+/**
+ * 月別勤怠データを取得する
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<Array>} 勤怠データの配列
+ */
+export const fetchMonthlyAttendance = async (userId) => {
+  try {
+    const q = query(
+      collection(db, COLLECTIONS.TIME_RECORDS),
+      where("userId", "==", userId)
+    );
+    const querySnapshot = await getDocs(q);
+    const data = [];
+    
+    querySnapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('月別勤怠データ取得エラー:', error);
+    throw error;
+  }
+};
+
+/**
+ * ユーザー設定を取得する
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<Object|null>} 設定データ（存在しない場合はnull）
+ */
+export const fetchUserSettings = async (userId) => {
+  try {
+    const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
+    const settingsSnap = await getDoc(settingsRef);
+    
+    if (settingsSnap.exists()) {
+      return settingsSnap.data();
+    }
+    return null;
+  } catch (error) {
+    console.error('ユーザー設定取得エラー:', error);
+    throw error;
+  }
+};
+
+/**
+ * 申請データを取得する
+ * @param {string} userId - ユーザーID（オプション）
+ * @returns {Promise<Array>} 申請データの配列
+ */
+export const fetchApplications = async (userId = null) => {
+  try {
+    let q;
+    if (userId) {
+      q = query(
+        collection(db, COLLECTIONS.CHANGE_REQUESTS),
+        where("userId", "==", userId)
+      );
+    } else {
+      q = query(collection(db, COLLECTIONS.CHANGE_REQUESTS));
+    }
+    
+    const querySnapshot = await getDocs(q);
+    const data = [];
+    
+    querySnapshot.forEach((doc) => {
+      data.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('申請データ取得エラー:', error);
+    throw error;
+  }
+};
+
+/**
+ * 年月リストを生成する
+ * @param {Array} attendanceData - 勤怠データの配列
+ * @returns {Array} 年月の配列（降順）
+ */
+export const generateYearMonths = (attendanceData) => {
+  const ymSet = new Set();
+  
+  attendanceData.forEach((data) => {
+    if (data.date) {
+      const d = new Date(data.date);
+      const yearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      ymSet.add(yearMonth);
+    }
+  });
+  
+  return Array.from(ymSet).sort().reverse();
+};
+
+/**
+ * 指定年月の勤怠データを取得する
+ * @param {Array} attendanceData - 勤怠データの配列
+ * @param {string} yearMonth - 年月（YYYY-MM形式）
+ * @returns {Array} 指定年月の勤怠データ
+ */
+export const filterAttendanceByMonth = (attendanceData, yearMonth) => {
+  return attendanceData.filter((data) => {
+    if (!data.date) return false;
+    const d = new Date(data.date);
+    const dataYearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return dataYearMonth === yearMonth;
+  });
+};
+
+【定数・ヘルパー関数 (constants/firestore.js)】
+=====================================
+
+// コレクション名定数
+export const COLLECTIONS = {
+  // 勤怠記録（旧: attendances）
+  TIME_RECORDS: 'time_records',
+  
+  // 変更申請（旧: applications, requests）
+  CHANGE_REQUESTS: 'change_requests',
+  
+  // ユーザー設定（旧: settings）
+  USER_SETTINGS: 'user_settings'
+};
+
+// ドキュメントID生成ヘルパー
+export const generateDocId = {
+  // 勤怠記録のドキュメントID生成
+  timeRecord: (userId, date) => `${userId}_${date}`,
+  
+  // ユーザー設定のドキュメントID生成
+  userSetting: (userId) => userId
+};
+
+【カスタムフック (hooks/)】
+=====================================
+
+/**
+ * 認証状態管理カスタムフック
+ * @param {Object} options - オプション設定
+ * @param {string} options.redirectTo - ログアウト時のリダイレクト先
+ * @param {boolean} options.requireAuth - 認証必須フラグ
+ * @returns {Object} 認証状態とユーザー情報
+ */
+export const useAuth = (options = {}) => {
+  const { redirectTo = '/login', requireAuth = false } = options;
+  
+  const [user, setUser] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // 認証状態の監視
+  useEffect(() => {
+    const auth = getAuth();
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        setUserEmail(user.email);
+        setUserId(user.uid);
+      } else {
+        setUser(null);
+        setUserEmail(null);
+        setUserId(null);
+        
+        // 認証必須でログインしていない場合はリダイレクト
+        if (requireAuth) {
+          navigate(redirectTo);
+        }
+      }
+      
+      setIsAuthChecked(true);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [navigate, redirectTo, requireAuth]);
+
+  // ログアウト処理
+  const logout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      navigate(redirectTo);
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+    }
+  };
+
+  return {
+    user,
+    userEmail,
+    userId,
+    isAuthChecked,
+    isLoading,
+    logout,
+    isAuthenticated: !!user
+  };
+};
+
+/**
+ * 打刻処理カスタムフック
+ * @param {string} userId - ユーザーID
+ * @param {boolean} isAuthChecked - 認証チェック完了フラグ
+ * @returns {Object} 打刻関連の状態と関数
+ */
+export const useClock = (userId, isAuthChecked) => {
+  const [todayStatus, setTodayStatus] = useState({
+    出勤: "--:--",
+    退勤: "--:--"
+  });
+  const [completeMessage, setCompleteMessage] = useState("");
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  // 今日の出勤・退勤状況を取得
+  useEffect(() => {
+    if (!userId || !isAuthChecked) {
+      setTodayStatus({ 出勤: "--:--", 退勤: "--:--" });
+      setIsDataLoaded(false);
+      return;
+    }
+
+    const fetchToday = async () => {
+      try {
+        const today = new Date();
+        // 日本時間で日付を取得
+        const dateStr = today.toLocaleDateString('ja-JP', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit' 
+        }).replace(/\//g, '-');
+        const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setTodayStatus({
+            出勤: data.clockIn || "--:--",
+            退勤: data.clockOut || "--:--"
+          });
+        } else {
+          setTodayStatus({ 出勤: "--:--", 退勤: "--:--" });
+        }
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error('打刻状況取得エラー:', error);
+        setTodayStatus({ 出勤: "--:--", 退勤: "--:--" });
+        setIsDataLoaded(true);
+      }
+    };
+
+    fetchToday();
+  }, [userId, isAuthChecked]);
+
+  // 出勤打刻
+  const handleClockIn = async () => {
+    if (!userId) return;
+
+    try {
+      const today = new Date();
+      // 日本時間で日付を取得
+      const dateStr = today.toLocaleDateString('ja-JP', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      }).replace(/\//g, '-');
+      const timeStr = today.toTimeString().slice(0, 5);
+      const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
+
+      await setDoc(docRef, {
+        userId,
+        date: dateStr,
+        clockIn: timeStr,
+        clockOut: "--:--",
+        workTime: "",
+        overTime: "",
+        status: "",
+        comment: ""
+      }, { merge: true });
+
+      setTodayStatus(prev => ({ ...prev, 出勤: timeStr }));
+      setCompleteMessage("出勤の打刻が完了しました。今日も一日頑張りましょう！");
+    } catch (error) {
+      console.error('出勤打刻エラー:', error);
+    }
+  };
+
+  // 退勤打刻
+  const handleClockOut = async () => {
+    if (!userId) return;
+
+    try {
+      const today = new Date();
+      // 日本時間で日付を取得
+      const dateStr = today.toLocaleDateString('ja-JP', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+      }).replace(/\//g, '-');
+      const timeStr = today.toTimeString().slice(0, 5);
+      const docRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(userId, dateStr));
+
+      // 勤務時間と残業時間を計算
+      const workTime = calculateWorkTime(todayStatus.出勤, timeStr);
+      const overTime = calculateOverTime(workTime, 8 * 60); // 8時間を分で指定
+
+      await updateDoc(docRef, {
+        clockOut: timeStr,
+        workTime: workTime,
+        overTime: overTime,
+        status: "completed"
+      });
+
+      setTodayStatus(prev => ({ ...prev, 退勤: timeStr }));
+      setCompleteMessage("退勤の打刻が完了しました");
+    } catch (error) {
+      console.error('退勤打刻エラー:', error);
+    }
+  };
+
+  return {
+    todayStatus,
+    completeMessage,
+    isDataLoaded,
+    handleClockIn,
+    handleClockOut,
+    setCompleteMessage
+  };
+};
+
+/**
+ * セッションタイムアウト機能を提供するカスタムフック
+ * @param {number} timeoutMinutes - タイムアウト時間（分）
+ * @param {boolean} enabled - タイムアウト機能を有効にするかどうか
+ */
+export const useSessionTimeout = (timeoutMinutes = 30, enabled = true) => {
+  const timeoutRef = useRef(null);
+  const lastActivityRef = useRef(Date.now());
+
+  // アクティビティを記録する関数
+  const resetTimer = () => {
+    lastActivityRef.current = Date.now();
+  };
+
+  // タイマーを開始する関数
+  const startTimer = () => {
+    if (!enabled) return;
+
+    // 既存のタイマーをクリア
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // 新しいタイマーを設定
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        console.log('セッションタイムアウト: 自動ログアウトします');
+        await signOut(auth);
+        // 必要に応じてリダイレクト
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('ログアウトエラー:', error);
+      }
+    }, timeoutMinutes * 60 * 1000);
+  };
+
+  // アクティビティイベントを監視
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleActivity = () => {
+      resetTimer();
+      startTimer();
+    };
+
+    // アクティビティイベントを登録
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, handleActivity, true);
+    });
+
+    // 初期タイマーを開始
+    startTimer();
+
+    // クリーンアップ
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleActivity, true);
+      });
+      
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [timeoutMinutes, enabled]);
+
+  // 手動でタイマーをリセットする関数
+  const refreshSession = () => {
+    resetTimer();
+    startTimer();
+  };
+
+  return { refreshSession };
+};
+
+【関数の使用箇所】
+=====================================
+
+【認証関連】
+├── isAdmin()
+│   ├── Login.jsx: 管理者権限確認
+│   └── AdminLogin.jsx: 管理者ログイン確認
+└── getUserInfo()
+    └── ユーザー情報取得（現在未使用）
+
+【時間計算】
+├── calculateWorkTime()
+│   ├── useClock.js: 退勤時の勤務時間計算
+│   └── History.jsx: 勤務時間表示
+├── calculateActualWorkTime()
+│   └── 実働時間計算（現在未使用）
+├── calculateOverTime()
+│   ├── useClock.js: 退勤時の残業時間計算
+│   └── History.jsx: 残業時間表示
+└── sumTimes()
+    └── History.jsx: 月間合計時間計算
+
+【勤怠データ取得】
+├── fetchTodayAttendance()
+│   └── 今日の勤怠データ取得（現在未使用）
+├── fetchMonthlyAttendance()
+│   └── History.jsx: 月別勤怠データ取得
+├── fetchUserSettings()
+│   └── Settings.jsx: ユーザー設定取得
+├── fetchApplications()
+│   ├── RequestList.jsx: 申請データ取得
+│   └── AdminHome.jsx: 全申請データ取得
+├── generateYearMonths()
+│   └── History.jsx: 年月リスト生成
+└── filterAttendanceByMonth()
+    └── History.jsx: 月別データフィルタリング
+
+【定数・ヘルパー】
+├── COLLECTIONS
+│   ├── 全ファイル: コレクション名参照
+│   └── データベース操作時の統一
+└── generateDocId
+    ├── timeRecord(): 勤怠記録ID生成
+    └── userSetting(): ユーザー設定ID生成
+
+【カスタムフック】
+├── useAuth()
+│   ├── Clock.jsx: 認証状態管理
+│   ├── History.jsx: 認証状態管理
+│   ├── RequestList.jsx: 認証状態管理
+│   └── Settings.jsx: 認証状態管理
+├── useClock()
+│   └── Clock.jsx: 打刻機能管理
+└── useSessionTimeout()
+    └── App.jsx: セッションタイムアウト管理
+
+【関数の特徴】
+=====================================
+
+【エラーハンドリング】
+├── try-catch文での包括的エラー処理
+├── console.errorでのログ出力
+├── デフォルト値でのフォールバック
+└── ユーザー向けエラーメッセージ
+
+【型安全性】
+├── JSDocコメントでの型定義
+├── パラメータの型チェック
+├── 戻り値の型指定
+└── 無効値の適切な処理
+
+【再利用性】
+├── 汎用的な関数設計
+├── オプションパラメータの活用
+├── デフォルト値の設定
+└── モジュール化された構造
+
+【パフォーマンス】
+├── 必要な時のみデータ取得
+├── キャッシュの活用
+├── 効率的なアルゴリズム
+└── メモリリークの防止
+
+=====================================
+作成日: 2024年
+更新日: 2024年
+バージョン: 1.0.0
+=====================================
