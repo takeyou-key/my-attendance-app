@@ -1,12 +1,7 @@
-// Import the functions you need from the SDKs you need
+// Firebase設定
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyD7wO83JGrE9-q28JKj3DBX8g_glG9CApQ",
   authDomain: "attendance-app-c014d.firebaseapp.com",
@@ -26,7 +21,6 @@ try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  console.log('Firebase initialized successfully');
 } catch (error) {
   console.error('Firebase initialization failed:', error);
   // Fallback: create dummy objects to prevent app crash

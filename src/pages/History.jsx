@@ -286,39 +286,39 @@ function History() {
   return (
     <div className="w-full h-full p-4 pb-24 md:p-6 lg:pb-8">
       <div className="max-w-6xl mx-auto h-full flex flex-col">
-         <div className="mb-4 md:mb-6 flex flex-col space-y-3">
-           {/* 1行目：年月選択と申請ボタン */}
-           <div className="flex items-center justify-between">
-             <div>
-               <label className="font-bold text-gray-700">年月 :  </label>
-               <select
-                 className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                 value={selectedYM}
-                 onChange={(e) => setSelectedYM(e.target.value)}
-               >
-                 {yearMonths.map((ym) => (
-                   <option key={ym} value={ym}>{ym.replace("-", "年") + "月"}</option>
-                 ))}
-               </select>
-             </div>
-             <Button
-               onClick={handleApply}
-               className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
-             >
-               申請
-             </Button>
-           </div>
-           
-           {/* 2行目：ステータス色分け説明 */}
-           <div className="flex items-center space-x-2 text-sm">
-             <span className="font-medium text-gray-700">ステータス：</span>
-             <div className="flex items-center space-x-2">
-               <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">申請中</span>
-               <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs">否認</span>
-               <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">承認済み</span>
-             </div>
-           </div>
-         </div>
+        <div className="mb-4 md:mb-6 flex flex-col space-y-3">
+          {/* 1行目：年月選択と申請ボタン */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="font-bold text-gray-700">年月 :  </label>
+              <select
+                className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                value={selectedYM}
+                onChange={(e) => setSelectedYM(e.target.value)}
+              >
+                {yearMonths.map((ym) => (
+                  <option key={ym} value={ym}>{ym.replace("-", "年") + "月"}</option>
+                ))}
+              </select>
+            </div>
+            <Button
+              onClick={handleApply}
+              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+            >
+              申請
+            </Button>
+          </div>
+
+          {/* 2行目：ステータス色分け説明 */}
+          <div className="flex items-center space-x-2 text-sm">
+            <span className="font-medium text-gray-700">ステータス：</span>
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">申請中</span>
+              <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs">否認</span>
+              <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">承認済み</span>
+            </div>
+          </div>
+        </div>
 
         {/* テーブルコンテナ - 最大高さでスクロール */}
         <div className="bg-white shadow overflow-hidden flex-1">
@@ -343,12 +343,12 @@ function History() {
                   monthTable.map((row, idx) => (
                     <tr key={row.date} className={
                       `${idx % 2 ? "bg-gray-50" : ""} ${row.status === "申請中" || row.status === "未対応"
-                          ? "bg-red-100"
-                          : row.status === "否認"
-                            ? "bg-yellow-200"
-                            : row.status === "承認済み"
-                              ? "bg-green-100"
-                              : ""
+                        ? "bg-red-100"
+                        : row.status === "否認"
+                          ? "bg-yellow-200"
+                          : row.status === "承認済み"
+                            ? "bg-green-100"
+                            : ""
                         }`.trim()
                     }>
                       <td className="py-2 px-4">{new Date(row.date).getDate()}</td>
