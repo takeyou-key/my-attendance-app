@@ -183,12 +183,12 @@ function RequestList() {
     }
 
   return (
-    <div className="bg-gray-100">
+    <div className="bg-gray-100 min-h-screen">
       {/* メインコンテンツ */}
-      <main className="p-4 md:p-0">
+      <main className="p-4 md:p-6 md:pt-12 pb-20 md:pb-24">
         <div className="max-w-6xl mx-auto">
           {/* タイトル */}
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
+          <h1 className="hidden md:block text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
 
           {/* タブ */}
           <TabNavigation
