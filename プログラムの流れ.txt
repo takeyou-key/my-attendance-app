@@ -59,18 +59,18 @@
 
 3. 打刻処理 (useClock.js)
    ├── 今日の打刻状況取得
-   │   ├── Firestoreからデータ取得
+   │   ├── Firestoreからデータ取得: getDoc()
    │   ├── 日付文字列生成: YYYY-MM-DD形式
-   │   └── ドキュメントID生成: {userId}_{date}
+   │   └── ドキュメントID生成: generateDocId.timeRecord()
    ├── 出勤打刻処理
    │   ├── 現在時刻を取得
-   │   ├── Firestoreにデータ保存
+   │   ├── Firestoreにデータ保存: setDoc()
    │   └── 完了メッセージ表示
    ├── 退勤打刻処理
    │   ├── 現在時刻を取得
-   │   ├── 勤務時間計算
-   │   ├── 残業時間計算
-   │   ├── Firestoreにデータ更新
+   │   ├── 勤務時間計算: calculateWorkTime()
+   │   ├── 残業時間計算: calculateOverTime()
+   │   ├── Firestoreにデータ更新: updateDoc()
    │   └── 完了メッセージ表示
    └── 状態管理
        ├── todayStatus: 今日の打刻状況
@@ -81,8 +81,8 @@
 =====================================
 
 1. Firestoreデータ構造
-   ├── コレクション: time_records
-   │   ├── ドキュメントID: {userId}_{date}
+   ├── コレクション: COLLECTIONS.TIME_RECORDS
+   │   ├── ドキュメントID: generateDocId.timeRecord()
    │   ├── userId: ユーザーID
    │   ├── date: 日付 (YYYY-MM-DD)
    │   ├── clockIn: 出勤時刻 (HH:MM)
@@ -96,7 +96,7 @@
    │   ├── email: メールアドレス
    │   ├── role: 権限 (user/admin)
    │   └── settings: ユーザー設定
-   └── コレクション: requests
+   └── コレクション: COLLECTIONS.CHANGE_REQUESTS
        ├── ドキュメントID: {requestId}
        ├── userId: ユーザーID
        ├── type: 申請タイプ
@@ -136,7 +136,7 @@
 1. 認証エラー
    ├── ログイン失敗: try-catchでキャッチ
    ├── 権限不足: isAdmin()でチェック
-   ├── セッション切れ: useSessionTimeoutで自動ログアウト
+   ├── セッション切れ: useSessionTimeout()で自動ログアウト
    └── ネットワークエラー: 再接続処理
 
 2. データエラー
@@ -159,9 +159,9 @@
    └── 一時データ: completeMessage, todayStatus
 
 2. グローバル状態 (カスタムフック)
-   ├── 認証状態: useAuth
-   ├── 打刻状態: useClock
-   └── セッション状態: useSessionTimeout
+   ├── 認証状態: useAuth()
+   ├── 打刻状態: useClock()
+   └── セッション状態: useSessionTimeout()
 
 3. 永続化状態 (localStorage)
    ├── ユーザー情報: userEmail, adminEmail
