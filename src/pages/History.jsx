@@ -264,7 +264,7 @@ function History() {
   }
 
   return (
-    <div className="w-full h-full p-2 md:p-6 lg:pb-8">
+    <div className="w-full h-full p-4 pb-24 md:p-6 lg:pb-8">
       <div className="max-w-6xl mx-auto h-full flex flex-col">
         <div className="mb-4 md:mb-6 flex items-center justify-between">
           <div>

@@ -138,7 +138,7 @@ function Layout() {
         </div>
         
         {/* メインコンテンツ */}
-        <div className="flex-1 bg-gray-100 overflow-auto p-4 pb-20 lg:pb-4">
+        <div className="flex-1 bg-gray-100 overflow-auto">
           <Outlet />
         </div>
       </main>

@@ -42,7 +42,7 @@ function Clock() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-8 md:gap-16 items-center justify-center relative p-4 md:p-8">
+    <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-6 md:pt-12 pb-20 md:pb-24">
       {/* ポップアップメッセージ */}
       <Modal
         isOpen={!!completeMessage}
@@ -84,7 +84,7 @@ function Clock() {
       </Modal>
       
       {/* 日付・時刻 */}
-      <div className="flex flex-col items-center justify-center min-w-[280px]">
+      <div className="flex flex-col items-center justify-center min-w-[280px] mb-8 md:mb-16">
         <div className="text-2xl md:text-4xl font-bold text-indigo-600 mb-2 text-center">
           {now.getFullYear()}年{now.getMonth() + 1}月{now.getDate()}日({["日", "月", "火", "水", "木", "金", "土"][now.getDay()]})
         </div>
@@ -94,7 +94,7 @@ function Clock() {
       </div>
       
       {/* 打刻状況 */}
-      <div className="flex flex-col justify-center items-center min-w-[280px]">
+      <div className="flex flex-col justify-center items-center min-w-[280px] mb-8 md:mb-16">
         <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2">今日の打刻状況</div>
         <div className="text-black text-xl md:text-3xl">
           <div>出勤：{todayStatus.出勤 === "--:--" ? "--:--" : todayStatus.出勤}</div>
@@ -103,7 +103,7 @@ function Clock() {
       </div>
       
       {/* 出勤・退勤ボタン */}
-      <div className="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-xl mx-auto py-6 md:py-10 px-4 md:px-8">
+      <div className="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-xl mx-auto">
         <Button
           onClick={handleClockIn}
           // disabled={todayStatus.出勤 !== "--:--"}

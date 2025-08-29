@@ -185,7 +185,7 @@ function RequestList() {
   return (
     <div className="bg-gray-100">
       {/* メインコンテンツ */}
-      <main className="p-4 md:p-6">
+      <main className="p-4 md:p-0">
         <div className="max-w-6xl mx-auto">
           {/* タイトル */}
           <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
