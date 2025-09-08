@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Button from './Button.jsx';
 
 /**
- * ソート・検索機能付きテーブルコンポーネント
+ * 検索・フィルター機能付きテーブルコンポーネント
  * 
  * @param {Object} props - コンポーネントのプロパティ
  * @param {Array} props.data - テーブルに表示するデータ配列
@@ -26,7 +26,7 @@ import Button from './Button.jsx';
  * @param {React.ReactNode} props.extraControls - 追加のコントロール要素
  * @param {Array} props.searchFields - 検索対象フィールド配列（デフォルト: ["date", "comment"]）
  */
-const SortableTable = ({
+const SearchFilterTable = ({
   data,
   columns,
   searchTerm = "",
@@ -62,15 +62,15 @@ const SortableTable = ({
       // 申請日フィルター
       if (dateSearchTerm) {
         const searchLower = dateSearchTerm.toLowerCase();
-        if (!item.applicationDate?.toLowerCase().includes(searchLower)) {
+        if (!item.date?.toLowerCase().includes(searchLower)) {
           return false;
         }
       }
 
-      // 申請者名フィルター
+      // 対象日フィルター（申請者名検索の代わりに使用）
       if (applicantSearchTerm) {
         const searchLower = applicantSearchTerm.toLowerCase();
-        if (!item.applicant?.toLowerCase().includes(searchLower)) {
+        if (!item.targetDate?.toLowerCase().includes(searchLower)) {
           return false;
         }
       }
@@ -179,16 +179,16 @@ const SortableTable = ({
               </div>
             )}
 
-            {/* 申請者名検索ボックス */}
+            {/* 対象日検索ボックス */}
             {onApplicantSearchChange && (
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">申請者名:</label>
+                <label className="text-sm font-medium text-gray-700">対象日:</label>
                 <input
                   type="text"
                   value={applicantSearchTerm}
                   onChange={(e) => onApplicantSearchChange(e.target.value)}
-                  placeholder="申請者名を入力"
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-64"
+                  placeholder="対象日を入力"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
                 />
               </div>
             )}
@@ -266,4 +266,4 @@ const SortableTable = ({
   );
 };
 
-export default SortableTable;
+export default SearchFilterTable;
