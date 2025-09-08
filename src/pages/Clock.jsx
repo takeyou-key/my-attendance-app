@@ -14,8 +14,8 @@ function Clock() {
 
   // 認証フックを使用
   const { userId, isAuthChecked, logout } = useAuth({
-    requireAuth: true,
-    redirectTo: '/login'
+    requireAuth: true, //true: 認証必須
+    redirectTo: '/login' //未認証時のリダイレクト先
   });
 
   // 打刻フックを使用
@@ -42,7 +42,7 @@ function Clock() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-6 md:pt-12 pb-20 md:pb-24">
+    <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-6 md:pt-24 pb-20 md:pb-24">
       {/* ポップアップメッセージ */}
       <Modal
         isOpen={!!completeMessage}

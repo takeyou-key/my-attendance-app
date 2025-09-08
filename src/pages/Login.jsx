@@ -31,11 +31,13 @@ function Login() {
                 localStorage.setItem('adminEmail', userCredential.user.email);
                 // 管理者の場合は管理者ホームに遷移
                 navigate('/admin');
+                console.log("管理者画面に遷移");
             } else {
                 // ユーザー情報をlocalStorageに保存
                 localStorage.setItem('userEmail', userCredential.user.email);
                 // 一般ユーザーの場合は通常のホームに遷移
                 navigate('/home');
+                console.log("一般ユーザー画面に遷移");
             }
         } catch (error) {
             console.error("ログイン失敗", error);
@@ -45,6 +47,7 @@ function Login() {
 
     const handleRegisterClick = () => {
         navigate('/register');
+        console.log("新規登録画面に遷移");
     };
 
     return (

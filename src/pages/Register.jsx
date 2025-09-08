@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase.js';
+import { AuthErrorCodes } from "firebase/auth";
 import Button from '../components/Button.jsx';
 import Header from '../components/Header.jsx';
 import FormInput from '../components/FormInput.jsx';
@@ -29,16 +30,16 @@ function Register() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             console.log("登録成功", userCredential.user);
             navigate('/home');
-        } catch (error) {
+        } catch (authError) {
             console.error("登録失敗", error);
             console.error("エラーコード:", error.code);
             console.error("エラーメッセージ:", error.message);
             
-            if (error.code === 'auth/email-already-in-use') {
+            if (authError.code === AuthErrorCodes.EMAIL_EXISTS) {
                 setError("このメールアドレスは既に使用されています。");
-            } else if (error.code === 'auth/weak-password') {
+            } else if (authError.code === AuthErrorCodes.WEAK_PASSWORD) {
                 setError("パスワードは6文字以上で入力してください。");
-            } else if (error.code === 'auth/invalid-email') {
+            } else if (authError.code === AuthErrorCodes.INVALID_EMAIL) {
                 setError("メールアドレスの形式が正しくありません。");
             } else {
                 setError(`登録に失敗しました: ${error.message}`);

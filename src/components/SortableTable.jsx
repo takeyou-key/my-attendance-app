@@ -7,8 +7,12 @@ import Button from './Button.jsx';
  * @param {Object} props - コンポーネントのプロパティ
  * @param {Array} props.data - テーブルに表示するデータ配列
  * @param {Array} props.columns - カラム定義配列
- * @param {string} props.searchTerm - 検索キーワード
- * @param {Function} props.onSearchChange - 検索キーワード変更時のコールバック
+ * @param {string} props.searchTerm - 検索キーワード（後方互換性のため残存）
+ * @param {Function} props.onSearchChange - 検索キーワード変更時のコールバック（後方互換性のため残存）
+ * @param {string} props.dateSearchTerm - 申請日検索キーワード
+ * @param {Function} props.onDateSearchChange - 申請日検索キーワード変更時のコールバック
+ * @param {string} props.applicantSearchTerm - 申請者名検索キーワード
+ * @param {Function} props.onApplicantSearchChange - 申請者名検索キーワード変更時のコールバック
  * @param {string} props.filterValue - フィルター値
  * @param {Function} props.onFilterChange - フィルター値変更時のコールバック
  * @param {Array} props.filterOptions - フィルターオプション配列
@@ -20,12 +24,17 @@ import Button from './Button.jsx';
  * @param {Function} props.onSelectItem - 個別選択時のコールバック
  * @param {Function} props.renderRow - 行レンダリング関数
  * @param {React.ReactNode} props.extraControls - 追加のコントロール要素
+ * @param {Array} props.searchFields - 検索対象フィールド配列（デフォルト: ["date", "comment"]）
  */
 const SortableTable = ({
   data,
   columns,
   searchTerm = "",
   onSearchChange,
+  dateSearchTerm = "",
+  onDateSearchChange,
+  applicantSearchTerm = "",
+  onApplicantSearchChange,
   filterValue = "all",
   onFilterChange,
   filterOptions = [],
@@ -36,7 +45,8 @@ const SortableTable = ({
   onSelectAll,
   onSelectItem,
   renderRow,
-  extraControls
+  extraControls,
+  searchFields = ["date", "comment"] // 検索対象フィールドを設定可能
 }) => {
   const [sortField, setSortField] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -48,28 +58,40 @@ const SortableTable = ({
       if (filterValue !== "all" && item.item !== filterValue) {
         return false;
       }
-      
-      // 検索キーワード
+
+      // 申請日フィルター
+      if (dateSearchTerm) {
+        const searchLower = dateSearchTerm.toLowerCase();
+        if (!item.applicationDate?.toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+
+      // 申請者名フィルター
+      if (applicantSearchTerm) {
+        const searchLower = applicantSearchTerm.toLowerCase();
+        if (!item.applicant?.toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+
+      // 後方互換性のための従来の検索機能
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
-        return (
-          item.applicant?.toLowerCase().includes(searchLower) ||
-          item.item?.toLowerCase().includes(searchLower) ||
-          item.targetDate?.toLowerCase().includes(searchLower) ||
-          item.date?.toLowerCase().includes(searchLower) ||
-          item.comment?.toLowerCase().includes(searchLower)
+        return searchFields.some(field =>
+          item[field]?.toLowerCase().includes(searchLower)
         );
       }
-      
+
       return true;
     });
-  }, [data, filterValue, searchTerm]);
+  }, [data, filterValue, dateSearchTerm, applicantSearchTerm, searchTerm, searchFields]);
 
   // ソート機能
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
       let aValue, bValue;
-      
+
       switch (sortField) {
         case "date":
           aValue = a.date || "";
@@ -95,13 +117,13 @@ const SortableTable = ({
           aValue = a.date || "";
           bValue = b.date || "";
       }
-      
+
       // 文字列比較
       if (typeof aValue === "string" && typeof bValue === "string") {
         const comparison = aValue.localeCompare(bValue, "ja");
         return sortDirection === "asc" ? comparison : -comparison;
       }
-      
+
       // 数値比較（日付の場合）
       const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       return sortDirection === "asc" ? comparison : -comparison;
@@ -121,9 +143,9 @@ const SortableTable = ({
   return (
     <div>
       {/* 検索・フィルター機能 */}
-      {(onSearchChange || onFilterChange) && (
+      {(onSearchChange || onFilterChange || onDateSearchChange || onApplicantSearchChange) && (
         <div className="mb-4 flex flex-wrap gap-4 items-center justify-between">
-          <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex gap-4 items-center">
             {/* 項目フィルター */}
             {onFilterChange && filterOptions.length > 0 && (
               <div className="flex items-center gap-2">
@@ -142,22 +164,36 @@ const SortableTable = ({
                 </select>
               </div>
             )}
-            
-            {/* 検索ボックス */}
-            {onSearchChange && (
+
+            {/* 申請日検索ボックス */}
+            {onDateSearchChange && (
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">検索:</label>
+                <label className="text-sm font-medium text-gray-700">申請日:</label>
                 <input
                   type="text"
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder={searchPlaceholder}
+                  value={dateSearchTerm}
+                  onChange={(e) => onDateSearchChange(e.target.value)}
+                  placeholder="申請日を入力"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+                />
+              </div>
+            )}
+
+            {/* 申請者名検索ボックス */}
+            {onApplicantSearchChange && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">申請者名:</label>
+                <input
+                  type="text"
+                  value={applicantSearchTerm}
+                  onChange={(e) => onApplicantSearchChange(e.target.value)}
+                  placeholder="申請者名を入力"
                   className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-64"
                 />
               </div>
             )}
           </div>
-          
+
           {/* 追加コントロール */}
           {extraControls}
         </div>
@@ -182,9 +218,8 @@ const SortableTable = ({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${
-                      column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                    }`}
+                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                      }`}
                     onClick={() => column.sortable && handleSort(column.key)}
                   >
                     <div className="flex items-center">
