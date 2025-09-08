@@ -19,6 +19,8 @@ function AdminHome() {
   const [selectedRequest] = React.useState(null);
   const [showDetailModal, setShowDetailModal] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState(""); // 検索キーワード
+  const [dateSearchTerm, setDateSearchTerm] = React.useState(""); // 申請日検索
+  const [applicantSearchTerm, setApplicantSearchTerm] = React.useState(""); // 申請者名検索
   const [filterItem, setFilterItem] = React.useState("all"); // 項目フィルター
 
   // Firestoreからデータを取得
@@ -337,8 +339,8 @@ function AdminHome() {
               <Button
                 variant="none"
                 className={`px-4 py-2 rounded-lg text-sm shadow-lg ${selectedItems.length > 0
-                    ? "bg-blue-600 hover:bg-purple-700 text-white"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "bg-blue-600 hover:bg-purple-700 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 onClick={selectedItems.length > 0 ? handleBulkApprove : undefined}
                 disabled={selectedItems.length === 0}
@@ -355,13 +357,14 @@ function AdminHome() {
         <SortableTable
           data={filteredRequests}
           columns={columns}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
+          dateSearchTerm={dateSearchTerm}
+          onDateSearchChange={setDateSearchTerm}
+          applicantSearchTerm={applicantSearchTerm}
+          onApplicantSearchChange={setApplicantSearchTerm}
           filterValue={filterItem}
           onFilterChange={setFilterItem}
           filterOptions={filterOptions}
           filterLabel="項目"
-          searchPlaceholder="申請日、申請者名、対象日"
           showCheckbox={true}
           selectedItems={selectedItems}
           onSelectAll={handleSelectAll}

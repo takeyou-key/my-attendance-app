@@ -17,7 +17,8 @@ function RequestList() {
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState(null);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // 検索キーワード
+    const [dateSearchTerm, setDateSearchTerm] = useState(""); // 申請日検索
+    const [applicantSearchTerm, setApplicantSearchTerm] = useState(""); // 申請者名検索
     const [filterItem, setFilterItem] = useState("all"); // 項目フィルター
     const auth = getAuth();
 
@@ -206,13 +207,14 @@ function RequestList() {
             <SortableTable
               data={filteredRequests}
               columns={columns}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
+              dateSearchTerm={dateSearchTerm}
+              onDateSearchChange={setDateSearchTerm}
+              applicantSearchTerm={applicantSearchTerm}
+              onApplicantSearchChange={setApplicantSearchTerm}
               filterValue={filterItem}
               onFilterChange={setFilterItem}
               filterOptions={filterOptions}
               filterLabel="項目"
-              searchPlaceholder="申請日、申請者名、対象日"
               renderRow={renderRow}
             />
           </div>

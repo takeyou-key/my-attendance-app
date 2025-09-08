@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from './Button.jsx';
 
-const Header = ({ 
+const Header = ({
   showNavigation = false,
   onLogout,
   className = "",
@@ -69,7 +69,6 @@ const Header = ({
               </Button>
             )}
           </div>
-          {children}
         </div>
       ) : (
         <div className="flex items-center justify-between w-full">

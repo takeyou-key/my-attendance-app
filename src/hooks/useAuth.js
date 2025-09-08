@@ -61,16 +61,18 @@ export const useAuth = (options = {}) => {
     return () => unsubscribe();
   }, [navigate, redirectTo, requireAuth]);
 
-  // ログアウト処理
+ // ログアウト処理（アンマウント時にログアウト）
   const logout = async () => {
     try {
       const auth = getAuth();
       await signOut(auth);
+      //signOut(auth)の内部でonAuthStateChangedが発火し並行実行しているため、ログアウト後にリダイレクトする
+      console.log('ログアウト成功:ユーザーをリダイレクトしました');
       navigate(redirectTo);
     } catch (error) {
       console.error('ログアウトエラー:', error);
     }
-  };
+  }; 
 
   return {
     user,
