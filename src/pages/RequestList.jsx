@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import TabNavigation from "../components/TabNavigation.jsx";
-import SortableTable from "../components/SortableTable.jsx";
+import SearchFilterTable from "../components/SearchFilterTable.jsx";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -18,7 +18,7 @@ function RequestList() {
     const [userId, setUserId] = useState(null);
     const [isAuthChecked, setIsAuthChecked] = useState(false);
     const [dateSearchTerm, setDateSearchTerm] = useState(""); // 申請日検索
-    const [applicantSearchTerm, setApplicantSearchTerm] = useState(""); // 申請者名検索
+    const [targetDateSearchTerm, setTargetDateSearchTerm] = useState(""); // 対象日検索
     const [filterItem, setFilterItem] = useState("all"); // 項目フィルター
     const auth = getAuth();
 
@@ -78,13 +78,13 @@ function RequestList() {
 
       // カラム定義
   const columns = [
-    { key: "item", label: "申請項目", sortable: true },
-    { key: "date", label: "申請日", sortable: true },
-    { key: "targetDate", label: "対象日", sortable: true },
+    { key: "item", label: "申請項目", sortable: false },
+    { key: "date", label: "申請日", sortable: false },
+    { key: "targetDate", label: "対象日", sortable: false },
     { key: "originalData", label: "変更前", sortable: false },
     { key: "updatedData", label: "変更後", sortable: false },
     { key: "comment", label: "コメント", sortable: false },
-    { key: "status", label: "ステータス", sortable: true }
+    { key: "status", label: "ステータス", sortable: false }
   ];
 
     // フィルターオプション
@@ -204,13 +204,13 @@ function RequestList() {
 
           {/* デスクトップ用テーブル */}
           <div className="hidden lg:block">
-            <SortableTable
+            <SearchFilterTable
               data={filteredRequests}
               columns={columns}
               dateSearchTerm={dateSearchTerm}
               onDateSearchChange={setDateSearchTerm}
-              applicantSearchTerm={applicantSearchTerm}
-              onApplicantSearchChange={setApplicantSearchTerm}
+              applicantSearchTerm={targetDateSearchTerm}
+              onApplicantSearchChange={setTargetDateSearchTerm}
               filterValue={filterItem}
               onFilterChange={setFilterItem}
               filterOptions={filterOptions}

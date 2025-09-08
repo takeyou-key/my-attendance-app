@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../components/Button.jsx";
 import Modal from "../components/Modal.jsx";
 import TabNavigation from "../components/TabNavigation.jsx";
-import SortableTable from "../components/SortableTable.jsx";
+import SearchFilterTable from "../components/SearchFilterTable.jsx";
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
@@ -354,7 +354,7 @@ function AdminHome() {
 
       {/* デスクトップ用テーブル */}
       <div className="hidden lg:block">
-        <SortableTable
+        <SearchFilterTable
           data={filteredRequests}
           columns={columns}
           dateSearchTerm={dateSearchTerm}

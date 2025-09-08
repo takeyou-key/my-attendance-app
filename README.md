@@ -79,7 +79,7 @@ src/
 │   ├── Modal.jsx       # モーダルダイアログ
 │   ├── LoadingSpinner.jsx # ローディングスピナー
 │   ├── TabNavigation.jsx # タブナビゲーション
-│   ├── SortableTable.jsx # ソート可能テーブル
+│   ├── SearchFilterTable.jsx # 検索・フィルター機能付きテーブル
 │   ├── FormInput.jsx   # フォーム入力コンポーネント
 │   └── AuthGuard.jsx   # 認証ガード
 ├── pages/              # ページコンポーネント

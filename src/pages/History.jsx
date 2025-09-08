@@ -284,7 +284,7 @@ function History() {
   }
 
   return (
-    <div className="w-full h-full p-4 pb-24 md:p-6 lg:pb-8">
+    <div className="w-full h-full p-4 pb-24 md:p-6 md:pb-28 lg:pb-8">
       <div className="max-w-6xl mx-auto h-full flex flex-col">
         <div className="mb-4 md:mb-6 flex flex-col space-y-3">
           {/* 1行目：年月選択と申請ボタン */}
@@ -321,8 +321,10 @@ function History() {
         </div>
 
         {/* テーブルコンテナ - 最大高さでスクロール */}
-        <div className="bg-white shadow overflow-hidden flex-1">
-          <div className="overflow-auto h-full bg-white">
+        <div className="bg-white shadow overflow-hidden flex-1 flex flex-col">
+          <div className="overflow-auto bg-white flex-1" style={{
+            maxHeight: "calc(100vh - 200px - 3.5rem)"
+          }}>
             <table className="min-w-full border text-center whitespace-nowrap">
               <thead className="sticky top-0 z-10 bg-indigo-600 shadow-sm backdrop-blur-sm">
                 <tr className="bg-indigo-600 text-white">
