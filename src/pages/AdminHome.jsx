@@ -435,7 +435,7 @@ function AdminHome() {
               </div>
               <div className="col-span-2">
                 <span className="text-gray-600">申請者:</span>
-                <span className="ml-1 font-medium">{request.applicant}</span>
+                <span className="ml-1 font-medium">{request.applicant.replace(/@/g,"＠")}</span>
               </div>
             </div>
 
