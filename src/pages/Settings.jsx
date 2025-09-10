@@ -76,7 +76,6 @@ const Settings = () => {
         regularWorkMinutes: regularWorkMinutes,
         updatedAt: new Date()
       });
-
       setSaveStatus('設定を保存しました');
       setTimeout(() => setSaveStatus(''), 3000);
     } catch (error) {

@@ -23,6 +23,7 @@ export const COLLECTIONS = {
 // ドキュメントID生成ヘルパー
 export const generateDocId = {
   // 勤怠記録のドキュメントID生成
+  // (例: user123_2024-01-15)
   timeRecord: (userId, date) => `${userId}_${date}`,
   
   // ユーザー設定のドキュメントID生成

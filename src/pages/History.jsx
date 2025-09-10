@@ -205,9 +205,9 @@ function History() {
         // 管理者の未対応タブに表示するため、requestsコレクションにも保存
         const requestData = {
           item: "勤怠修正申請",
-          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' }),
+          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }),
           applicant: userEmail || "ユーザー",
-          targetDate: new Date(date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' }),
+          targetDate: new Date(date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }),
           details: `出勤: ${editRows[date].clockIn || '--:--'}, 退勤: ${editRows[date].clockOut || '--:--'}, 休憩: ${editRows[date].breakTime || '--:--'}`,
           status: "未対応",
           userId: userId,
