@@ -436,10 +436,8 @@ function AdminHome() {
                 <span className="ml-1 font-medium">{request.targetDate}</span>
               </div>
               <div className="col-span-2">
-                <span className="text-gray-600">申請者:</span>
-                <span className="ml-1 font-medium" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                  {request.applicant}
-                </span>
+                <span className="text-gray-600">申請者: </span>
+                <span className="text-black font-medium">{request.applicant}</span>
               </div>
             </div>
 
