@@ -51,38 +51,38 @@ function Clock() {
         showCloseButton={false}
         className="text-center"
       >
-                    {completeMessage.includes("退勤の打刻が完了しました") ? (
-              <>
-                <div>退勤の打刻が完了しました。</div>
-                <div className="text-blue-500 text-2xl font-bold mt-2">お疲れさまでした！</div>
-                <div className="mt-4 text-sm text-gray-600">ログアウトしますか？</div>
-                <div className="flex justify-center gap-4 mt-4">
-                  <Button
-                    onClick={() => setCompleteMessage("")}
-                    variant="secondary"
-                    className="px-4 py-2"
-                  >
-                    キャンセル
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setCompleteMessage("");
-                      logout();
-                    }}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    ログアウト
-                  </Button>
-                </div>
-              </>
-            ) : completeMessage === "出勤の打刻が完了しました。今日も一日頑張りましょう！" ? (
+        {completeMessage.includes("退勤の打刻が完了しました") ? (
+          <>
+            <div>退勤の打刻が完了しました。</div>
+            <div className="text-blue-500 text-2xl font-bold mt-2">お疲れさまでした！</div>
+            <div className="mt-4 text-sm text-gray-600">このままログアウトしますか？</div>
+            <div className="flex justify-center gap-4 mt-4">
+              <Button
+                onClick={() => setCompleteMessage("")}
+                variant="secondary"
+                className="px-4 py-2"
+              >
+                キャンセル
+              </Button>
+              <Button
+                onClick={() => {
+                  setCompleteMessage("");
+                  logout();
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white"
+              >
+                ログアウト
+              </Button>
+            </div>
+          </>
+        ) : completeMessage === "出勤の打刻が完了しました。今日も一日頑張りましょう！" ? (
           <>
             <div>出勤の打刻が完了しました。</div>
             <div className="text-red-500 text-2xl font-bold mt-2">今日も一日頑張りましょう！</div>
           </>
         ) : null}
       </Modal>
-      
+
       {/* 日付・時刻 */}
       <div className="flex flex-col items-center justify-center min-w-[280px] mb-8 md:mb-16">
         <div className="text-2xl md:text-4xl font-bold text-indigo-600 mb-2 text-center">
@@ -92,7 +92,7 @@ function Clock() {
           {now.toLocaleTimeString()}
         </div>
       </div>
-      
+
       {/* 打刻状況 */}
       <div className="flex flex-col justify-center items-center min-w-[280px] mb-8 md:mb-16">
         <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2">今日の打刻状況</div>
@@ -101,18 +101,17 @@ function Clock() {
           <div>退勤：{todayStatus.退勤 === "--:--" ? "--:--" : todayStatus.退勤}</div>
         </div>
       </div>
-      
+
       {/* 出勤・退勤ボタン */}
       <div className="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-xl mx-auto">
         <Button
           onClick={handleClockIn}
           // disabled={todayStatus.出勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${
-            todayStatus.出勤 !== "--:--"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${todayStatus.出勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600"
               : "bg-blue-700 hover:bg-blue-800 text-white"
-          }`}
+            }`}
         >
           {todayStatus.出勤 !== "--:--" ? "出勤済み" : "出勤"}
         </Button>
@@ -120,11 +119,10 @@ function Clock() {
           onClick={handleClockOut}
           // disabled={todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${
-            todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600"
               : "bg-red-600 hover:bg-red-700 text-white"
-          }`}
+            }`}
         >
           {todayStatus.退勤 !== "--:--" ? "退勤済み" : "退勤"}
         </Button>

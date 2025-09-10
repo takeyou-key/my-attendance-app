@@ -12,22 +12,35 @@ function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  //再発行メール等の言語を日本語に設定
   useEffect(() => {
     auth.languageCode = 'ja';
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log("=== パスワード再発行フォーム送信 ===");
+    console.log("入力email:", email);
+    console.log("送信時刻:", new Date().toLocaleString());
+    
     setMessage("");
     setError("");
     setLoading(true);
     try {
+      console.log("Firebase Authにメール送信リクエスト中...");
       await sendPasswordResetEmail(auth, email);
+      console.log("✅ メール送信成功");
       setMessage("パスワード再発行メールを送信しました。メールをご確認ください。");
     } catch (err) {
-      console.error('パスワードリセットエラー:', err);
+      console.group("❌ メール送信エラー");
+      console.error("エラー:", err);
+      console.log("エラーコード:", err.code);
+      console.log("入力email:", email);
+      console.groupEnd();
       setError("メール送信に失敗しました。メールアドレスをご確認ください。");
     } finally {
+      console.log("処理完了");
       setLoading(false);
     }
   };

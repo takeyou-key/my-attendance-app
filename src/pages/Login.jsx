@@ -15,34 +15,56 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        console.log("=== ログインフォーム送信開始 ===");
+        console.log("入力email:", email);
+        console.log("入力password:", password ? "***" : "空");
+        console.log("送信時刻:", new Date().toLocaleString());
+        
         setError("");
         
         try {
-            // 既存の認証をクリア
+            console.log("1. 既存の認証をクリア中...");
             await signOut(auth);
+            console.log("✅ 既存認証クリア完了");
             
+            console.log("2. Firebase認証開始...");
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log("ログイン成功", userCredential.user);
+            console.log("✅ ログイン成功");
+            console.log("ユーザー情報:", {
+                uid: userCredential.user.uid,
+                email: userCredential.user.email,
+                emailVerified: userCredential.user.emailVerified
+            });
             
-            // ユーザー権限を確認
+            console.log("3. 管理者権限チェック中...");
             const adminCheck = await isAdmin(userCredential.user.uid);
+            console.log("管理者権限:", adminCheck ? "あり" : "なし");
+            
             if (adminCheck) {
-                // 管理者情報をlocalStorageに保存
+                console.log("4a. 管理者として処理中...");
                 localStorage.setItem('adminEmail', userCredential.user.email);
-                // 管理者の場合は管理者ホームに遷移
+                console.log("管理者情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/admin');
-                console.log("管理者画面に遷移");
+                console.log("✅ 管理者画面に遷移");
             } else {
-                // ユーザー情報をlocalStorageに保存
+                console.log("4b. 一般ユーザーとして処理中...");
                 localStorage.setItem('userEmail', userCredential.user.email);
-                // 一般ユーザーの場合は通常のホームに遷移
+                console.log("ユーザー情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/home');
-                console.log("一般ユーザー画面に遷移");
+                console.log("✅ 一般ユーザー画面に遷移");
             }
         } catch (error) {
-            console.error("ログイン失敗", error);
+            console.group("❌ ログインエラー");
+            console.error("エラーオブジェクト:", error);
+            console.log("エラーコード:", error.code);
+            console.log("エラーメッセージ:", error.message);
+            console.log("入力email:", email);
+            console.groupEnd();
             setError("メールアドレスまたはパスワードが正しくありません。");
         }
+        
+        console.log("=== ログイン処理完了 ===");
     };
 
     const handleRegisterClick = () => {
