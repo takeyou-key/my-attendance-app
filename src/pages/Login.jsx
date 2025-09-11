@@ -26,11 +26,11 @@ function Login() {
         try {
             console.log("1. 既存の認証をクリア中...");
             await signOut(auth);
-            console.log("✅ 既存認証クリア完了");
+            console.log("既存認証クリア完了");
             
             console.log("2. Firebase認証開始...");
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log("✅ ログイン成功");
+            console.log("ログイン成功");
             console.log("ユーザー情報:", {
                 uid: userCredential.user.uid,
                 email: userCredential.user.email,
@@ -46,16 +46,16 @@ function Login() {
                 localStorage.setItem('adminEmail', userCredential.user.email);
                 console.log("管理者情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/admin');
-                console.log("✅ 管理者画面に遷移");
+                console.log("管理者画面に遷移");
             } else {
                 console.log("4b. 一般ユーザーとして処理中...");
                 localStorage.setItem('userEmail', userCredential.user.email);
                 console.log("ユーザー情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/home');
-                console.log("✅ 一般ユーザー画面に遷移");
+                console.log("一般ユーザー画面に遷移");
             }
         } catch (error) {
-            console.group("❌ ログインエラー");
+            console.group("ログインエラー");
             console.error("エラーオブジェクト:", error);
             console.log("エラーコード:", error.code);
             console.log("エラーメッセージ:", error.message);
