@@ -10,7 +10,7 @@ import { useAuth } from "../hooks/useAuth.js";
 import { calculateWorkTime, calculateActualWorkTime, calculateOverTime, sumTimes } from '../utils/timeCalculations.js';
 import { fetchMonthlyAttendance, fetchUserSettings, generateYearMonths } from '../utils/attendanceUtils.js';
 import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
-
+import Tutorial from '../components/Tutorial.jsx';
 /**
  * 実績確認・申請ページコンポーネント
  * 月別の勤務実績を表示し、申請機能を提供
@@ -98,10 +98,6 @@ function History() {
 
   // 時間計算関数は utils/timeCalculations.js からインポート
 
-
-
-
-
   // 選択年月の全日のテーブルを生成
   const generateMonthTable = (yearMonth) => {
     if (!yearMonth) return [];
@@ -173,7 +169,10 @@ function History() {
   // 申請ボタン押下時の処理
   const handleApply = () => {
     if (Object.keys(editRows).length === 0) {
-      alert("申請する内容がありません。");
+      // joyrideが実行中でない場合のみALERTを表示
+      if (!document.querySelector('.react-joyride__overlay')) {
+        alert("申請する内容がありません。");
+      }
       return;
     }
     setShowCommentModal(true);
@@ -303,7 +302,7 @@ function History() {
             </div>
             <Button
               onClick={handleApply}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg step3 openModalBtn"
             >
               申請
             </Button>
@@ -320,6 +319,11 @@ function History() {
           </div>
         </div>
 
+        {/* チュートリアル */}
+        <div>
+          <Tutorial />
+        </div>
+
         {/* テーブルコンテナ - 最大高さでスクロール */}
         <div className="bg-white shadow overflow-hidden flex-1 flex flex-col">
           <div className="overflow-auto bg-white flex-1" style={{
@@ -329,9 +333,9 @@ function History() {
               <thead className="sticky top-0 z-10 bg-indigo-600 shadow-sm backdrop-blur-sm">
                 <tr className="bg-indigo-600 text-white">
                   <th className="py-2 px-4 whitespace-nowrap">日付</th>
-                  <th className="py-2 px-4 whitespace-nowrap">出勤時刻</th>
-                  <th className="py-2 px-4 whitespace-nowrap">退勤時刻</th>
-                  <th className="py-2 px-4 whitespace-nowrap">休憩時間</th>
+                  <th className="py-2 px-4 whitespace-nowrap ">出勤時刻</th>
+                  <th className="py-2 px-4 whitespace-nowrap ">退勤時刻</th>
+                  <th className="py-2 px-4 whitespace-nowrap ">休憩時間</th>
                   <th className="py-2 px-4 whitespace-nowrap">勤務時間</th>
                   <th className="py-2 px-4 whitespace-nowrap">残業時間</th>
                 </tr>
@@ -356,7 +360,7 @@ function History() {
                       <td className="py-2 px-4">{new Date(row.date).getDate()}</td>
                       {/* 出勤時刻セル */}
                       <td
-                        className="py-2 px-4 cursor-pointer"
+                        className="py-2 px-4 cursor-pointer step1 step2"
                         onDoubleClick={() => setEditing({ date: row.date, field: "clockIn" })}
                       >
                         {editing.date === row.date && editing.field === "clockIn" ? (
@@ -446,7 +450,7 @@ function History() {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="申請理由を入力してください..."
-          className="w-full h-24 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="w-full h-24 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400 step4"
         />
         <div className="flex justify-end gap-3 mt-4">
           <button
@@ -457,7 +461,7 @@ function History() {
           </button>
           <button
             onClick={handleSubmitApplication}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 step5"
           >
             申請する
           </button>

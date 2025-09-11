@@ -80,7 +80,7 @@ function Layout() {
                 : 'bg-white text-green-600 hover:bg-green-50'
             }`}
           >
-            <span>実績確認・申請</span>
+            <span>実績確認・修正</span>
           </Button>
           <Button
             onClick={() => navigate('/home/requestlist')}

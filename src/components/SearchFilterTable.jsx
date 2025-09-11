@@ -8,8 +8,10 @@ import React, { useState, useMemo } from 'react';
  * @param {Array} props.columns - カラム定義配列
  * @param {string} props.dateSearchTerm - 申請日検索キーワード
  * @param {Function} props.onDateSearchChange - 申請日検索キーワード変更時のコールバック
- * @param {string} props.applicantSearchTerm - 対象日検索キーワード
- * @param {Function} props.onApplicantSearchChange - 対象日検索キーワード変更時のコールバック
+ * @param {string} props.applicantSearchTerm - 申請者名検索キーワード
+ * @param {Function} props.onApplicantSearchChange - 申請者名検索キーワード変更時のコールバック
+ * @param {string} props.targetDateSearchTerm - 対象日検索キーワード
+ * @param {Function} props.onTargetDateSearchChange - 対象日検索キーワード変更時のコールバック
  * @param {string} props.filterValue - フィルター値
  * @param {Function} props.onFilterChange - フィルター値変更時のコールバック
  * @param {Array} props.filterOptions - フィルターオプション配列
@@ -23,6 +25,8 @@ const SearchFilterTable = ({
   onDateSearchChange,
   applicantSearchTerm = "",
   onApplicantSearchChange,
+  targetDateSearchTerm = "",
+  onTargetDateSearchChange,
   filterValue = "all",
   onFilterChange,
   filterOptions = [],
@@ -48,9 +52,16 @@ const SearchFilterTable = ({
         }
       }
 
-      // 対象日フィルター
+      // 申請者名フィルター
       if (applicantSearchTerm) {
-        const searchDate = applicantSearchTerm.replace(/-/g, '/');
+        if (!item.applicant?.toLowerCase().includes(applicantSearchTerm.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // 対象日フィルター
+      if (targetDateSearchTerm) {
+        const searchDate = targetDateSearchTerm.replace(/-/g, '/');
         if (!item.targetDate?.includes(searchDate)) {
           return false;
         }
@@ -58,7 +69,7 @@ const SearchFilterTable = ({
 
       return true;
     });
-  }, [data, filterValue, dateSearchTerm, applicantSearchTerm]);
+  }, [data, filterValue, dateSearchTerm, applicantSearchTerm, targetDateSearchTerm]);
 
   // ソート機能
   const sortedData = useMemo(() => {
@@ -151,14 +162,28 @@ const SearchFilterTable = ({
             </div>
           )}
 
-          {/* 対象日検索ボックス */}
+          {/* 申請者名検索ボックス */}
           {onApplicantSearchChange && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">申請者名:</label>
+              <input
+                type="text"
+                value={applicantSearchTerm}
+                onChange={(e) => onApplicantSearchChange(e.target.value)}
+                placeholder="申請者名を入力"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+              />
+            </div>
+          )}
+
+          {/* 対象日検索ボックス */}
+          {onTargetDateSearchChange && (
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">対象日:</label>
               <input
                 type="date"
-                value={applicantSearchTerm}
-                onChange={(e) => onApplicantSearchChange(e.target.value)}
+                value={targetDateSearchTerm}
+                onChange={(e) => onTargetDateSearchChange(e.target.value)}
                 placeholder="対象日を入力"
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
               />

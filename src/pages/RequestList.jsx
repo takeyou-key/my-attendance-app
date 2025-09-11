@@ -208,8 +208,8 @@ function RequestList() {
               columns={columns}
               dateSearchTerm={dateSearchTerm}
               onDateSearchChange={setDateSearchTerm}
-              applicantSearchTerm={targetDateSearchTerm}
-              onApplicantSearchChange={setTargetDateSearchTerm}
+              targetDateSearchTerm={targetDateSearchTerm}
+              onTargetDateSearchChange={setTargetDateSearchTerm}
               filterValue={filterItem}
               onFilterChange={setFilterItem}
               filterOptions={filterOptions}
