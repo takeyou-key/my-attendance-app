@@ -169,9 +169,9 @@ function History() {
   // 申請ボタン押下時の処理
   const handleApply = () => {
     if (Object.keys(editRows).length === 0) {
-      // joyrideが実行中でない場合のみALERTを表示
+      // joyrideが実行中でない場合のみモーダルを表示
       if (!document.querySelector('.react-joyride__overlay')) {
-        alert("申請する内容がありません。");
+        setShowNoDataModal(true);
       }
       return;
     }
@@ -258,12 +258,12 @@ function History() {
       setEditing({ date: null, field: null });
       setShowCommentModal(false);
       setComment("");
-      alert("申請しました。管理者が確認します。");
+      setShowSuccessModal(true);
       // 申請後にrequestlistページに遷移
       navigate('/home/requestlist');
     } catch (error) {
       console.error("申請エラー:", error);
-      alert("申請に失敗しました。");
+      setShowErrorModal(true);
     }
   };
 
@@ -275,6 +275,9 @@ function History() {
 
   const [editRows, setEditRows] = useState({}); // {date: {clockIn, clockOut}}
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const [showNoDataModal, setShowNoDataModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [comment, setComment] = useState("");
 
   // 認証状態とデータの読み込みが完了するまでローディング表示
@@ -465,6 +468,75 @@ function History() {
           >
             申請する
           </button>
+        </div>
+      </Modal>
+
+      {/* 申請データなしモーダル */}
+      <Modal
+        isOpen={showNoDataModal}
+        onClose={() => setShowNoDataModal(false)}
+        size="sm"
+        showCloseButton={false}
+        className="text-center"
+      >
+        <div className="text-center">
+          <div className="text-red-500 text-2xl mb-4">⚠️</div>
+          <h3 className="text-lg font-bold mb-4">申請する内容がありません</h3>
+          <p className="text-sm text-gray-600 mb-6">
+            修正したい項目をダブルクリックして編集してから申請してください。
+          </p>
+          <Button
+            onClick={() => setShowNoDataModal(false)}
+            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+          >
+            閉じる
+          </Button>
+        </div>
+      </Modal>
+
+      {/* 申請成功モーダル */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        size="sm"
+        showCloseButton={false}
+        className="text-center"
+      >
+        <div className="text-center">
+          <div className="text-green-500 text-2xl mb-4">✅</div>
+          <h3 className="text-lg font-bold mb-4">申請完了</h3>
+          <p className="text-sm text-gray-600 mb-6">
+            申請しました。管理者が確認します。
+          </p>
+          <Button
+            onClick={() => setShowSuccessModal(false)}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+          >
+            閉じる
+          </Button>
+        </div>
+      </Modal>
+
+      {/* 申請エラーモーダル */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        size="sm"
+        showCloseButton={false}
+        className="text-center"
+      >
+        <div className="text-center">
+          <div className="text-red-500 text-2xl mb-4">❌</div>
+          <h3 className="text-lg font-bold mb-4">申請に失敗しました</h3>
+          <p className="text-sm text-gray-600 mb-6">
+            ネットワーク接続を確認して、再度お試しください。
+          </p>
+          <Button
+            onClick={() => setShowErrorModal(false)}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+          >
+            閉じる
+          </Button>
         </div>
       </Modal>
     </div>

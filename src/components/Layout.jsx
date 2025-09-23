@@ -60,9 +60,9 @@ function Layout() {
           <Button
             onClick={() => navigate('/home')}
             variant="none"
-            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between ${location.pathname === '/home'
-                ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700'
-                : 'bg-white text-blue-700 hover:bg-blue-50'
+            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between transition-all duration-200 hover:scale-105 ${location.pathname === '/home'
+                ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700 shadow-md'
+                : 'bg-white text-blue-700 hover:bg-blue-50 hover:shadow-md'
               }`}
           >
             <span className="flex items-center gap-3">
@@ -73,9 +73,9 @@ function Layout() {
           <Button
             onClick={() => navigate('/home/history')}
             variant="none"
-            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between ${location.pathname === '/home/history'
-                ? 'bg-green-50 text-green-700 border-l-4 border-green-700'
-                : 'bg-white text-green-600 hover:bg-green-50'
+            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between transition-all duration-200 hover:scale-105 ${location.pathname === '/home/history'
+                ? 'bg-green-50 text-green-700 border-l-4 border-green-700 shadow-md'
+                : 'bg-white text-green-600 hover:bg-green-50 hover:shadow-md'
               }`}
           >
             <span className="flex items-center gap-3">
@@ -86,9 +86,9 @@ function Layout() {
           <Button
             onClick={() => navigate('/home/requestlist')}
             variant="none"
-            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between ${location.pathname === '/home/requestlist'
-                ? 'bg-purple-50 text-purple-700 border-l-4 border-purple-700'
-                : 'bg-white text-purple-600 hover:bg-purple-50'
+            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between transition-all duration-200 hover:scale-105 ${location.pathname === '/home/requestlist'
+                ? 'bg-purple-50 text-purple-700 border-l-4 border-purple-700 shadow-md'
+                : 'bg-white text-purple-600 hover:bg-purple-50 hover:shadow-md'
               }`}
           >
             <span className="flex items-center gap-3">
@@ -99,9 +99,9 @@ function Layout() {
           <Button
             onClick={() => navigate('/home/settings')}
             variant="none"
-            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between ${location.pathname === '/home/settings'
-                ? 'bg-orange-50 text-orange-700 border-l-4 border-orange-700'
-                : 'bg-white text-orange-600 hover:bg-orange-50'
+            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between transition-all duration-200 hover:scale-105 ${location.pathname === '/home/settings'
+                ? 'bg-orange-50 text-orange-700 border-l-4 border-orange-700 shadow-md'
+                : 'bg-white text-orange-600 hover:bg-orange-50 hover:shadow-md'
               }`}
           >
             <span className="flex items-center gap-3">
