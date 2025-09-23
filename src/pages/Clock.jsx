@@ -4,6 +4,7 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import Modal from "../components/Modal.jsx";
 import { useAuth } from "../hooks/useAuth.js";
 import { useClock } from "../hooks/useClock.js";
+import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 
 /**
  * 打刻ページコンポーネント
@@ -113,7 +114,10 @@ function Clock() {
               : "bg-blue-700 hover:bg-blue-800 text-white"
             }`}
         >
-          {todayStatus.出勤 !== "--:--" ? "出勤済み" : "出勤"}
+          <span className="flex items-center justify-center gap-2">
+            <FaSignInAlt className="w-5 h-5 md:w-6 md:h-6" />
+            {todayStatus.出勤 !== "--:--" ? "出勤済み" : "出勤"}
+          </span>
         </Button>
         <Button
           onClick={handleClockOut}
@@ -124,7 +128,10 @@ function Clock() {
               : "bg-red-600 hover:bg-red-700 text-white"
             }`}
         >
-          {todayStatus.退勤 !== "--:--" ? "退勤済み" : "退勤"}
+          <span className="flex items-center justify-center gap-2">
+            <FaSignOutAlt className="w-5 h-5 md:w-6 md:h-6" />
+            {todayStatus.退勤 !== "--:--" ? "退勤済み" : "退勤"}
+          </span>
         </Button>
       </div>
     </div>
