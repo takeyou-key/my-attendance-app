@@ -89,7 +89,7 @@ function Clock() {
         <div className="text-2xl md:text-4xl font-bold text-indigo-600 mb-2 text-center animate-fade-in">
           {now.getFullYear()}年{now.getMonth() + 1}月{now.getDate()}日({["日", "月", "火", "水", "木", "金", "土"][now.getDay()]})
         </div>
-        <div className="text-4xl md:text-6xl font-mono text-black transition-all duration-500 ease-in-out hover:text-indigo-600">
+        <div className="text-4xl md:text-6xl font-mono text-black">
           {now.toLocaleTimeString()}
         </div>
       </div>
@@ -111,7 +111,7 @@ function Clock() {
       <div className="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-xl mx-auto">
         <Button
           onClick={handleClockIn}
-          // disabled={todayStatus.出勤 !== "--:--"}
+          disabled={todayStatus.出勤 !== "--:--"}
           variant="none"
           className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"
@@ -125,7 +125,7 @@ function Clock() {
         </Button>
         <Button
           onClick={handleClockOut}
-          // disabled={todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"}
+          disabled={todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"}
           variant="none"
           className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"

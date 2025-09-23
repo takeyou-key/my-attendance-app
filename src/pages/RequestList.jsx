@@ -165,12 +165,12 @@ function RequestList() {
       </td>
       <td className="px-6 py-3 whitespace-nowrap text-sm">
         <span className={`px-2 py-1 text-xs font-medium rounded-full ${request.status === "承認"
-            ? "bg-green-100 text-green-800"
-            : request.status === "否認"
-              ? "bg-orange-100 text-orange-800"
-              : request.status === "未対応"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
+          ? "bg-green-100 text-green-800"
+          : request.status === "否認"
+            ? "bg-orange-100 text-orange-800"
+            : request.status === "未対応"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
           }`}>
           {request.status}
         </span>
@@ -219,16 +219,16 @@ function RequestList() {
           </div>
 
           {/* モバイル・タブレット用カード表示 */}
-          <div className="lg:hidden space-y-4">
+          <div className="lg:hidden space-y-2">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow-sm p-3 border border-gray-200">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-gray-900">{request.item}</span>
+              <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-gray-900 text-sm">{request.item}</span>
                   <span className={`px-2 py-1 text-xs rounded-full ${request.status === "承認"
-                      ? "bg-green-100 text-green-800"
-                      : request.status === "否認"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
+                    ? "bg-green-100 text-green-800"
+                    : request.status === "否認"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
                     }`}>
                     {request.status}
                   </span>
@@ -247,9 +247,9 @@ function RequestList() {
 
                 {/* 変更内容 */}
                 {request.originalData && request.updatedData && (
-                  <div className="bg-gray-50 rounded p-3 mb-2">
-                    <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
-                    <div className="flex items-center space-x-4 text-xs">
+                  <div className="bg-gray-50 rounded p-2">
+                    <h4 className="font-medium text-gray-700 mb-1 text-sm">変更内容</h4>
+                    <div className="flex items-center space-x-4 text-sm">
                       <div className="flex items-center space-x-2">
                         <span>出勤:</span>
                         <div className="flex space-x-1">
@@ -280,7 +280,7 @@ function RequestList() {
 
                 {/* コメント */}
                 {request.comment && (
-                  <div className="mb-2">
+                  <div className="mb-1">
                     <span className="text-gray-600 text-sm">コメント:</span>
                     <span className="text-sm ml-1">{request.comment}</span>
                   </div>
