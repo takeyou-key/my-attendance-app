@@ -11,12 +11,12 @@ const Button = ({
   bgColor,
   textColor
 }) => {
-  const baseClasses = "font-bold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400";
+  const baseClasses = "font-bold rounded transition-all duration-200 ease-in-out transform focus:outline-none focus:ring-2 focus:ring-indigo-400 hover:scale-105 active:scale-95 active:transition-none";
   
   const variantClasses = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow",
-    secondary: "bg-white text-indigo-600 hover:bg-indigo-50 shadow",
-    text: "text-indigo-600 hover:underline bg-transparent",
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg hover:shadow-xl",
+    secondary: "bg-white text-indigo-600 hover:bg-indigo-50 shadow-lg hover:shadow-xl border border-indigo-200",
+    text: "text-indigo-600 hover:underline bg-transparent hover:bg-indigo-50",
     none: ""
   };
   

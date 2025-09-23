@@ -58,7 +58,7 @@ const LoadingSpinner = ({
 
   if (fullScreen) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-white bg-opacity-80">
+      <div className="w-full h-full flex items-center justify-center bg-white bg-opacity-80 animate-fade-in">
         {spinnerContent}
       </div>
     );

@@ -86,20 +86,24 @@ function Clock() {
 
       {/* 日付・時刻 */}
       <div className="flex flex-col items-center justify-center min-w-[280px] mb-8 md:mb-16">
-        <div className="text-2xl md:text-4xl font-bold text-indigo-600 mb-2 text-center">
+        <div className="text-2xl md:text-4xl font-bold text-indigo-600 mb-2 text-center animate-fade-in">
           {now.getFullYear()}年{now.getMonth() + 1}月{now.getDate()}日({["日", "月", "火", "水", "木", "金", "土"][now.getDay()]})
         </div>
-        <div className="text-4xl md:text-6xl font-mono text-black">
+        <div className="text-4xl md:text-6xl font-mono text-black transition-all duration-500 ease-in-out hover:text-indigo-600">
           {now.toLocaleTimeString()}
         </div>
       </div>
 
       {/* 打刻状況 */}
       <div className="flex flex-col justify-center items-center min-w-[280px] mb-8 md:mb-16">
-        <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2">今日の打刻状況</div>
-        <div className="text-black text-xl md:text-3xl">
-          <div>出勤：{todayStatus.出勤 === "--:--" ? "--:--" : todayStatus.出勤}</div>
-          <div>退勤：{todayStatus.退勤 === "--:--" ? "--:--" : todayStatus.退勤}</div>
+        <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2 animate-pulse">今日の打刻状況</div>
+        <div className="text-black text-xl md:text-3xl space-y-2">
+          <div className={`transition-all duration-300 ${todayStatus.出勤 !== "--:--" ? "text-green-600 font-semibold" : "text-gray-500"}`}>
+            出勤：{todayStatus.出勤 === "--:--" ? "--:--" : todayStatus.出勤}
+          </div>
+          <div className={`transition-all duration-300 ${todayStatus.退勤 !== "--:--" ? "text-red-600 font-semibold" : "text-gray-500"}`}>
+            退勤：{todayStatus.退勤 === "--:--" ? "--:--" : todayStatus.退勤}
+          </div>
         </div>
       </div>
 
@@ -109,13 +113,13 @@ function Clock() {
           onClick={handleClockIn}
           // disabled={todayStatus.出勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${todayStatus.出勤 !== "--:--"
-              ? "bg-gray-400 cursor-not-allowed text-gray-600"
-              : "bg-blue-700 hover:bg-blue-800 text-white"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 !== "--:--"
+              ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"
+              : "bg-blue-700 hover:bg-blue-800 text-white shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
             }`}
         >
           <span className="flex items-center justify-center gap-2">
-            <FaSignInAlt className="w-5 h-5 md:w-6 md:h-6" />
+            <FaSignInAlt className={`w-5 h-5 md:w-6 md:h-6 transition-transform duration-200 ${todayStatus.出勤 === "--:--" ? "hover:rotate-12" : ""}`} />
             {todayStatus.出勤 !== "--:--" ? "出勤済み" : "出勤"}
           </span>
         </Button>
@@ -123,13 +127,13 @@ function Clock() {
           onClick={handleClockOut}
           // disabled={todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
-              ? "bg-gray-400 cursor-not-allowed text-gray-600"
-              : "bg-red-600 hover:bg-red-700 text-white"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
+              ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"
+              : "bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl hover:shadow-red-500/25"
             }`}
         >
           <span className="flex items-center justify-center gap-2">
-            <FaSignOutAlt className="w-5 h-5 md:w-6 md:h-6" />
+            <FaSignOutAlt className={`w-5 h-5 md:w-6 md:h-6 transition-transform duration-200 ${todayStatus.退勤 === "--:--" && todayStatus.出勤 !== "--:--" ? "hover:rotate-12" : ""}`} />
             {todayStatus.退勤 !== "--:--" ? "退勤済み" : "退勤"}
           </span>
         </Button>
