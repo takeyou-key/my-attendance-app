@@ -1,105 +1,149 @@
-import React, { useState, useRef } from "react";
-import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
+import React, { useState } from "react";
+import { FaQuestionCircle } from 'react-icons/fa';
 
 /**
- * チュートリアル表示コンポーネント
- * react-joyrideを使用してステップガイドを表示
+ * シンプルなツアーコンポーネント
  */
 export default function Tutorial() {
-    const [run, setRun] = useState(false);
-    const [stepIndex, setStepIndex] = useState(0);
-    const joyrideRef = useRef(null);
-    const [steps, setSteps] = useState([
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isActive, setIsActive] = useState(false);
+
+    const steps = [
         {
             target: ".step1",
-            title:"",
-            content: "①変更したい日にちの項目欄をダブルクリックして下さい。※出勤時刻・退勤時刻・休憩時間のみ修正可能",
-            placement: "top",
-            disableBeacon: true
+            content: (
+                <>
+                    ①修正したい項目をダブルクリックします。<br />
+                    ※出勤時刻・退勤時刻・休憩時間のみ修正可能
+                </>
+            ),
+            position: "bottom"
         },
         {
             target: ".step2",
-            content: "②変更したい時間を入力して下さい。",
-            placement: "top",
+            content: (<>
+                ②修正したい時間を入力します。
+            </>),
+            position: "bottom"
         },
         {
             target: ".step3",
-            content: "③申請ボタンを押して下さい。",
-            placement: "top",
-            hideBackButton: true,
-        },
-        {
-            target: ".step4",
-            content: "④コメントを入力します（任意）",
-            placement: "top",
-            waitFor: () => document.querySelector('.step4') !== null,
-        },
-        {
-            target: ".step5",
-            content: "⑤申請するボタンを押して申請完了です",
-            placement: "top",
-            waitFor: () => document.querySelector('.step5') !== null,
+            content: (<>③申請ボタンを押します。<br/>コメントを入力し申請するボタンを押して完了です。</>),
+            position: "bottom"
         }
-    ]);
+    ];
 
-    const handleClickStart = () => {
-        setRun(true);
+    const startTour = () => {
+        setIsActive(true);
+        setCurrentStep(0);
+        highlightElement(steps[0].target);
     };
 
-    const handleJoyrideCallback = (data) => {
-        const { action, index, status, type } = data;
-        
-        // ツアーが開始されたらALERTを無効化
-        if (type === EVENTS.TOUR_START) {
-            window.originalAlert = window.alert;
-            window.alert = () => {};
-        }
-        
-        // step3で申請ボタンが押された後の処理
-        if (index === 2 && action === ACTIONS.NEXT) {
-            // モーダルが開くまで少し待ってからstep4に進む
-            setTimeout(() => {
-                if (joyrideRef.current) {
-                    joyrideRef.current.next();
-                }
-            }, 500);
-        }
-        
-        // ツアーが終了したらALERTを元に戻す
-        if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-            if (window.originalAlert) {
-                window.alert = window.originalAlert;
-                delete window.originalAlert;
-            }
-            setRun(false);
-            setStepIndex(0);
+    const nextStep = () => {
+        if (currentStep < steps.length - 1) {
+            const nextStepIndex = currentStep + 1;
+            setCurrentStep(nextStepIndex);
+            highlightElement(steps[nextStepIndex].target);
+        } else {
+            endTour();
         }
     };
+
+    const prevStep = () => {
+        if (currentStep > 0) {
+            const prevStepIndex = currentStep - 1;
+            setCurrentStep(prevStepIndex);
+            highlightElement(steps[prevStepIndex].target);
+        }
+    };
+
+    const endTour = () => {
+        setIsActive(false);
+        setCurrentStep(0);
+        removeHighlight();
+    };
+
+    const highlightElement = (selector) => {
+        removeHighlight();
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.position = 'relative';
+            element.style.zIndex = '1000';
+            element.style.boxShadow = '0 0 0 4px #ff0000, 0 0 0 8px rgba(59, 130, 246, 0.3)';
+            element.style.borderRadius = '8px';
+            element.style.backgroundColor = 'rgba(243, 9, 9, 0.1)';
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    const removeHighlight = () => {
+        document.querySelectorAll('[style*="box-shadow"]').forEach(el => {
+            el.style.position = '';
+            el.style.zIndex = '';
+            el.style.boxShadow = '';
+            el.style.borderRadius = '';
+            el.style.backgroundColor = '';
+        });
+    };
+
+    if (!isActive) {
+        return (
+            <button
+                onClick={startTour}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-1 px-2 rounded text-sm border border-gray-300"
+            >
+                <span className="flex items-center gap-1">
+                    <FaQuestionCircle className="w-3 h-3" />
+                    申請ガイド
+                </span>
+            </button>
+        );
+    }
+
+    const currentStepData = steps[currentStep];
+    const targetElement = document.querySelector(currentStepData.target);
 
     return (
-        <div>
-            <Joyride
-                ref={joyrideRef}
-                steps={steps}
-                run={run} // ← これが true になるとツアーが開始
-                stepIndex={stepIndex}
-                continuous={true} // 「次へ」ボタンを常に表示
-                showProgress={true} // ステップ数を表示
-                showSkipButton={true} // スキップボタンを表示
-                callback={handleJoyrideCallback}
-                spotlightClicks={true} // ターゲット要素をクリック可能にする
-                disableOverlayClose={false} // オーバーレイクリックで閉じる
-                styles={{
-                    overlay: {
-                        zIndex: 9999 // モーダルより高いz-index
-                    },
-                    tooltip: {
-                        zIndex: 10000
-                    }
-                }}
-            />
+        <>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998]" onClick={endTour} />
 
-            <button onClick={handleClickStart} style={{ border: '1px solid #000', borderRadius: '10px', padding: '10px', cursor: 'pointer', marginBottom: '10px' }}>申請方法を確認する</button>
-        </div>
+            {targetElement && (
+                <div
+                    className="fixed z-[9999] bg-white rounded-lg shadow-xl p-4 md:p-6"
+                    style={{
+                        top: currentStepData.position === 'top' 
+                            ? `${Math.max(10, targetElement.offsetTop - 20)}px`
+                            : `${Math.min(targetElement.offsetTop + targetElement.offsetHeight + 20, window.innerHeight - 200)}px`,
+                        left: `${Math.max(10, Math.min(targetElement.offsetLeft, window.innerWidth - 320))}px`,
+                        width: '300px',
+                        maxWidth: 'calc(100vw - 20px)',
+                        transform: currentStepData.position === 'top' ? 'translateY(-100%)' : 'translateY(0)'
+                    }}
+                >
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-semibold text-sm md:text-base">ステップ {currentStep + 1}/3</h3>
+                        <button onClick={endTour} className="text-gray-400 hover:text-gray-600 text-lg">×</button>
+                    </div>
+
+                    <p className="text-gray-700 mb-4 text-sm md:text-base leading-relaxed">{currentStepData.content}</p>
+
+                    <div className="flex justify-between gap-2">
+                        <button
+                            onClick={prevStep}
+                            disabled={currentStep === 0}
+                            className="px-3 py-2 md:px-4 rounded bg-gray-200 text-gray-700 disabled:opacity-50 text-sm md:text-base flex-1"
+                        >
+                            戻る
+                        </button>
+                        <button
+                            onClick={nextStep}
+                            className="px-3 py-2 md:px-4 rounded bg-blue-500 text-white text-sm md:text-base flex-1"
+                        >
+                            {currentStep === steps.length - 1 ? '完了' : '次へ'}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

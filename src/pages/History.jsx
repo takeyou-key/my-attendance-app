@@ -319,8 +319,8 @@ function History() {
           </div>
         </div>
 
-        {/* チュートリアル */}
-        <div>
+        {/* チュートリアル - ボタンのみ右寄せ */}
+        <div className="flex justify-end mb-2">
           <Tutorial />
         </div>
 
@@ -420,7 +420,7 @@ function History() {
                   ))
                 )}
               </tbody>
-              <tfoot className="sticky bottom-0 z-50 bg-gray-200 shadow-lg backdrop-blur-sm">
+              <tfoot className="sticky bottom-0 z-10 bg-gray-200 shadow-lg backdrop-blur-sm">
                 <tr className="font-bold bg-gray-200 shadow-lg">
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">合計</td>
                   <td className="py-2 px-4 whitespace-nowrap bg-gray-200">--:--</td>
