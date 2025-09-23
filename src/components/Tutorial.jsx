@@ -13,22 +13,15 @@ export default function Tutorial() {
             target: ".step1",
             content: (
                 <>
-                    ①修正したい項目をダブルクリックします。<br />
-                    ※出勤時刻・退勤時刻・休憩時間のみ修正可能
+                    ①修正したい項目をダブルクリックして時間を入力します。<br />
+                    ※出勤・退勤・休憩時間の修正が可能です。
                 </>
             ),
             position: "bottom"
         },
         {
-            target: ".step2",
-            content: (<>
-                ②修正したい時間を入力します。
-            </>),
-            position: "bottom"
-        },
-        {
             target: ".step3",
-            content: (<>③申請ボタンを押します。<br/>コメントを入力し申請するボタンを押して完了です。</>),
+            content: (<>②申請ボタンを押してコメントを入力し、申請するボタンを押して完了です。</>),
             position: "bottom"
         }
     ];
@@ -67,22 +60,44 @@ export default function Tutorial() {
         removeHighlight();
         const element = document.querySelector(selector);
         if (element) {
-            element.style.position = 'relative';
-            element.style.zIndex = '1000';
-            element.style.boxShadow = '0 0 0 4px #ff0000, 0 0 0 8px rgba(59, 130, 246, 0.3)';
-            element.style.borderRadius = '8px';
-            element.style.backgroundColor = 'rgba(243, 9, 9, 0.1)';
+            // テーブルセルの場合は特別な処理
+            if (element.tagName === 'TD') {
+                element.style.position = 'relative';
+                element.style.zIndex = '1000';
+                element.style.outline = '4px solid #ff0000';
+                element.style.outlineOffset = '2px';
+                element.style.backgroundColor = 'rgba(9, 83, 243, 0.1)';
+                element.style.borderRadius = '4px';
+            } else {
+                // 通常の要素（ボタンなど）
+                element.style.position = 'relative';
+                element.style.zIndex = '1000';
+                element.style.boxShadow = '0 0 0 4px #ff0000';
+                element.style.borderRadius = '8px';
+                element.style.backgroundColor = 'rgba(9, 83, 243, 0.1)';
+            }
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     };
 
     const removeHighlight = () => {
+        // box-shadowを持つ要素をクリア
         document.querySelectorAll('[style*="box-shadow"]').forEach(el => {
             el.style.position = '';
             el.style.zIndex = '';
             el.style.boxShadow = '';
             el.style.borderRadius = '';
             el.style.backgroundColor = '';
+        });
+        
+        // outlineを持つ要素をクリア
+        document.querySelectorAll('[style*="outline"]').forEach(el => {
+            el.style.position = '';
+            el.style.zIndex = '';
+            el.style.outline = '';
+            el.style.outlineOffset = '';
+            el.style.backgroundColor = '';
+            el.style.borderRadius = '';
         });
     };
 
@@ -121,7 +136,7 @@ export default function Tutorial() {
                     }}
                 >
                     <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-semibold text-sm md:text-base">ステップ {currentStep + 1}/3</h3>
+                        <h3 className="font-semibold text-sm md:text-base">ステップ {currentStep + 1}/2</h3>
                         <button onClick={endTour} className="text-gray-400 hover:text-gray-600 text-lg">×</button>
                     </div>
 
