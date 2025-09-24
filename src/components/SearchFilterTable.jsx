@@ -31,7 +31,13 @@ const SearchFilterTable = ({
   onFilterChange,
   filterOptions = [],
   filterLabel = "項目",
-  renderRow
+  renderRow,
+  onFilteredDataChange,
+  extraControls,
+  showCheckbox = false,
+  selectedItems = [],
+  onSelectAll,
+  onSelectItem
 }) => {
   const [sortField, setSortField] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -114,6 +120,13 @@ const SearchFilterTable = ({
     });
   }, [filteredData, sortField, sortDirection]);
 
+  // フィルター済みデータを親コンポーネントに通知
+  React.useEffect(() => {
+    if (onFilteredDataChange) {
+      onFilteredDataChange(sortedData);
+    }
+  }, [sortedData, onFilteredDataChange]);
+
   // ソート処理
   const handleSort = (field) => {
     if (sortField === field) {
@@ -125,10 +138,10 @@ const SearchFilterTable = ({
   };
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {/* 検索・フィルター機能 */}
       {(onFilterChange || onDateSearchChange || onApplicantSearchChange) && (
-        <div className="mb-4 flex flex-wrap gap-4 items-center">
+        <div className="mb-4 flex flex-wrap gap-2 lg:gap-4 items-center flex-shrink-0">
           {/* 項目フィルター */}
           {onFilterChange && filterOptions.length > 0 && (
             <div className="flex items-center gap-2">
@@ -136,7 +149,7 @@ const SearchFilterTable = ({
               <select
                 value={filterValue}
                 onChange={(e) => onFilterChange(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-24 lg:w-auto"
               >
                 <option value="all">すべて</option>
                 {filterOptions.map(option => (
@@ -157,7 +170,7 @@ const SearchFilterTable = ({
                 value={dateSearchTerm}
                 onChange={(e) => onDateSearchChange(e.target.value)}
                 placeholder="申請日を入力"
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
               />
             </div>
           )}
@@ -171,7 +184,7 @@ const SearchFilterTable = ({
                 value={applicantSearchTerm}
                 onChange={(e) => onApplicantSearchChange(e.target.value)}
                 placeholder="申請者名を入力"
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
               />
             </div>
           )}
@@ -185,8 +198,15 @@ const SearchFilterTable = ({
                 value={targetDateSearchTerm}
                 onChange={(e) => onTargetDateSearchChange(e.target.value)}
                 placeholder="対象日を入力"
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
               />
+            </div>
+          )}
+
+          {/* 追加コントロール */}
+          {extraControls && (
+            <div className="ml-auto">
+              {extraControls}
             </div>
           )}
         </div>
@@ -194,11 +214,24 @@ const SearchFilterTable = ({
 
       {/* テーブル */}
       {sortedData.length > 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
+        <div className="hidden lg:block bg-white shadow overflow-hidden">
+          <div 
+            className="overflow-auto bg-white" 
+            style={{ maxHeight: "calc(100vh - 350px)" }}
+          >
             <table className="min-w-full whitespace-nowrap">
               <thead className="bg-indigo-600 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
                 <tr>
+                  {showCheckbox && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-indigo-600">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.length === sortedData.length && sortedData.length > 0}
+                        onChange={(e) => onSelectAll && onSelectAll(e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                    </th>
+                  )}
                   {columns.map((column) => (
                     <th
                       key={column.key}
@@ -221,6 +254,16 @@ const SearchFilterTable = ({
               <tbody className="bg-white divide-y divide-gray-200">
                 {sortedData.map((item, index) => (
                   <tr key={item.id || index} className="hover:bg-gray-50">
+                    {showCheckbox && (
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(item.id)}
+                          onChange={(e) => onSelectItem && onSelectItem(item.id, e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                      </td>
+                    )}
                     {renderRow(item, index)}
                   </tr>
                 ))}
@@ -229,7 +272,7 @@ const SearchFilterTable = ({
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
+        <div className="bg-white shadow p-8 text-center flex-1">
           <div className="text-gray-500 text-lg">データがありません</div>
         </div>
       )}

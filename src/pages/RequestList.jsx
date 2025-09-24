@@ -208,7 +208,7 @@ function RequestList() {
 
   return (
     <div className="w-full h-full p-4 pb-24 md:p-6 md:pb-28 lg:pb-8">
-      <div className="max-w-6xl mx-auto h-full flex flex-col">
+      <div className="w-full h-full flex flex-col">
           {/* タイトル */}
           <h1 className="hidden md:block text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
 
@@ -268,45 +268,44 @@ function RequestList() {
           </div>
 
           {/* デスクトップ用テーブル */}
-          <div className={`hidden lg:block bg-white shadow overflow-hidden ${filteredRequests.length > 10 ? 'flex-1 flex flex-col' : ''}`}>
-            <div className={`overflow-auto bg-white ${filteredRequests.length > 10 ? 'flex-1' : ''}`} style={{
-              maxHeight: filteredRequests.length > 10 ? "calc(100vh - 200px - 3.5rem)" : "auto"
-            }}>
-              <table className="min-w-full whitespace-nowrap">
-                <thead className="bg-indigo-600 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
-                  <tr>
-                    {columns.map((column) => (
-                      <th
-                        key={column.key}
-                        className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-indigo-600"
-                      >
-                        {column.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredRequests.length === 0 ? (
+          {filteredRequests.length > 0 ? (
+            <div className="hidden lg:block bg-white shadow overflow-hidden">
+              <div className="overflow-auto bg-white" style={{
+                maxHeight: "calc(100vh - 300px)"
+              }}>
+                <table className="min-w-full whitespace-nowrap">
+                  <thead className="bg-indigo-600 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
                     <tr>
-                      <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
-                        データがありません
-                      </td>
+                      {columns.map((column) => (
+                        <th
+                          key={column.key}
+                          className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-indigo-600"
+                        >
+                          {column.label}
+                        </th>
+                      ))}
                     </tr>
-                  ) : (
-                    filteredRequests.map((request, index) => (
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredRequests.map((request, index) => (
                       <tr key={request.id || index} className="hover:bg-gray-50">
                         {renderRow(request, index)}
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="hidden lg:block bg-white shadow p-8 text-center">
+              <div className="text-gray-500 text-lg">データがありません</div>
+            </div>
+          )}
 
           {/* モバイル・タブレット用カード表示 */}
-          <div className="lg:hidden space-y-2">
-            {filteredRequests.map((request) => (
+          {filteredRequests.length > 0 ? (
+            <div className="lg:hidden space-y-2">
+              {filteredRequests.map((request) => (
               <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-gray-900 text-sm">{request.item}</span>
@@ -372,8 +371,13 @@ function RequestList() {
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="lg:hidden bg-white shadow p-8 text-center">
+              <div className="text-gray-500 text-lg">データがありません</div>
+            </div>
+          )}
       </div>
     </div>
   );
