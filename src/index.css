@@ -103,3 +103,20 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+/* スクロールバーを非表示にする */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* モバイルでのスクロール動作を制御 */
+.mobile-scroll-container {
+  overscroll-behavior: none;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}

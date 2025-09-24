@@ -192,9 +192,15 @@ const SearchFilterTable = ({
         </div>
       )}
 
-      {/* テーブル */}
-      <div className="overflow-hidden">
-        <div className="overflow-auto bg-white" style={{ maxHeight: "calc(100vh - 300px)", overscrollBehavior: "contain" }}>
+       {/* テーブル */}
+       <div className="overflow-hidden relative bg-white rounded-lg shadow">
+         {/* スワイプインジケーター */}
+         <div className="absolute top-2 right-2 z-20 bg-gray-200 rounded-full p-1 opacity-60">
+           <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+         </div>
+         <div className="overflow-auto bg-white scrollbar-hide mobile-scroll-container" style={{ 
+           maxHeight: "calc(100vh - 300px)"
+         }}>
           <table className="min-w-full whitespace-nowrap bg-white">
             <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
               <tr>
@@ -226,7 +232,7 @@ const SearchFilterTable = ({
                 </tr>
               ) : (
                 sortedData.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-gray-50 bg-white">
+                  <tr key={item.id || index} className="hover:bg-gray-50 active:bg-gray-100 bg-white transition-colors duration-150">
                     {renderRow(item, index)}
                   </tr>
                 ))
