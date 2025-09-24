@@ -333,29 +333,12 @@ function AdminHome() {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           variant="underline"
-        >
-          {/* 一括承認ボタン（モバイル） */}
-          <div className="lg:hidden">
-            {activeTab === "未対応" && (
-              <Button
-                variant="none"
-                className={`px-4 py-2 rounded-lg text-sm shadow-lg ${selectedItems.length > 0
-                  ? "bg-blue-600 hover:bg-purple-700 text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                onClick={selectedItems.length > 0 ? handleBulkApprove : undefined}
-                disabled={selectedItems.length === 0}
-              >
-                一括承認 ({selectedItems.length})
-              </Button>
-            )}
-          </div>
-        </TabNavigation>
+        />
 
       {/* デスクトップ用テーブル */}
       <div className={filteredRequests.length > 0 ? "flex-1" : ""}>
         <SearchFilterTable
-            data={requests}
+            data={filteredRequests}
             columns={columns}
             dateSearchTerm={dateSearchTerm}
             onDateSearchChange={setDateSearchTerm}
@@ -390,16 +373,27 @@ function AdminHome() {
       <div className="lg:hidden space-y-2">
         {/* 全選択ボタン（モバイル） */}
         {activeTab === "未対応" && searchFilteredRequests.length > 0 && (
-          <div className="flex items-center space-x-2 mb-3">
-            <input
-              type="checkbox"
-              checked={selectedItems.length === searchFilteredRequests.length}
-              onChange={(e) => handleSelectAll(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-            <span className="text-sm text-gray-700">
-              全選択 ({selectedItems.length}/{searchFilteredRequests.length})
-            </span>
+          <div className="mb-3">
+            <div className="flex items-center space-x-2 mb-2">
+              <input
+                type="checkbox"
+                checked={selectedItems.length === searchFilteredRequests.length}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm text-gray-700">
+                全選択 ({selectedItems.length}/{searchFilteredRequests.length})
+              </span>
+            </div>
+            {selectedItems.length > 0 && (
+              <Button
+                variant="none"
+                className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-red-500 text-[6px] rounded w-full"
+                onClick={handleBulkApprove}
+              >
+                一括承認 ({selectedItems.length})
+              </Button>
+            )}
           </div>
         )}
 
