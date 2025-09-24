@@ -66,7 +66,7 @@ const Header = ({
               <Button
                 onClick={onLogout}
                 variant="secondary"
-                className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-full"
+                className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-xl"
                 textColor={textColor}
               >
                 {logoutLabel}
@@ -93,7 +93,7 @@ const Header = ({
             <Button
               onClick={onLogout}
               variant="secondary"
-              className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-full"
+              className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-xl"
               textColor={textColor}
             >
               {logoutLabel}

@@ -113,7 +113,7 @@ function Clock() {
           onClick={handleClockIn}
           disabled={todayStatus.出勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 !== "--:--"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"
               : "bg-blue-700 hover:bg-blue-800 text-white shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
             }`}
@@ -127,7 +127,7 @@ function Clock() {
           onClick={handleClockOut}
           disabled={todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"}
           variant="none"
-          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-2xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
+          className={`text-base md:text-lg font-bold px-3 md:px-4 h-16 md:h-20 rounded-xl w-full transition-all duration-300 transform hover:scale-105 active:scale-95 ${todayStatus.出勤 === "--:--" || todayStatus.退勤 !== "--:--"
               ? "bg-gray-400 cursor-not-allowed text-gray-600 hover:scale-100"
               : "bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl hover:shadow-red-500/25"
             }`}
