@@ -327,11 +327,11 @@ function History() {
           <Tutorial />
         </div>
 
-        {/* テーブルコンテナ - 最大高さでスクロール */}
-        <div className="bg-white shadow overflow-hidden flex-1 flex flex-col">
-          <div className="overflow-auto bg-white flex-1" style={{
-            maxHeight: "calc(100vh - 200px - 3.5rem)"
-          }}>
+        {/* テーブルコンテナ - 固定高さでスクロール */}
+        <div className="bg-white shadow overflow-hidden" style={{
+          height: "calc(100vh - 200px - 3.5rem)"
+        }}>
+          <div className="overflow-auto bg-white h-full">
             <table className="min-w-full border text-center whitespace-nowrap">
               <thead className="sticky top-0 z-10 bg-indigo-600 shadow-sm backdrop-blur-sm">
                 <tr className="bg-indigo-600 text-white">

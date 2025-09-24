@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import TabNavigation from "../components/TabNavigation.jsx";
-import SearchFilterTable from "../components/SearchFilterTable.jsx";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -66,14 +65,39 @@ function RequestList() {
     fetchRequests();
   }, [userId, isAuthChecked]);
 
-  // タブに応じてデータをフィルタリング
+  // タブと検索条件に応じてデータをフィルタリング
   const filteredRequests = requests.filter(request => {
+    // タブフィルター
     if (activeTab === "pending") {
-      return request.status === "未対応";
+      if (request.status !== "未対応") return false;
     } else if (activeTab === "completed") {
-      return request.status === "承認" || request.status === "否認";
+      if (request.status !== "承認" && request.status !== "否認") return false;
+    } else {
+      return false;
     }
-    return false;
+
+    // 項目フィルター
+    if (filterItem !== "all" && request.item !== filterItem) {
+      return false;
+    }
+
+    // 申請日フィルター
+    if (dateSearchTerm) {
+      const searchDate = dateSearchTerm.replace(/-/g, '/');
+      if (!request.date?.includes(searchDate)) {
+        return false;
+      }
+    }
+
+    // 対象日フィルター
+    if (targetDateSearchTerm) {
+      const searchDate = targetDateSearchTerm.replace(/-/g, '/');
+      if (!request.targetDate?.includes(searchDate)) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   // カラム定義
@@ -183,10 +207,8 @@ function RequestList() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen mobile-scroll-container">
-      {/* メインコンテンツ */}
-      <main className="p-4 md:p-6 md:pt-12 pb-20 md:pb-24">
-        <div className="max-w-6xl mx-auto">
+    <div className="w-full h-full p-4 pb-24 md:p-6 md:pb-28 lg:pb-8">
+      <div className="max-w-6xl mx-auto h-full flex flex-col">
           {/* タイトル */}
           <h1 className="hidden md:block text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
 
@@ -201,22 +223,84 @@ function RequestList() {
             variant="underline"
           />
 
-          {/* デスクトップ用テーブル */}
-          <div className="hidden lg:block">
-            <div className="p-4">
-              <SearchFilterTable
-                data={filteredRequests}
-                columns={columns}
-                dateSearchTerm={dateSearchTerm}
-                onDateSearchChange={setDateSearchTerm}
-                targetDateSearchTerm={targetDateSearchTerm}
-                onTargetDateSearchChange={setTargetDateSearchTerm}
-                filterValue={filterItem}
-                onFilterChange={setFilterItem}
-                filterOptions={filterOptions}
-                filterLabel="項目"
-                renderRow={renderRow}
+          {/* 検索・フィルター機能 */}
+          <div className="hidden lg:flex mb-4 flex-wrap gap-4 items-center">
+            {/* 項目フィルター */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">項目:</label>
+              <select
+                value={filterItem}
+                onChange={(e) => setFilterItem(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                <option value="all">すべて</option>
+                {filterOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 申請日検索ボックス */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">申請日:</label>
+              <input
+                type="date"
+                value={dateSearchTerm}
+                onChange={(e) => setDateSearchTerm(e.target.value)}
+                placeholder="申請日を入力"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
               />
+            </div>
+
+            {/* 対象日検索ボックス */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">対象日:</label>
+              <input
+                type="date"
+                value={targetDateSearchTerm}
+                onChange={(e) => setTargetDateSearchTerm(e.target.value)}
+                placeholder="対象日を入力"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
+              />
+            </div>
+          </div>
+
+          {/* デスクトップ用テーブル */}
+          <div className={`hidden lg:block bg-white shadow overflow-hidden ${filteredRequests.length > 10 ? 'flex-1 flex flex-col' : ''}`}>
+            <div className={`overflow-auto bg-white ${filteredRequests.length > 10 ? 'flex-1' : ''}`} style={{
+              maxHeight: filteredRequests.length > 10 ? "calc(100vh - 200px - 3.5rem)" : "auto"
+            }}>
+              <table className="min-w-full whitespace-nowrap">
+                <thead className="bg-indigo-600 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
+                  <tr>
+                    {columns.map((column) => (
+                      <th
+                        key={column.key}
+                        className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-indigo-600"
+                      >
+                        {column.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredRequests.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
+                        データがありません
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRequests.map((request, index) => (
+                      <tr key={request.id || index} className="hover:bg-gray-50">
+                        {renderRow(request, index)}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -290,8 +374,7 @@ function RequestList() {
               </div>
             ))}
           </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
