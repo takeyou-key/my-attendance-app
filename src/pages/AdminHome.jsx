@@ -22,6 +22,7 @@ function AdminHome() {
   const [dateSearchTerm, setDateSearchTerm] = React.useState(""); // 申請日検索
   const [applicantSearchTerm, setApplicantSearchTerm] = React.useState(""); // 申請者名検索
   const [filterItem, setFilterItem] = React.useState("all"); // 項目フィルター
+  const [searchFilteredRequests, setSearchFilteredRequests] = React.useState([]); // 検索フィルター済みデータ
 
   // Firestoreからデータを取得
   React.useEffect(() => {
@@ -209,7 +210,7 @@ function AdminHome() {
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedItems(filteredRequests.map(item => item.id));
+      setSelectedItems(searchFilteredRequests.map(item => item.id));
     } else {
       setSelectedItems([]);
     }
@@ -319,8 +320,8 @@ function AdminHome() {
   }
 
   return (
-    <div className="w-full min-h-screen p-4 md:p-6 md:pt-12">
-      <div className="mb-4 md:mb-6">
+    <div className="w-full h-full p-4 pb-24 md:p-6 md:pb-28 lg:pb-8">
+      <div className="w-full h-full flex flex-col">
         <h1 className="hidden md:block text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">申請一覧</h1>
 
         {/* タブ */}
@@ -350,61 +351,61 @@ function AdminHome() {
             )}
           </div>
         </TabNavigation>
-      </div>
 
       {/* デスクトップ用テーブル */}
-      <div className="hidden lg:block">
+      <div className={filteredRequests.length > 0 ? "flex-1" : ""}>
         <SearchFilterTable
-          data={filteredRequests}
-          columns={columns}
-          dateSearchTerm={dateSearchTerm}
-          onDateSearchChange={setDateSearchTerm}
-          applicantSearchTerm={applicantSearchTerm}
-          onApplicantSearchChange={setApplicantSearchTerm}
-          filterValue={filterItem}
-          onFilterChange={setFilterItem}
-          filterOptions={filterOptions}
-          filterLabel="項目"
-          showCheckbox={true}
-          selectedItems={selectedItems}
-          onSelectAll={handleSelectAll}
-          onSelectItem={handleSelectItem}
-          renderRow={renderRow}
-          extraControls={
-            activeTab === "未対応" && (
-              <Button
-                variant="none"
-                className="px-6 py-2 bg-blue-600 hover:bg-purple-700 text-white rounded-lg"
-                onClick={handleBulkApprove}
-                disabled={selectedItems.length === 0}
-              >
-                一括承認 ({selectedItems.length})
-              </Button>
-            )
-          }
-        />
+            data={requests}
+            columns={columns}
+            dateSearchTerm={dateSearchTerm}
+            onDateSearchChange={setDateSearchTerm}
+            applicantSearchTerm={applicantSearchTerm}
+            onApplicantSearchChange={setApplicantSearchTerm}
+            filterValue={filterItem}
+            onFilterChange={setFilterItem}
+            filterOptions={filterOptions}
+            filterLabel="項目"
+            showCheckbox={true}
+            selectedItems={selectedItems}
+            onSelectAll={handleSelectAll}
+            onSelectItem={handleSelectItem}
+            renderRow={renderRow}
+            onFilteredDataChange={setSearchFilteredRequests}
+            extraControls={
+              activeTab === "未対応" && (
+                <Button
+                  variant="none"
+                  className="px-6 py-2 bg-blue-600 hover:bg-purple-700 text-white rounded-lg"
+                  onClick={handleBulkApprove}
+                  disabled={selectedItems.length === 0}
+                >
+                  一括承認 ({selectedItems.length})
+                </Button>
+              )
+            }
+          />
       </div>
 
       {/* モバイル・タブレット用カード表示 */}
-      <div className="lg:hidden space-y-4">
+      <div className="lg:hidden space-y-2">
         {/* 全選択ボタン（モバイル） */}
-        {activeTab === "未対応" && filteredRequests.length > 0 && (
+        {activeTab === "未対応" && searchFilteredRequests.length > 0 && (
           <div className="flex items-center space-x-2 mb-3">
             <input
               type="checkbox"
-              checked={selectedItems.length === filteredRequests.length}
+              checked={selectedItems.length === searchFilteredRequests.length}
               onChange={(e) => handleSelectAll(e.target.checked)}
               className="rounded border-gray-300"
             />
             <span className="text-sm text-gray-700">
-              全選択 ({selectedItems.length}/{filteredRequests.length})
+              全選択 ({selectedItems.length}/{searchFilteredRequests.length})
             </span>
           </div>
         )}
 
-        {filteredRequests.map((request) => (
-          <div key={request.id} className="bg-white rounded-lg shadow-md p-3 md:p-4 border">
-            <div className="flex items-center justify-between mb-3">
+        {searchFilteredRequests.map((request) => (
+          <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -433,15 +434,12 @@ function AdminHome() {
                 <span className="text-gray-600">対象日:</span>
                 <span className="ml-1 font-medium">{request.targetDate}</span>
               </div>
-              <div className="col-span-2">
-                <span className="text-gray-600">申請者:{request.applicant.replace('@', '＠')}</span>
-              </div>
             </div>
 
             {/* 変更内容 */}
             {request.originalData && request.updatedData && (
-              <div className="bg-gray-50 rounded p-3 mb-2">
-                <h4 className="font-medium text-gray-700 mb-2">変更内容</h4>
+              <div className="bg-gray-50 rounded p-2">
+                <h4 className="font-medium text-gray-700 mb-1 text-sm">変更内容</h4>
                 <div className="flex items-center space-x-4 text-xs">
                   <div className="flex items-center space-x-2">
                     <span>出勤:</span>
@@ -473,7 +471,7 @@ function AdminHome() {
 
             {/* コメント */}
             {request.comment && (
-              <div className="mb-2">
+              <div className="mb-1">
                 <span className="text-gray-600 text-sm">コメント:</span>
                 <span className="text-sm ml-1">{request.comment}</span>
               </div>
@@ -500,8 +498,6 @@ function AdminHome() {
             )}
           </div>
         ))}
-
-
       </div>
 
       {/* 詳細モーダル */}
@@ -573,6 +569,7 @@ function AdminHome() {
           </div>
         </div>
       </Modal>
+      </div>
     </div>
   );
 }
