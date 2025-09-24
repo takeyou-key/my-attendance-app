@@ -74,7 +74,6 @@ export default function Tutorial() {
                 element.style.zIndex = '1000';
                 element.style.boxShadow = '0 0 0 4px #ff0000';
                 element.style.borderRadius = '8px';
-                element.style.backgroundColor = 'rgba(9, 83, 243, 0.1)';
             }
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }

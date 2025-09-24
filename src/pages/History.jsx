@@ -305,7 +305,7 @@ function History() {
             </div>
             <Button
               onClick={handleApply}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg step3 openModalBtn"
+              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl step3 openModalBtn"
             >
               申請
             </Button>
@@ -458,13 +458,13 @@ function History() {
         <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={handleCancelModal}
-            className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50"
           >
             キャンセル
           </button>
           <button
             onClick={handleSubmitApplication}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 step5"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 step5"
           >
             申請する
           </button>
@@ -487,7 +487,7 @@ function History() {
           </p>
           <Button
             onClick={() => setShowNoDataModal(false)}
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
           >
             閉じる
           </Button>
@@ -510,7 +510,7 @@ function History() {
           </p>
           <Button
             onClick={() => setShowSuccessModal(false)}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl"
           >
             閉じる
           </Button>

@@ -138,14 +138,14 @@ const Settings = () => {
                 <Button
                   onClick={() => navigate('/home')}
                   variant="secondary"
-                  className="px-4 md:px-6 py-2 text-sm md:text-base"
+                  className="px-4 md:px-6 py-2 text-sm md:text-base rounded-xl"
                 >
                   キャンセル
                 </Button>
                 <Button
                   onClick={handleSave}
                   disabled={isLoading}
-                  className="px-4 md:px-6 py-2 text-sm md:text-base bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+                  className="px-4 md:px-6 py-2 text-sm md:text-base bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg rounded-xl"
                 >
                   {isLoading ? '保存中...' : '保存'}
                 </Button>
