@@ -183,7 +183,7 @@ function RequestList() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen" style={{ overscrollBehavior: "contain" }}>
       {/* メインコンテンツ */}
       <main className="p-4 md:p-6 md:pt-12 pb-20 md:pb-24">
         <div className="max-w-6xl mx-auto">
@@ -202,20 +202,22 @@ function RequestList() {
           />
 
           {/* デスクトップ用テーブル */}
-          <div className="hidden lg:block">
-            <SearchFilterTable
-              data={filteredRequests}
-              columns={columns}
-              dateSearchTerm={dateSearchTerm}
-              onDateSearchChange={setDateSearchTerm}
-              targetDateSearchTerm={targetDateSearchTerm}
-              onTargetDateSearchChange={setTargetDateSearchTerm}
-              filterValue={filterItem}
-              onFilterChange={setFilterItem}
-              filterOptions={filterOptions}
-              filterLabel="項目"
-              renderRow={renderRow}
-            />
+          <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-4">
+              <SearchFilterTable
+                data={filteredRequests}
+                columns={columns}
+                dateSearchTerm={dateSearchTerm}
+                onDateSearchChange={setDateSearchTerm}
+                targetDateSearchTerm={targetDateSearchTerm}
+                onTargetDateSearchChange={setTargetDateSearchTerm}
+                filterValue={filterItem}
+                onFilterChange={setFilterItem}
+                filterOptions={filterOptions}
+                filterLabel="項目"
+                renderRow={renderRow}
+              />
+            </div>
           </div>
 
           {/* モバイル・タブレット用カード表示 */}

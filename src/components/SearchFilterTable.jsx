@@ -193,15 +193,15 @@ const SearchFilterTable = ({
       )}
 
       {/* テーブル */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 300px)" }}>
-          <table className="min-w-full whitespace-nowrap">
+      <div className="overflow-hidden">
+        <div className="overflow-auto bg-white" style={{ maxHeight: "calc(100vh - 300px)", overscrollBehavior: "contain" }}>
+          <table className="min-w-full whitespace-nowrap bg-white">
             <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50 ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
                       }`}
                     onClick={() => column.sortable && handleSort(column.key)}
                   >
@@ -219,14 +219,14 @@ const SearchFilterTable = ({
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedData.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
+                <tr className="bg-white">
+                  <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500 bg-white">
                     データがありません
                   </td>
                 </tr>
               ) : (
                 sortedData.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-gray-50">
+                  <tr key={item.id || index} className="hover:bg-gray-50 bg-white">
                     {renderRow(item, index)}
                   </tr>
                 ))
