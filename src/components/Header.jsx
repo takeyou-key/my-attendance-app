@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from './Button.jsx';
 import { FaCalendarAlt } from 'react-icons/fa';
 
@@ -14,6 +14,7 @@ const Header = ({
   bgColor,
   textColor
 }) => {
+  const [showEmailTooltip, setShowEmailTooltip] = useState(false);
   const baseClasses = "w-full h-[78px] md:h-[116px] flex items-center px-4 md:px-8";
   const navigationClasses = showNavigation ? "" : "";
   const combinedClasses = `${baseClasses} ${navigationClasses} ${className}`.trim();
@@ -31,17 +32,32 @@ const Header = ({
 
   // メールアドレス表示用のスタイル
   const emailStyle = {
-    pointerEvents: 'none',
+    cursor: 'pointer',
+    position: 'relative',
     userSelect: 'text',
     WebkitUserSelect: 'text',
     MozUserSelect: 'text',
     msUserSelect: 'text'
   };
 
-  // メールアドレスを表示用に変換（@を全角に）
+  // メールアドレスクリック時の処理
+  const handleEmailClick = () => {
+    setShowEmailTooltip(!showEmailTooltip);
+  };
+
+  // メールアドレスを表示用に変換（@以降を省略）
   const formatEmail = (email) => {
     if (!email) return '';
-    return `ID：${email.replace('@', '＠')}`;
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1) return `ID：${email}`;
+    const localPart = email.substring(0, atIndex);
+    return `ID：${localPart}...`;
+  };
+
+  // 表示するメールアドレスを決定
+  const getDisplayEmail = (email) => {
+    if (!email) return '';
+    return showEmailTooltip ? email : formatEmail(email);
   };
 
   return (
@@ -57,8 +73,12 @@ const Header = ({
               {userEmail === undefined ? (
                 <span className="animate-pulse">...</span>
               ) : userEmail ? (
-                <span style={emailStyle} data-email={userEmail}>
-                  {formatEmail(userEmail)}
+                <span 
+                  style={emailStyle} 
+                  data-email={userEmail}
+                  onClick={handleEmailClick}
+                >
+                  {getDisplayEmail(userEmail)}
                 </span>
               ) : null}
             </div>
@@ -66,7 +86,7 @@ const Header = ({
               <Button
                 onClick={onLogout}
                 variant="secondary"
-                className="px-3 py-1 md:px-6 md:py-2 text-xs md:text-sm rounded-xl"
+                className="px-4 py-1.5 md:px-6 md:py-2 text-xs md:text-sm rounded-xl"
                 textColor={textColor}
               >
                 {logoutLabel}
@@ -84,8 +104,12 @@ const Header = ({
             {userEmail === undefined ? (
               <span className="animate-pulse">...</span>
             ) : userEmail ? (
-              <span style={emailStyle} data-email={userEmail}>
-                ( {formatEmail(userEmail)} )
+              <span 
+                style={emailStyle} 
+                data-email={userEmail}
+                onClick={handleEmailClick}
+              >
+                ( {getDisplayEmail(userEmail)} )
               </span>
             ) : null}
           </div>
