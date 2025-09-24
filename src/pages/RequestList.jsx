@@ -203,7 +203,7 @@ function RequestList() {
 
           {/* デスクトップ用テーブル */}
           <div className="hidden lg:block">
-            <div className="bg-white rounded-lg shadow overflow-hidden p-4">
+            <div className="p-4">
               <SearchFilterTable
                 data={filteredRequests}
                 columns={columns}
