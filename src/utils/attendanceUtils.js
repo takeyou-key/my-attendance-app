@@ -69,25 +69,6 @@ export const fetchMonthlyAttendance = async (userId) => {
   }
 };
 
-/**
- * ユーザー設定を取得する
- * @param {string} userId - ユーザーID
- * @returns {Promise<Object|null>} 設定データ（存在しない場合はnull）
- */
-export const fetchUserSettings = async (userId) => {
-  try {
-    const settingsRef = doc(db, COLLECTIONS.USER_SETTINGS, generateDocId.userSetting(userId));
-    const settingsSnap = await getDoc(settingsRef);
-    
-    if (settingsSnap.exists()) {
-      return settingsSnap.data();
-    }
-    return null;
-  } catch (error) {
-    console.error('ユーザー設定取得エラー:', error);
-    throw error;
-  }
-};
 
 /**
  * 申請データを取得する

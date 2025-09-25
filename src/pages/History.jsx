@@ -8,7 +8,7 @@ import { doc, addDoc, setDoc, collection } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { calculateWorkTime, calculateActualWorkTime, calculateOverTime, sumTimes } from '../utils/timeCalculations.js';
-import { fetchMonthlyAttendance, fetchUserSettings, generateYearMonths } from '../utils/attendanceUtils.js';
+import { fetchMonthlyAttendance, generateYearMonths } from '../utils/attendanceUtils.js';
 import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
 import Tutorial from '../components/Tutorial.jsx';
 /**
@@ -34,20 +34,8 @@ function History() {
   useEffect(() => {
     if (!userId || !isAuthChecked) return;
 
-    const loadSettings = async () => {
-      try {
-        const settings = await fetchUserSettings(userId);
-        if (settings) {
-          const hours = settings.regularWorkHours || 8;
-          const minutes = settings.regularWorkMinutes || 0;
-          setRegularWorkMinutes(hours * 60 + minutes);
-        }
-      } catch (error) {
-        console.error("設定読み込みエラー:", error);
-      }
-    };
-
-    loadSettings();
+    // デフォルトの定時時間を8時間に設定
+    setRegularWorkMinutes(8 * 60);
   }, [userId, isAuthChecked]);
 
   // ページフォーカス時にデータを再取得

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { FaQuestionCircle } from 'react-icons/fa';
 
-/**
- * シンプルなツアーコンポーネント
- */
+// ツアーコンポーネント
+
 export default function Tutorial() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isActive, setIsActive] = useState(false);

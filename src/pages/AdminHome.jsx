@@ -347,7 +347,7 @@ function AdminHome() {
             filterValue={filterItem}
             onFilterChange={setFilterItem}
             filterOptions={filterOptions}
-            filterLabel="項目"
+            filterLabel="申請項目"
             showCheckbox={true}
             selectedItems={selectedItems}
             onSelectAll={handleSelectAll}
@@ -517,7 +517,7 @@ function AdminHome() {
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <div className="font-medium text-gray-600 mb-1">項目</div>
+                  <div className="font-medium text-gray-600 mb-1">申請項目</div>
                   <div className="font-medium text-gray-600">出勤時刻</div>
                   <div className="font-medium text-gray-600">退勤時刻</div>
                 </div>

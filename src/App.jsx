@@ -10,7 +10,6 @@ import History from "./pages/History.jsx";
 import Clock from "./pages/Clock.jsx";
 import RequestList from "./pages/RequestList.jsx";
 import AdminHome from "./pages/AdminHome.jsx";
-import Settings from "./pages/Settings.jsx";
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 function App() {
@@ -29,7 +28,6 @@ function App() {
           <Route index element={<Clock />} />
           <Route path="history" element={<History />} />
           <Route path="requestlist" element={<RequestList />} />
-          <Route path="settings" element={<Settings />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminHome />} />

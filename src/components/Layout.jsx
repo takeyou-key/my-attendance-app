@@ -96,19 +96,6 @@ function Layout() {
               申請一覧
             </span>
           </Button>
-          <Button
-            onClick={() => navigate('/home/settings')}
-            variant="none"
-            className={`text-lg font-bold px-4 h-20 w-full border-b border-gray-300 flex items-center justify-between transition-all duration-200 rounded-none ${location.pathname === '/home/settings'
-                ? 'bg-orange-50 text-orange-700 border-l-8 border-orange-700 shadow-md'
-                : 'bg-white text-orange-600 hover:bg-orange-50 hover:shadow-md'
-              }`}
-          >
-            <span className="flex items-center gap-3">
-              <FaCog className="w-5 h-5" />
-              設定
-            </span>
-          </Button>
         </div>
 
         {/* モバイル用下部固定ナビゲーション */}
@@ -140,15 +127,6 @@ function Layout() {
               >
                 <FaListAlt className={`w-6 h-6 mb-1 ${location.pathname === '/home/requestlist' ? 'text-purple-700' : 'text-purple-600'}`} />
                 <span className={`text-xs font-medium ${location.pathname === '/home/requestlist' ? 'text-purple-700' : 'text-purple-600'}`}>申請一覧</span>
-              </button>
-
-              <button
-                onClick={() => navigate('/home/settings')}
-                className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${location.pathname === '/home/settings' ? 'bg-orange-50' : ''
-                  }`}
-              >
-                <FaCog className={`w-6 h-6 mb-1 ${location.pathname === '/home/settings' ? 'text-orange-700' : 'text-orange-600'}`} />
-                <span className={`text-xs font-medium ${location.pathname === '/home/settings' ? 'text-orange-700' : 'text-orange-600'}`}>設定</span>
               </button>
             </div>
           </div>

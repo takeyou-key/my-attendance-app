@@ -16,8 +16,6 @@ export const COLLECTIONS = {
   // 変更申請（旧: applications, requests）
   CHANGE_REQUESTS: 'change_requests',
   
-  // ユーザー設定（旧: settings）
-  USER_SETTINGS: 'user_settings'
 };
 
 // ドキュメントID生成ヘルパー
@@ -26,6 +24,4 @@ export const generateDocId = {
   // (例: user123_2024-01-15)
   timeRecord: (userId, date) => `${userId}_${date}`,
   
-  // ユーザー設定のドキュメントID生成
-  userSetting: (userId) => userId
 }; 
