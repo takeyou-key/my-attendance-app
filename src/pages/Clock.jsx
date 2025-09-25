@@ -96,7 +96,7 @@ function Clock() {
 
       {/* 打刻状況 */}
       <div className="flex flex-col justify-center items-center min-w-[280px] mb-8 md:mb-16">
-        <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2 animate-pulse">今日の打刻状況</div>
+        <div className="text-xl md:text-3xl font-bold text-indigo-600 mb-2">今日の打刻状況</div>
         <div className="text-black text-xl md:text-3xl space-y-2">
           <div className={`transition-all duration-300 ${todayStatus.出勤 !== "--:--" ? "text-green-600 font-semibold" : "text-gray-500"}`}>
             出勤：{todayStatus.出勤 === "--:--" ? "--:--" : todayStatus.出勤}
