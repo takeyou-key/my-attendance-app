@@ -6,17 +6,47 @@ import { FaQuestionCircle } from 'react-icons/fa';
 export default function Tutorial({ autoStart = false }) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isActive, setIsActive] = useState(false);
+    const autoStartTriedRef = React.useRef(false);
 
-    // 自動開始のためのuseEffect
+    // 指定要素が現れるまで待つ（最大timeout内でポーリング）
+    const waitForElement = React.useCallback((selector, timeoutMs = 4000, intervalMs = 150) => {
+        return new Promise((resolve, reject) => {
+            const startAt = Date.now();
+            const tick = () => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    resolve(el);
+                    return;
+                }
+                if (Date.now() - startAt >= timeoutMs) {
+                    reject(new Error(`Element not found for selector: ${selector}`));
+                    return;
+                }
+                setTimeout(tick, intervalMs);
+            };
+            tick();
+        });
+    }, []);
+
+    // 自動開始のためのuseEffect（モバイル向けに堅牢化: 要素出現まで待つ）
     React.useEffect(() => {
-        if (autoStart) {
-            // 少し遅延させてDOM要素が確実に存在するようにする
-            const timer = setTimeout(() => {
-                startTour();
-            }, 500);
-            return () => clearTimeout(timer);
-        }
-    }, [autoStart]);
+        if (!autoStart || isActive || autoStartTriedRef.current) return;
+        autoStartTriedRef.current = true;
+        const firstSelector = '.step1';
+        let cancelled = false;
+        (async () => {
+            try {
+                await waitForElement(firstSelector, 5000, 150);
+                if (!cancelled) {
+                    startTour();
+                }
+            } catch (_err) {
+                // 要素が見つからない場合はボタン表示のまま（自動開始は諦める）
+                autoStartTriedRef.current = false;
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [autoStart, isActive, waitForElement]);
 
     const steps = [
         {
