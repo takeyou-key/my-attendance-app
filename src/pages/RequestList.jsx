@@ -205,8 +205,8 @@ function RequestList() {
             variant="underline"
           />
 
-          {/* デスクトップ用テーブル */}
-          <div className={filteredRequests.length > 0 ? "flex-1" : ""}>
+          {/* デスクトップ用テーブル（高さ拡張はデスクトップのみ）*/}
+          <div className={filteredRequests.length > 0 ? "lg:flex-1" : ""}>
             <SearchFilterTable
               data={filteredRequests}
               columns={columns}
@@ -230,7 +230,7 @@ function RequestList() {
 
           {/* モバイル・タブレット用カード表示 */}
           {searchFilteredRequests.length > 0 ? (
-            <div className="lg:hidden space-y-2">
+            <div className="lg:hidden space-y-2 mb-2">
               {searchFilteredRequests.map((request) => (
               <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
