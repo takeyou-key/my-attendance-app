@@ -37,6 +37,8 @@ function Layout() {
   const handleLogout = () => {
     // ユーザー情報をクリア
     localStorage.removeItem('userEmail');
+    // チュートリアル用のsessionStorageをクリア
+    sessionStorage.clear();
     auth.signOut();
     navigate("/login");
   };

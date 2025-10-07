@@ -33,6 +33,8 @@ export const useSessionTimeout = (timeoutMinutes = 30, enabled = true) => {
     timeoutRef.current = setTimeout(async () => {
       try {
         console.log('セッションタイムアウト: 自動ログアウトします');
+        // チュートリアル用のsessionStorageをクリア
+        sessionStorage.clear();
         await signOut(auth);
         // 必要に応じてリダイレクト
         window.location.href = '/login';

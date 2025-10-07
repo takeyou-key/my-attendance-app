@@ -3,9 +3,20 @@ import { FaQuestionCircle } from 'react-icons/fa';
 
 // ツアーコンポーネント
 
-export default function Tutorial() {
+export default function Tutorial({ autoStart = false }) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isActive, setIsActive] = useState(false);
+
+    // 自動開始のためのuseEffect
+    React.useEffect(() => {
+        if (autoStart) {
+            // 少し遅延させてDOM要素が確実に存在するようにする
+            const timer = setTimeout(() => {
+                startTour();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [autoStart]);
 
     const steps = [
         {
