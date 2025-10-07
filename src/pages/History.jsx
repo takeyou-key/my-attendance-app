@@ -272,14 +272,25 @@ function History() {
   // 初回アクセス時のチュートリアル表示
   useEffect(() => {
     if (!isAuthChecked || !isDataLoaded || !userId) return;
-    
     // 初回アクセス判定
+    // 認証チェックが完了していないまたは
+    // データの読み込みが完了していないまたは
+    // ユーザーIDが取得できていない場合
     const key = `tutorial-${userId}`;
+    // IDをテンプレートリテラルでキーに格納
     if (!sessionStorage.getItem(key)) {
+      // セッションストレージでKeyを取得できなかった場合
       setShowTutorial(true);
+      //　setShowTutorial(false)を(true)にセットしてチュートリアルを表示
       sessionStorage.setItem(key, 'shown');
+      //セッションストレージにキーを保存
+      console.log(`🔑 Tutorial Key: ${key}`)
     }
   }, [isAuthChecked, isDataLoaded, userId]);
+  //依存関係にisAuthChecked, isDataLoaded, userIdを追加
+  //コンテンツのマウント後にuseEffectでsetShowTutorial(true)を実行
+  // 338行目のpropsでshowTutorialをtrueにセットしtutorialコンポネントに渡す
+  //tutorialコンポネントがpropsを受け取り、autoStartをtrueにセットしてチュートリアルを表示
 
   // 認証状態とデータの読み込みが完了するまでローディング表示
   if (!isAuthChecked || !isDataLoaded) {

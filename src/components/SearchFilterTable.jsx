@@ -120,10 +120,21 @@ const SearchFilterTable = ({
     });
   }, [filteredData, sortField, sortDirection]);
 
-  // フィルター済みデータを親コンポーネントに通知
+  // フィルター済みデータを親コンポーネントに通知（内容が変わった時のみ）
   React.useEffect(() => {
-    if (onFilteredDataChange) {
+    if (!onFilteredDataChange) return;
+    // 直近に通知した内容を保持して、浅い比較で差分がある時だけ通知
+    // 注意: 依存に入れると毎回変わるのでrefで保持
+    if (!SearchFilterTable.__lastNotified) {
+      SearchFilterTable.__lastNotified = new WeakMap();
+    }
+    const key = onFilteredDataChange;
+    const prev = SearchFilterTable.__lastNotified.get(key);
+    const sameLength = prev && prev.length === sortedData.length;
+    const isShallowEqual = sameLength && prev.every((p, i) => p === sortedData[i]);
+    if (!isShallowEqual) {
       onFilteredDataChange(sortedData);
+      SearchFilterTable.__lastNotified.set(key, sortedData);
     }
   }, [sortedData, onFilteredDataChange]);
 

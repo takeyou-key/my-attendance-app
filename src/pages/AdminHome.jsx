@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../components/Button.jsx";
 import Modal from "../components/Modal.jsx";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 import TabNavigation from "../components/TabNavigation.jsx";
 import SearchFilterTable from "../components/SearchFilterTable.jsx";
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
@@ -23,6 +24,17 @@ function AdminHome() {
   const [applicantSearchTerm, setApplicantSearchTerm] = React.useState(""); // 申請者名検索
   const [filterItem, setFilterItem] = React.useState("all"); // 項目フィルター
   const [searchFilteredRequests, setSearchFilteredRequests] = React.useState([]); // 検索フィルター済みデータ
+  const [showBulkConfirmModal, setShowBulkConfirmModal] = React.useState(false); // 一括承認確認モーダル
+  const [showReopenModal, setShowReopenModal] = React.useState(false); // 未対応に戻す確認モーダル
+  const [showApproveModal, setShowApproveModal] = React.useState(false); // 承認確認モーダル
+  const [showRejectModal, setShowRejectModal] = React.useState(false); // 否認確認モーダル
+  const [selectedReopenItem, setSelectedReopenItem] = React.useState(null); // 未対応に戻す対象
+  const [selectedActionItem, setSelectedActionItem] = React.useState(null); // 承認/否認対象
+
+  // タブ切り替え時に選択状態をクリア
+  React.useEffect(() => {
+    setSelectedItems([]);
+  }, [activeTab]);
 
   // Firestoreからデータを取得
   React.useEffect(() => {
@@ -72,15 +84,17 @@ function AdminHome() {
     fetchRequests();
   }, []);
 
-  // タブに応じてデータをフィルタリング
-  const filteredRequests = requests.filter(request => {
-    if (activeTab === "未対応") {
-      return request.status === "未対応";
-    } else if (activeTab === "対応済み") {
-      return request.status === "承認" || request.status === "否認";
-    }
-    return false;
-  });
+  // タブに応じてデータをフィルタリング（メモ化して配列参照を安定化）
+  const filteredRequests = React.useMemo(() => {
+    return requests.filter(request => {
+      if (activeTab === "未対応") {
+        return request.status === "未対応";
+      } else if (activeTab === "対応済み") {
+        return request.status === "承認" || request.status === "否認";
+      }
+      return false;
+    });
+  }, [requests, activeTab]);
 
   // カラム定義
   const columns = [
@@ -91,7 +105,8 @@ function AdminHome() {
     { key: "originalData", label: "変更前", sortable: false },
     { key: "updatedData", label: "変更後", sortable: false },
     { key: "comment", label: "コメント", sortable: false },
-    { key: "status", label: "ステータス", sortable: true }
+    { key: "status", label: "ステータス", sortable: true },
+    { key: "actions", label: "操作", sortable: false }
   ];
 
   // フィルターオプション
@@ -174,35 +189,46 @@ function AdminHome() {
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
         {request.comment || "コメントなし"}
       </td>
+      {/* ステータス（表示のみ） */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <span className={`px-2 py-1 text-xs rounded ${request.status === "承認"
+          ? "bg-green-100 text-green-800"
+          : request.status === "否認"
+            ? "bg-yellow-100 text-yellow-800"
+            : request.status === "未対応"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}>
+          {request.status}
+        </span>
+      </td>
+      {/* 操作（アクション） */}
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
         {request.status === "未対応" ? (
           <div className="flex space-x-2">
             <Button
               variant="none"
-              className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded min-h-[44px]"
-              onClick={() => handleStatusUpdate(request.id, "否認")}
+              className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg min-h-[36px]"
+              onClick={() => handleRejectClick(request)}
             >
               否認
             </Button>
             <Button
               variant="none"
-              className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded min-h-[44px]"
-              onClick={() => handleStatusUpdate(request.id, "承認")}
+              className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg min-h-[36px]"
+              onClick={() => handleApproveClick(request)}
             >
               承認
             </Button>
           </div>
         ) : (
-          <span className={`px-2 py-1 text-xs rounded ${request.status === "承認"
-            ? "bg-green-100 text-green-800"
-            : request.status === "否認"
-              ? "bg-yellow-100 text-yellow-800"
-              : request.status === "未対応"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}>
-            {request.status}
-          </span>
+          <Button
+            variant="none"
+            className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs rounded-lg min-h-[36px]"
+            onClick={() => handleReopenClick(request)}
+          >
+            未対応に戻す
+          </Button>
         )}
       </td>
     </>
@@ -210,7 +236,9 @@ function AdminHome() {
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedItems(searchFilteredRequests.map(item => item.id));
+      // 現在のタブの未対応申請のみを選択
+      const currentTabRequests = searchFilteredRequests.filter(request => request.status === "未対応");
+      setSelectedItems(currentTabRequests.map(item => item.id));
     } else {
       setSelectedItems([]);
     }
@@ -218,10 +246,26 @@ function AdminHome() {
 
   const handleSelectItem = (id, checked) => {
     if (checked) {
-      setSelectedItems([...selectedItems, id]);
+      // 未対応申請のみ選択可能
+      const request = searchFilteredRequests.find(req => req.id === id);
+      if (request && request.status === "未対応") {
+        setSelectedItems([...selectedItems, id]);
+      }
     } else {
       setSelectedItems(selectedItems.filter(itemId => itemId !== id));
     }
+  };
+
+  // 承認確認モーダルを表示
+  const handleApproveClick = (request) => {
+    setSelectedActionItem(request);
+    setShowApproveModal(true);
+  };
+
+  // 否認確認モーダルを表示
+  const handleRejectClick = (request) => {
+    setSelectedActionItem(request);
+    setShowRejectModal(true);
   };
 
   // ステータス更新処理
@@ -273,6 +317,12 @@ function AdminHome() {
     }
   };
 
+  // 一括承認確認モーダルを表示
+  const handleBulkApproveClick = () => {
+    if (selectedItems.length === 0) return;
+    setShowBulkConfirmModal(true);
+  };
+
   // 一括承認処理
   const handleBulkApprove = async () => {
     if (selectedItems.length === 0) return;
@@ -306,8 +356,44 @@ function AdminHome() {
         )
       );
       setSelectedItems([]);
+      setShowBulkConfirmModal(false);
     } catch (error) {
       console.error("一括承認エラー:", error);
+    }
+  };
+
+  // 未対応に戻す確認モーダルを表示
+  const handleReopenClick = (request) => {
+    setSelectedReopenItem(request);
+    setShowReopenModal(true);
+  };
+
+  // 未対応に戻す処理
+  const handleReopen = async () => {
+    if (!selectedReopenItem) return;
+
+    try {
+      const requestRef = doc(db, COLLECTIONS.CHANGE_REQUESTS, selectedReopenItem.id);
+      await updateDoc(requestRef, { status: "未対応" });
+
+      // 勤怠データも未対応に戻す
+      if (selectedReopenItem.userId && selectedReopenItem.attendanceDate) {
+        const attendanceRef = doc(db, COLLECTIONS.TIME_RECORDS, generateDocId.timeRecord(selectedReopenItem.userId, selectedReopenItem.attendanceDate));
+        await updateDoc(attendanceRef, { status: "申請中" });
+      }
+
+      // ローカル状態を更新
+      setRequests(prevRequests =>
+        prevRequests.map(request =>
+          request.id === selectedReopenItem.id
+            ? { ...request, status: "未対応" }
+            : request
+        )
+      );
+      setShowReopenModal(false);
+      setSelectedReopenItem(null);
+    } catch (error) {
+      console.error("未対応に戻すエラー:", error);
     }
   };
 
@@ -348,7 +434,7 @@ function AdminHome() {
             onFilterChange={setFilterItem}
             filterOptions={filterOptions}
             filterLabel="申請項目"
-            showCheckbox={true}
+            showCheckbox={activeTab === "未対応"}
             selectedItems={selectedItems}
             onSelectAll={handleSelectAll}
             onSelectItem={handleSelectItem}
@@ -359,7 +445,7 @@ function AdminHome() {
                 <Button
                   variant="none"
                   className="px-6 py-2 bg-blue-600 hover:bg-purple-700 text-white rounded-lg"
-                  onClick={handleBulkApprove}
+                  onClick={handleBulkApproveClick}
                   disabled={selectedItems.length === 0}
                 >
                   一括承認 ({selectedItems.length})
@@ -389,7 +475,7 @@ function AdminHome() {
               <Button
                 variant="none"
                 className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-red-500 text-[6px] rounded w-full"
-                onClick={handleBulkApprove}
+                onClick={handleBulkApproveClick}
               >
                 一括承認 ({selectedItems.length})
               </Button>
@@ -401,12 +487,14 @@ function AdminHome() {
           <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={selectedItems.includes(request.id)}
-                  onChange={(e) => handleSelectItem(request.id, e.target.checked)}
-                  className="rounded border-gray-300"
-                />
+                {activeTab === "未対応" && (
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(request.id)}
+                    onChange={(e) => handleSelectItem(request.id, e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                )}
                 <span className="font-medium text-gray-900">{request.item}</span>
               </div>
               <span className={`px-2 py-1 text-xs rounded-full ${request.status === "承認"
@@ -422,7 +510,7 @@ function AdminHome() {
             <div className="grid grid-cols-2 gap-2 text-sm mb-2">
               <div>
                 <span className="text-gray-600">申請日:</span>
-                <span className="ml-1 font-medium">{request.date}</span>
+                <span className="ml-1 font-medium" >{request.date}</span>
               </div>
               <div>
                 <span className="text-gray-600">対象日:</span>
@@ -476,23 +564,86 @@ function AdminHome() {
               <div className="flex space-x-2">
                 <Button
                   variant="none"
-                  className="flex-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded"
-                  onClick={() => handleStatusUpdate(request.id, "否認")}
+                  className="flex-1 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm rounded-lg"
+                  onClick={() => handleRejectClick(request)}
                 >
                   否認
                 </Button>
                 <Button
                   variant="none"
-                  className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
-                  onClick={() => handleStatusUpdate(request.id, "承認")}
+                  className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg"
+                  onClick={() => handleApproveClick(request)}
                 >
                   承認
+                </Button>
+              </div>
+            )}
+            {(request.status === "承認" || request.status === "否認") && (
+              <div className="flex justify-center">
+                <Button
+                  variant="none"
+                  className="px-4 py-2 bg-red-500 hover:bg-gray-600 text-white text-sm rounded"
+                  onClick={() => handleReopenClick(request)}
+                >
+                  未対応に戻す
                 </Button>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {/* 一括承認確認モーダル */}
+      <ConfirmModal
+        isOpen={showBulkConfirmModal}
+        onClose={() => setShowBulkConfirmModal(false)}
+        title="一括承認の確認"
+        message={`選択された ${selectedItems.length}件 の申請を一括承認しますか？\nこの操作は取り消すことができません。`}
+        confirmText="一括承認する"
+        cancelText="キャンセル"
+        onConfirm={handleBulkApprove}
+        variant="info"
+        icon="⚠️"
+      />
+
+      {/* 承認確認モーダル */}
+      <ConfirmModal
+        isOpen={showApproveModal}
+        onClose={() => setShowApproveModal(false)}
+        title="承認の確認"
+        message={`${selectedActionItem?.applicant} の申請を承認しますか？`}
+        confirmText="承認する"
+        cancelText="キャンセル"
+        onConfirm={() => handleStatusUpdate(selectedActionItem?.id, "承認")}
+        variant="success"
+        icon="✅"
+      />
+
+      {/* 否認確認モーダル */}
+      <ConfirmModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        title="否認の確認"
+        message={`${selectedActionItem?.applicant} の申請を否認しますか？`}
+        confirmText="否認する"
+        cancelText="キャンセル"
+        onConfirm={() => handleStatusUpdate(selectedActionItem?.id, "否認")}
+        variant="warning"
+        icon="⚠️"
+      />
+
+      {/* 未対応に戻す確認モーダル */}
+      <ConfirmModal
+        isOpen={showReopenModal}
+        onClose={() => setShowReopenModal(false)}
+        title="未対応に戻す確認"
+        message={`${selectedReopenItem?.applicant} の申請を\n${selectedReopenItem?.status} から 未対応 に戻しますか？`}
+        confirmText="未対応に戻す"
+        cancelText="キャンセル"
+        onConfirm={handleReopen}
+        variant="danger"
+        icon="⚠️"
+      />
 
       {/* 詳細モーダル */}
       <Modal
