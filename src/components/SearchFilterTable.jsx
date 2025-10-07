@@ -37,10 +37,20 @@ const SearchFilterTable = ({
   showCheckbox = false,
   selectedItems = [],
   onSelectAll,
-  onSelectItem
+  onSelectItem,
+  // ヘッダーカラーをカスタマイズ（Tailwindクラス文字列）
+  headerBgClass = "bg-emerald-500",
+  headerHoverBgClass = "hover:bg-emerald-600",
+  headerTextClass = "text-white",
+  // 初期ソート設定
+  initialSortField = "date",
+  initialSortDirection = "desc",
+  // ソートアイコンの色（見やすさ調整用）
+  sortIconActiveClass = "text-gray-200",
+  sortIconInactiveClass = "text-gray-300"
 }) => {
-  const [sortField, setSortField] = useState("date");
-  const [sortDirection, setSortDirection] = useState("desc");
+  const [sortField, setSortField] = useState(initialSortField);
+  const [sortDirection, setSortDirection] = useState(initialSortDirection);
 
   // 検索・フィルター機能
   const filteredData = useMemo(() => {
@@ -231,10 +241,10 @@ const SearchFilterTable = ({
             style={{ maxHeight: "calc(100vh - 350px)" }}
           >
             <table className="min-w-full whitespace-nowrap">
-              <thead className="bg-emerald-500 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
+              <thead className={`${headerBgClass} sticky top-0 z-10 shadow-sm backdrop-blur-sm`}>
                 <tr>
                   {showCheckbox && (
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-emerald-500">
+                    <th className={`px-6 py-3 text-left text-xs font-medium ${headerTextClass} uppercase tracking-wider whitespace-nowrap ${headerBgClass}`}>
                       <input
                         type="checkbox"
                         checked={selectedItems.length === sortedData.length && sortedData.length > 0}
@@ -246,15 +256,19 @@ const SearchFilterTable = ({
                   {columns.map((column) => (
                     <th
                       key={column.key}
-                      className={`px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-emerald-500 ${column.sortable ? 'cursor-pointer hover:bg-emerald-600' : ''
+                      className={`px-6 py-3 text-left text-xs font-medium ${headerTextClass} uppercase tracking-wider whitespace-nowrap ${headerBgClass} ${column.sortable ? `cursor-pointer ${headerHoverBgClass}` : ''
                         }`}
                       onClick={() => column.sortable && handleSort(column.key)}
                     >
                       <div className="flex items-center">
                         {column.label}
-                        {column.sortable && sortField === column.key && (
-                          <span className="ml-1 text-gray-400">
-                            {sortDirection === "asc" ? "↑" : "↓"}
+                        {column.sortable && (
+                          <span className={`ml-1 ${sortIconActiveClass}`}>
+                            {sortField === column.key ? (
+                              sortDirection === "asc" ? "↑" : "↓"
+                            ) : (
+                              <span className={sortIconInactiveClass}>↕</span>
+                            )}
                           </span>
                         )}
                       </div>
