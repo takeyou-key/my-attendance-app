@@ -10,6 +10,7 @@ import History from "./pages/History.jsx";
 import Clock from "./pages/Clock.jsx";
 import RequestList from "./pages/RequestList.jsx";
 import AdminHome from "./pages/AdminHome.jsx";
+import UpdateNotification from "./components/UpdateNotification.jsx";
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <UpdateNotification />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
