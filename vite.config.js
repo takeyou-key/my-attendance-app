@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'vite.svg', 'icon-192x192.png', 'icon-512x512.png'],
       manifest: {
         name: '勤怠管理アプリ',
@@ -35,7 +35,36 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1年
+              },
+              cacheKeyWillBeUsed: async ({ request }) => {
+                return `${request.url}?v=1`
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1年
+              }
+            }
+          }
+        ],
+        skipWaiting: true,
+        clientsClaim: true
       }
     })
   ],
@@ -61,7 +90,8 @@ export default defineConfig({
     port: 3000
   },
   define: {
-    'process.env.NODE_ENV': '"production"'
+    'process.env.NODE_ENV': '"production"',
+    'import.meta.env.VITE_APP_BUILD_ID': JSON.stringify(Date.now().toString())
   },
   optimizeDeps: {
     exclude: ['service-worker']
