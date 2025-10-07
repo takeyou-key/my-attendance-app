@@ -67,6 +67,7 @@ export const useAuth = (options = {}) => {
       const auth = getAuth();
       await signOut(auth);
       // チュートリアル用のsessionStorageをクリア
+      console.log('🧹 Clearing sessionStorage on logout');
       sessionStorage.clear();
       //signOut(auth)の内部でonAuthStateChangedが発火し並行実行しているため、ログアウト後にリダイレクトする
       console.log('ログアウト成功:ユーザーをリダイレクトしました');

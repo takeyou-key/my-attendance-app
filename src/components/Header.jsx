@@ -57,7 +57,7 @@ const Header = ({
   // 表示するメールアドレスを決定
   const getDisplayEmail = (email) => {
     if (!email) return '';
-    return showEmailTooltip ? email : formatEmail(email);
+    return showEmailTooltip ? `ID：${email}` : formatEmail(email);
   };
 
   return (
