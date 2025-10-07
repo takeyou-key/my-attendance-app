@@ -267,6 +267,19 @@ function History() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [comment, setComment] = useState("");
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // 初回アクセス時のチュートリアル表示
+  useEffect(() => {
+    if (!isAuthChecked || !isDataLoaded || !userId) return;
+    
+    // 初回アクセス判定
+    const key = `tutorial-${userId}`;
+    if (!sessionStorage.getItem(key)) {
+      setShowTutorial(true);
+      sessionStorage.setItem(key, 'shown');
+    }
+  }, [isAuthChecked, isDataLoaded, userId]);
 
   // 認証状態とデータの読み込みが完了するまでローディング表示
   if (!isAuthChecked || !isDataLoaded) {
@@ -312,7 +325,7 @@ function History() {
 
         {/* チュートリアル - ボタンのみ右寄せ */}
         <div className="flex justify-end mb-2">
-          <Tutorial />
+          <Tutorial autoStart={showTutorial} />
         </div>
 
         {/* テーブルコンテナ - 固定高さでスクロール */}

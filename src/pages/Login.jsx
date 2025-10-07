@@ -44,12 +44,14 @@ function Login() {
             if (adminCheck) {
                 console.log("4a. 管理者として処理中...");
                 localStorage.setItem('adminEmail', userCredential.user.email);
+                sessionStorage.setItem('loginTime', Date.now().toString());
                 console.log("管理者情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/admin');
                 console.log("管理者画面に遷移");
             } else {
                 console.log("4b. 一般ユーザーとして処理中...");
                 localStorage.setItem('userEmail', userCredential.user.email);
+                sessionStorage.setItem('loginTime', Date.now().toString());
                 console.log("ユーザー情報をlocalStorageに保存:", userCredential.user.email);
                 navigate('/home');
                 console.log("一般ユーザー画面に遷移");
