@@ -15,6 +15,11 @@ import { useSessionTimeout } from './hooks/useSessionTimeout';
 function App() {
   // セッションタイムアウト機能を有効化（30分）
   useSessionTimeout(30, true);
+  // 現在のビルドIDをコンソールに表示（デプロイ反映確認用）
+  if (import.meta && import.meta.env && import.meta.env.VITE_APP_BUILD_ID) {
+    // eslint-disable-next-line no-console
+    console.log('BUILD_ID', import.meta.env.VITE_APP_BUILD_ID);
+  }
 
   return (
     <BrowserRouter>
