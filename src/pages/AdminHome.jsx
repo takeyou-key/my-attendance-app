@@ -440,6 +440,11 @@ function AdminHome() {
             onSelectItem={handleSelectItem}
             renderRow={renderRow}
             onFilteredDataChange={setSearchFilteredRequests}
+            headerBgClass="bg-emerald-500"
+            headerHoverBgClass="hover:bg-emerald-600"
+            headerTextClass="text-white"
+            sortIconActiveClass="text-white"
+            sortIconInactiveClass="text-emerald-200"
             extraControls={
               activeTab === "未対応" && (
                 <Button
@@ -579,10 +584,10 @@ function AdminHome() {
               </div>
             )}
             {(request.status === "承認" || request.status === "否認") && (
-              <div className="flex justify-center">
+              <div className="flex justify-end">
                 <Button
                   variant="none"
-                  className="px-4 py-2 bg-red-500 hover:bg-gray-600 text-white text-sm rounded"
+                  className="px-2 py-1 bg-red-500 hover:bg-gray-600 text-white text-xs rounded-lg"
                   onClick={() => handleReopenClick(request)}
                 >
                   未対応に戻す

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import TabNavigation from "../components/TabNavigation.jsx";
+import SearchFilterTable from "../components/SearchFilterTable.jsx";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -19,6 +20,7 @@ function RequestList() {
   const [dateSearchTerm, setDateSearchTerm] = useState(""); // 申請日検索
   const [targetDateSearchTerm, setTargetDateSearchTerm] = useState(""); // 対象日検索
   const [filterItem, setFilterItem] = useState("all"); // 項目フィルター
+  const [searchFilteredRequests, setSearchFilteredRequests] = useState([]); // 検索フィルター済みデータ
   const auth = getAuth();
 
   // 認証状態の監視
@@ -65,50 +67,30 @@ function RequestList() {
     fetchRequests();
   }, [userId, isAuthChecked]);
 
-  // タブと検索条件に応じてデータをフィルタリング
-  const filteredRequests = requests.filter(request => {
-    // タブフィルター
-    if (activeTab === "pending") {
-      if (request.status !== "未対応") return false;
-    } else if (activeTab === "completed") {
-      if (request.status !== "承認" && request.status !== "否認") return false;
-    } else {
-      return false;
-    }
-
-    // 項目フィルター
-    if (filterItem !== "all" && request.item !== filterItem) {
-      return false;
-    }
-
-    // 申請日フィルター
-    if (dateSearchTerm) {
-      const searchDate = dateSearchTerm.replace(/-/g, '/');
-      if (!request.date?.includes(searchDate)) {
+  // タブに応じてデータをフィルタリング（メモ化して配列参照を安定化）
+  const filteredRequests = React.useMemo(() => {
+    return requests.filter(request => {
+      // タブフィルター
+      if (activeTab === "pending") {
+        if (request.status !== "未対応") return false;
+      } else if (activeTab === "completed") {
+        if (request.status !== "承認" && request.status !== "否認") return false;
+      } else {
         return false;
       }
-    }
-
-    // 対象日フィルター
-    if (targetDateSearchTerm) {
-      const searchDate = targetDateSearchTerm.replace(/-/g, '/');
-      if (!request.targetDate?.includes(searchDate)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
+      return true;
+    });
+  }, [requests, activeTab]);
 
   // カラム定義
   const columns = [
-    { key: "item", label: "申請項目", sortable: false },
-    { key: "date", label: "申請日", sortable: false },
-    { key: "targetDate", label: "対象日", sortable: false },
+    { key: "item", label: "申請項目", sortable: true },
+    { key: "date", label: "申請日", sortable: true },
+    { key: "targetDate", label: "対象日", sortable: true },
     { key: "originalData", label: "変更前", sortable: false },
     { key: "updatedData", label: "変更後", sortable: false },
     { key: "comment", label: "コメント", sortable: false },
-    { key: "status", label: "ステータス", sortable: false }
+    { key: "status", label: "ステータス", sortable: true }
   ];
 
   // フィルターオプション
@@ -223,89 +205,33 @@ function RequestList() {
             variant="underline"
           />
 
-          {/* 検索・フィルター機能 */}
-          <div className="hidden lg:flex mb-4 flex-wrap gap-4 items-center">
-            {/* 項目フィルター */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">項目:</label>
-              <select
-                value={filterItem}
-                onChange={(e) => setFilterItem(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="all">すべて</option>
-                {filterOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 申請日検索ボックス */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">申請日:</label>
-              <input
-                type="date"
-                value={dateSearchTerm}
-                onChange={(e) => setDateSearchTerm(e.target.value)}
-                placeholder="申請日を入力"
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
-              />
-            </div>
-
-            {/* 対象日検索ボックス */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">対象日:</label>
-              <input
-                type="date"
-                value={targetDateSearchTerm}
-                onChange={(e) => setTargetDateSearchTerm(e.target.value)}
-                placeholder="対象日を入力"
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-40"
-              />
-            </div>
+          {/* デスクトップ用テーブル */}
+          <div className={filteredRequests.length > 0 ? "flex-1" : ""}>
+            <SearchFilterTable
+              data={filteredRequests}
+              columns={columns}
+              dateSearchTerm={dateSearchTerm}
+              onDateSearchChange={setDateSearchTerm}
+              targetDateSearchTerm={targetDateSearchTerm}
+              onTargetDateSearchChange={setTargetDateSearchTerm}
+              filterValue={filterItem}
+              onFilterChange={setFilterItem}
+              filterOptions={filterOptions}
+              filterLabel="申請項目"
+              renderRow={renderRow}
+              onFilteredDataChange={setSearchFilteredRequests}
+              headerBgClass="bg-indigo-600"
+              headerHoverBgClass="hover:bg-indigo-700"
+              headerTextClass="text-white"
+              initialSortField="date"
+              initialSortDirection="desc"
+            />
           </div>
 
-          {/* デスクトップ用テーブル */}
-          {filteredRequests.length > 0 ? (
-            <div className="hidden lg:block bg-white shadow overflow-hidden">
-              <div className="overflow-auto bg-white" style={{
-                maxHeight: "calc(100vh - 300px)"
-              }}>
-                <table className="min-w-full whitespace-nowrap">
-                  <thead className="bg-indigo-600 sticky top-0 z-10 shadow-sm backdrop-blur-sm">
-                    <tr>
-                      {columns.map((column) => (
-                        <th
-                          key={column.key}
-                          className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap bg-indigo-600"
-                        >
-                          {column.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredRequests.map((request, index) => (
-                      <tr key={request.id || index} className="hover:bg-gray-50">
-                        {renderRow(request, index)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <div className="hidden lg:block bg-white shadow p-8 text-center">
-              <div className="text-gray-500 text-lg">データがありません</div>
-            </div>
-          )}
-
           {/* モバイル・タブレット用カード表示 */}
-          {filteredRequests.length > 0 ? (
+          {searchFilteredRequests.length > 0 ? (
             <div className="lg:hidden space-y-2">
-              {filteredRequests.map((request) => (
+              {searchFilteredRequests.map((request) => (
               <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-gray-900 text-sm">{request.item}</span>
