@@ -186,13 +186,25 @@ const SearchFilterTable = ({
           {onDateSearchChange && (
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">申請日:</label>
-              <input
-                type="date"
-                value={dateSearchTerm}
-                onChange={(e) => onDateSearchChange(e.target.value)}
-                placeholder="申請日を入力"
-                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={dateSearchTerm}
+                  onChange={(e) => onDateSearchChange(e.target.value)}
+                  placeholder="申請日を入力"
+                  className="border border-gray-300 rounded-md pr-6 px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
+                />
+                {dateSearchTerm && (
+                  <button
+                    type="button"
+                    aria-label="申請日をクリア"
+                    onClick={() => onDateSearchChange("")}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 px-1"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -214,13 +226,25 @@ const SearchFilterTable = ({
           {onTargetDateSearchChange && (
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-gray-700">対象日:</label>
-              <input
-                type="date"
-                value={targetDateSearchTerm}
-                onChange={(e) => onTargetDateSearchChange(e.target.value)}
-                placeholder="対象日を入力"
-                className="border border-gray-300 rounded-md px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={targetDateSearchTerm}
+                  onChange={(e) => onTargetDateSearchChange(e.target.value)}
+                  placeholder="対象日を入力"
+                  className="border border-gray-300 rounded-md pr-6 px-2 lg:px-3 py-1 lg:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-28 lg:w-40"
+                />
+                {targetDateSearchTerm && (
+                  <button
+                    type="button"
+                    aria-label="対象日をクリア"
+                    onClick={() => onTargetDateSearchChange("")}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 px-1"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
