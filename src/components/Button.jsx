@@ -11,7 +11,7 @@ const Button = ({
   bgColor,
   textColor
 }) => {
-  const baseClasses = "font-bold rounded transition-all duration-200 ease-in-out focus:outline-none";
+  const baseClasses = "font-bold rounded-lg transition-all duration-200 ease-in-out focus:outline-none";
   
   const variantClasses = {
     primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg hover:shadow-xl",

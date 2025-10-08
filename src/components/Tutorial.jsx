@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { FaQuestionCircle } from 'react-icons/fa';
 
 // ツアーコンポーネント
@@ -6,10 +6,10 @@ import { FaQuestionCircle } from 'react-icons/fa';
 export default function Tutorial({ autoStart = false }) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isActive, setIsActive] = useState(false);
-    const autoStartTriedRef = React.useRef(false);
+    const autoStartTriedRef = useRef(false);
 
     // 指定要素が現れるまで待つ（最大timeout内でポーリング）
-    const waitForElement = React.useCallback((selector, timeoutMs = 4000, intervalMs = 150) => {
+    const waitForElement = useCallback((selector, timeoutMs = 4000, intervalMs = 150) => {
         return new Promise((resolve, reject) => {
             const startAt = Date.now();
             const tick = () => {
@@ -28,8 +28,8 @@ export default function Tutorial({ autoStart = false }) {
         });
     }, []);
 
-    // 自動開始のためのuseEffect（モバイル向けに堅牢化: 要素出現まで待つ）
-    React.useEffect(() => {
+    // 自動開始のためのuseEffect
+    useEffect(() => {
         if (!autoStart || isActive || autoStartTriedRef.current) return;
         autoStartTriedRef.current = true;
         const firstSelector = '.step1';
@@ -144,7 +144,7 @@ export default function Tutorial({ autoStart = false }) {
         return (
             <button
                 onClick={startTour}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-1 px-2 rounded text-sm border border-gray-300"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-1 px-2 rounded-lg text-sm border border-gray-300"
             >
                 <span className="flex items-center gap-1">
                     <FaQuestionCircle className="w-3 h-3" />
@@ -185,13 +185,13 @@ export default function Tutorial({ autoStart = false }) {
                         <button
                             onClick={prevStep}
                             disabled={currentStep === 0}
-                            className="px-3 py-2 md:px-4 rounded bg-gray-200 text-gray-700 disabled:opacity-50 text-sm md:text-base flex-1"
+                            className="px-3 py-2 md:px-4 rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm md:text-base flex-1"
                         >
                             戻る
                         </button>
                         <button
                             onClick={nextStep}
-                            className="px-3 py-2 md:px-4 rounded bg-blue-500 text-white text-sm md:text-base flex-1"
+                            className="px-3 py-2 md:px-4 rounded-lg bg-blue-500 text-white text-sm md:text-base flex-1"
                         >
                             {currentStep === steps.length - 1 ? '完了' : '次へ'}
                         </button>
