@@ -68,8 +68,9 @@ function RequestList() {
   }, [userId, isAuthChecked]);
 
   // タブに応じてデータをフィルタリング（メモ化して配列参照を安定化）
+  // ユーザーは最新20件まで表示
   const filteredRequests = React.useMemo(() => {
-    return requests.filter(request => {
+    const filtered = requests.filter(request => {
       // タブフィルター
       if (activeTab === "pending") {
         if (request.status !== "未対応") return false;
@@ -80,6 +81,9 @@ function RequestList() {
       }
       return true;
     });
+    
+    // 最新20件のみ返す
+    return filtered.slice(0, 20);
   }, [requests, activeTab]);
 
   // カラム定義
