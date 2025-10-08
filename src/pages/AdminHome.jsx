@@ -85,8 +85,9 @@ function AdminHome() {
   }, []);
 
   // タブに応じてデータをフィルタリング（メモ化して配列参照を安定化）
+  // 管理者は最新100件まで表示
   const filteredRequests = useMemo(() => {
-    return requests.filter(request => {
+    const filtered = requests.filter(request => {
       if (activeTab === "未対応") {
         return request.status === "未対応";
       } else if (activeTab === "対応済み") {
@@ -94,6 +95,9 @@ function AdminHome() {
       }
       return false;
     });
+    
+    // 最新100件のみ返す
+    return filtered.slice(0, 100);
   }, [requests, activeTab]);
 
   // カラム定義
