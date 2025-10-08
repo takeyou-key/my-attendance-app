@@ -1,6 +1,6 @@
 # 勤怠管理アプリ (Attendance Management App)
 
-React + Vite + Firebase を使用した勤怠管理システムです。出勤・退勤の打刻機能、履歴表示機能、申請機能を提供します。
+React + Vite + Firebase を使用したPWA対応の勤怠管理システムです。出勤・退勤の打刻機能、履歴表示機能、申請機能、PWA更新機能を提供します。
 
 ## UI/UX デザイン
 
@@ -21,6 +21,7 @@ React + Vite + Firebase を使用した勤怠管理システムです。出勤�
 - 管理者ログイン機能
 - Firebase Authentication を使用
 - セッションタイムアウト機能（30分無操作で自動ログアウト）
+- 認証ガードによる保護
 
 ### 勤怠管理
 - **出勤打刻**: 現在時刻で出勤を記録
@@ -42,6 +43,14 @@ React + Vite + Firebase を使用した勤怠管理システムです。出勤�
 - 一括承認機能
 - 申請詳細表示
 - 勤怠データの自動更新
+- 申請の「戻す」機能（承認済み→未対応）
+
+### PWA機能
+- プログレッシブウェブアプリ対応
+- オフライン機能
+- ホーム画面への追加可能
+- 自動更新通知機能
+- Service Workerによるキャッシュ管理
 
 ### UI/UX
 - レスポンシブデザイン（モバイル・タブレット・デスクトップ対応）
@@ -63,9 +72,32 @@ React + Vite + Firebase を使用した勤怠管理システムです。出勤�
   - Firestore (データベース)
 - **ルーティング**: React Router v6
 - **状態管理**: React Hooks
-- **カスタムフック**: useAuth, useClock, useSessionTimeout
+- **カスタムフック**: useAuth, useClock, useSessionTimeout, usePWAUpdate
+- **PWA**: Vite PWA Plugin + Workbox
 - **デプロイ**: Vercel
 - **パッケージマネージャー**: npm
+
+## 使用ライブラリ
+
+### コアライブラリ
+- **React**: 18.2.0 - UIライブラリ
+- **React Router**: 6.30.1 - ルーティング
+- **Firebase**: 11.10.0 - バックエンドサービス
+
+### UI・スタイリング
+- **Tailwind CSS**: 3.4.1 - CSSフレームワーク
+- **React Icons**: 5.5.0 - アイコンライブラリ
+- **React Spinners**: 0.17.0 - ローディングスピナー
+
+### 開発・ビルドツール
+- **Vite**: 4.5.2 - ビルドツール
+- **ESLint**: 9.29.0 - コード品質チェック
+- **PostCSS**: 4.1.11 - CSS処理
+- **Autoprefixer**: 10.4.21 - CSSベンダープレフィックス
+
+### PWA機能
+- **Vite PWA Plugin**: 1.0.3 - PWA機能
+- **Workbox**: 7.3.0 - Service Worker管理
 
 ## プロジェクト構造
 
@@ -81,7 +113,10 @@ src/
 │   ├── TabNavigation.jsx # タブナビゲーション
 │   ├── SearchFilterTable.jsx # 検索・フィルター機能付きテーブル
 │   ├── FormInput.jsx   # フォーム入力コンポーネント
-│   └── AuthGuard.jsx   # 認証ガード
+│   ├── AuthGuard.jsx   # 認証ガード
+│   ├── ConfirmModal.jsx # 確認モーダル
+│   ├── Tutorial.jsx    # チュートリアル機能
+│   └── UpdateNotification.jsx # PWA更新通知
 ├── pages/              # ページコンポーネント
 │   ├── Login.jsx       # ユーザーログインページ（紫テーマ）
 │   ├── AdminLogin.jsx  # 管理者ログインページ（緑テーマ）
@@ -96,7 +131,8 @@ src/
 ├── hooks/              # カスタムフック
 │   ├── useAuth.js      # 認証フック
 │   ├── useClock.js     # 時計フック
-│   └── useSessionTimeout.js # セッションタイムアウト
+│   ├── useSessionTimeout.js # セッションタイムアウト
+│   └── usePWAUpdate.js # PWA更新管理フック
 ├── utils/              # ユーティリティ関数
 │   ├── timeCalculations.js # 時間計算
 │   ├── attendanceUtils.js  # 勤怠データ取得
@@ -141,10 +177,12 @@ git push origin main
 4. `src/firebase.js` に設定情報を追加
 
 ### 設定ファイル
-- `vite.config.js` - Vite設定（Vite 4.5.2対応）
+- `vite.config.js` - Vite設定（Vite 4.5.2対応、PWA設定含む）
 - `vercel.json` - Vercelデプロイ設定
 - `postcss.config.js` - PostCSS設定（ESM形式）
 - `tailwind.config.js` - Tailwind CSS設定
+- `public/manifest.json` - PWAマニフェスト
+- `src/sw.js` - カスタムService Worker
 
 ## データ構造
 
@@ -232,12 +270,21 @@ git push origin main
 - アクティビティ監視（マウス、キーボード、タッチ）
 - 手動セッション延長機能
 
+### PWA更新機能
+- 新しいバージョンの自動検知
+- ユーザーフレンドリーな更新通知
+- ワンクリックでの即座更新
+- Service Workerによるキャッシュ管理
+
 ## 実装済み機能
 - [x] ユーザー認証の実装
 - [x] 勤務時間の自動計算
 - [x] 申請機能
 - [x] 管理者機能
 - [x] セッションタイムアウト
+- [x] PWA機能（オフライン対応、ホーム画面追加可能）
+- [x] PWA自動更新通知機能
+- [x] 申請の「戻す」機能（承認済み→未対応）
 - [x] UI/UXデザインの統一（色分けシステム）
 - [x] Vercelデプロイ対応
 - [x] Service Workerエラーハンドリング
@@ -245,6 +292,8 @@ git push origin main
 - [x] モバイル用下部固定ナビゲーション
 - [x] デスクトップ用サイドメニュー
 - [x] レスポンシブレイアウト（モバイル・タブレット・デスクトップ対応）
+- [x] チュートリアル機能
+- [x] 検索・フィルター・ソート機能
 
 ## 今後の拡張予定
 - [ ] 有給休暇申請機能
