@@ -270,27 +270,23 @@ function History() {
   const [showTutorial, setShowTutorial] = useState(false);
 
   // 初回アクセス時のチュートリアル表示
+  // 初回アクセス時のチュートリアル表示制御
   useEffect(() => {
+    // 認証チェック、データ読み込み、ユーザーIDが揃うまで待機
     if (!isAuthChecked || !isDataLoaded || !userId) return;
-    // 初回アクセス判定
-    // 認証チェックが完了していないまたは
-    // データの読み込みが完了していないまたは
-    // ユーザーIDが取得できていない場合
+    
+    // ユーザーごとのチュートリアル表示キーを生成
     const key = `tutorial-${userId}`;
-    // IDをテンプレートリテラルでキーに格納
+    
+    // sessionStorageにキーが存在しない場合（初回アクセス）
     if (!sessionStorage.getItem(key)) {
-      // セッションストレージでKeyを取得できなかった場合
-      setShowTutorial(true);
-      //　setShowTutorial(false)を(true)にセットしてチュートリアルを表示
-      sessionStorage.setItem(key, 'shown');
-      //セッションストレージにキーを保存
+      setShowTutorial(true); // チュートリアルを表示
+      sessionStorage.setItem(key, 'shown'); // 表示済みフラグを保存
       console.log(`🔑 Tutorial Key: ${key}`)
     }
+    // sessionStorageに保存されているため、同じセッション内では再表示されない
+    // ブラウザを閉じると sessionStorage がクリアされ、次回また表示される
   }, [isAuthChecked, isDataLoaded, userId]);
-  //依存関係にisAuthChecked, isDataLoaded, userIdを追加
-  //コンテンツのマウント後にuseEffectでsetShowTutorial(true)を実行
-  // 338行目のpropsでshowTutorialをtrueにセットしtutorialコンポネントに渡す
-  //tutorialコンポネントがpropsを受け取り、autoStartをtrueにセットしてチュートリアルを表示
 
   // 認証状態とデータの読み込みが完了するまでローディング表示
   if (!isAuthChecked || !isDataLoaded) {
@@ -317,7 +313,7 @@ function History() {
             </div>
             <Button
               onClick={handleApply}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl step3 openModalBtn"
+              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg step3 openModalBtn"
             >
               申請
             </Button>
@@ -470,13 +466,13 @@ function History() {
         <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={handleCancelModal}
-            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50"
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
             キャンセル
           </button>
           <button
             onClick={handleSubmitApplication}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 step5"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 step5"
           >
             申請する
           </button>
@@ -499,7 +495,7 @@ function History() {
           </p>
           <Button
             onClick={() => setShowNoDataModal(false)}
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
           >
             閉じる
           </Button>
@@ -522,7 +518,7 @@ function History() {
           </p>
           <Button
             onClick={() => setShowSuccessModal(false)}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl"
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
           >
             閉じる
           </Button>

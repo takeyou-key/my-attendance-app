@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Button from "../components/Button.jsx";
 import Modal from "../components/Modal.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
@@ -13,31 +13,31 @@ import { COLLECTIONS, generateDocId } from '../constants/firestore.js';
  * 申請一覧を表示
  */
 function AdminHome() {
-  const [activeTab, setActiveTab] = React.useState("未対応");
-  const [selectedItems, setSelectedItems] = React.useState([]);
-  const [requests, setRequests] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [selectedRequest] = React.useState(null);
-  const [showDetailModal, setShowDetailModal] = React.useState(false);
-  const [searchTerm, setSearchTerm] = React.useState(""); // 検索キーワード
-  const [dateSearchTerm, setDateSearchTerm] = React.useState(""); // 申請日検索
-  const [applicantSearchTerm, setApplicantSearchTerm] = React.useState(""); // 申請者名検索
-  const [filterItem, setFilterItem] = React.useState("all"); // 項目フィルター
-  const [searchFilteredRequests, setSearchFilteredRequests] = React.useState([]); // 検索フィルター済みデータ
-  const [showBulkConfirmModal, setShowBulkConfirmModal] = React.useState(false); // 一括承認確認モーダル
-  const [showReopenModal, setShowReopenModal] = React.useState(false); // 未対応に戻す確認モーダル
-  const [showApproveModal, setShowApproveModal] = React.useState(false); // 承認確認モーダル
-  const [showRejectModal, setShowRejectModal] = React.useState(false); // 否認確認モーダル
-  const [selectedReopenItem, setSelectedReopenItem] = React.useState(null); // 未対応に戻す対象
-  const [selectedActionItem, setSelectedActionItem] = React.useState(null); // 承認/否認対象
+  const [activeTab, setActiveTab] = useState("未対応");
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRequest] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // 検索キーワード
+  const [dateSearchTerm, setDateSearchTerm] = useState(""); // 申請日検索
+  const [applicantSearchTerm, setApplicantSearchTerm] = useState(""); // 申請者名検索
+  const [filterItem, setFilterItem] = useState("all"); // 項目フィルター
+  const [searchFilteredRequests, setSearchFilteredRequests] = useState([]); // 検索フィルター済みデータ
+  const [showBulkConfirmModal, setShowBulkConfirmModal] = useState(false); // 一括承認確認モーダル
+  const [showReopenModal, setShowReopenModal] = useState(false); // 未対応に戻す確認モーダル
+  const [showApproveModal, setShowApproveModal] = useState(false); // 承認確認モーダル
+  const [showRejectModal, setShowRejectModal] = useState(false); // 否認確認モーダル
+  const [selectedReopenItem, setSelectedReopenItem] = useState(null); // 未対応に戻す対象
+  const [selectedActionItem, setSelectedActionItem] = useState(null); // 承認/否認対象
 
   // タブ切り替え時に選択状態をクリア
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedItems([]);
   }, [activeTab]);
 
   // Firestoreからデータを取得
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchRequests = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, COLLECTIONS.CHANGE_REQUESTS));
@@ -85,7 +85,7 @@ function AdminHome() {
   }, []);
 
   // タブに応じてデータをフィルタリング（メモ化して配列参照を安定化）
-  const filteredRequests = React.useMemo(() => {
+  const filteredRequests = useMemo(() => {
     return requests.filter(request => {
       if (activeTab === "未対応") {
         return request.status === "未対応";
@@ -476,15 +476,6 @@ function AdminHome() {
                 全選択 ({selectedItems.length}/{searchFilteredRequests.length})
               </span>
             </div>
-            {selectedItems.length > 0 && (
-              <Button
-                variant="none"
-                className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-red-500 text-[6px] rounded w-full"
-                onClick={handleBulkApproveClick}
-              >
-                一括承認 ({selectedItems.length})
-              </Button>
-            )}
           </div>
         )}
 
@@ -712,7 +703,7 @@ function AdminHome() {
           <div className="flex justify-end space-x-3 pt-4">
             <button
               onClick={() => setShowDetailModal(false)}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               閉じる
             </button>

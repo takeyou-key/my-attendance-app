@@ -64,7 +64,7 @@ function ResetPassword() {
           />
           <button
             type="submit"
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded text-lg transition"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-lg text-lg transition"
             disabled={loading}
           >
             パスワードを再発行する
