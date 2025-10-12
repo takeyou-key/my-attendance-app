@@ -162,7 +162,7 @@ const SearchFilterTable = ({
     <div className="flex flex-col h-full">
       {/* 検索・フィルター機能 */}
       {(onFilterChange || onDateSearchChange || onApplicantSearchChange) && (
-        <div className="mb-4 flex flex-wrap gap-2 lg:gap-4 items-center flex-shrink-0">
+        <div className="mb-2 lg:mb-4 flex flex-wrap gap-2 lg:gap-4 items-center flex-shrink-0">
           {/* 項目フィルター */}
           {onFilterChange && filterOptions.length > 0 && (
             <div className="flex items-center gap-2">
