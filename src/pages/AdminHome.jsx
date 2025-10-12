@@ -465,26 +465,28 @@ function AdminHome() {
       </div>
 
       {/* モバイル・タブレット用カード表示 */}
-      <div className="lg:hidden space-y-2">
-        {/* 全選択ボタン（モバイル） */}
-        {activeTab === "未対応" && searchFilteredRequests.length > 0 && (
-          <div className="mb-3">
-            <div className="flex items-center space-x-2 mb-2">
-              <input
-                type="checkbox"
-                checked={selectedItems.length === searchFilteredRequests.length}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <span className="text-sm text-gray-700">
-                全選択 ({selectedItems.length}/{searchFilteredRequests.length})
-              </span>
-            </div>
-          </div>
-        )}
+      <div className="lg:hidden flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        {searchFilteredRequests.length > 0 ? (
+          <div className="pb-20 space-y-2">
+            {/* 全選択ボタン（モバイル） */}
+            {activeTab === "未対応" && (
+              <div className="mb-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === searchFilteredRequests.length}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <span className="text-sm text-gray-700">
+                    全選択 ({selectedItems.length}/{searchFilteredRequests.length})
+                  </span>
+                </div>
+              </div>
+            )}
 
-        {searchFilteredRequests.map((request) => (
-          <div key={request.id} className="bg-white rounded-lg shadow-sm p-2 border border-gray-200">
+            {searchFilteredRequests.map((request) => (
+              <div key={request.id} className="bg-white rounded-lg shadow-lg p-3 border-2 border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 {activeTab === "未対応" && (
@@ -589,8 +591,14 @@ function AdminHome() {
                 </Button>
               </div>
             )}
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="bg-white shadow p-8 text-center">
+            <div className="text-gray-500 text-lg">データがありません</div>
+          </div>
+        )}
       </div>
 
       {/* 一括承認確認モーダル */}

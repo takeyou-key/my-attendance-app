@@ -233,26 +233,14 @@ function RequestList() {
           </div>
 
           {/* モバイル・タブレット用カード表示 */}
-          <div className="lg:hidden flex-1 overflow-y-auto">
+          <div className="lg:hidden flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
             {searchFilteredRequests.length > 0 ? (
-              <div className="pb-20 space-y-8">
-                {Array.from({ length: Math.ceil(searchFilteredRequests.length / 8) }).map((_, groupIndex) => {
-                  const startIndex = groupIndex * 8;
-                  const endIndex = Math.min(startIndex + 8, searchFilteredRequests.length);
-                  const groupRequests = searchFilteredRequests.slice(startIndex, endIndex);
-                  
-                  return (
-                    <div key={`group-${groupIndex}`} className="relative min-h-[400px]">
-                      <div className="h-2"></div>
-                      {groupRequests.map((request, stackIndex) => (
-                        <div 
-                          key={request.id} 
-                          className="sticky bg-white rounded-lg shadow-lg p-3 border-2 border-gray-200 mb-2 transition-all duration-300"
-                          style={{
-                            top: `${10 + stackIndex * 32}px`,
-                            zIndex: 21 + stackIndex
-                          }}
-                        >
+              <div className="pb-20 space-y-2">
+                {searchFilteredRequests.map((request) => (
+                  <div 
+                    key={request.id} 
+                    className="bg-white rounded-lg shadow-lg p-3 border-2 border-gray-200"
+                  >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-gray-900 text-sm">{request.item}</span>
                   <span className={`px-2 py-1 text-xs rounded-full ${request.status === "承認"
@@ -316,11 +304,8 @@ function RequestList() {
                     <span className="text-sm ml-1">{request.comment}</span>
                   </div>
                 )}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="bg-white shadow p-8 text-center">
