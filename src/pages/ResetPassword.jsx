@@ -60,7 +60,7 @@ function ResetPassword() {
             name="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            required={true}
+            // required={true}    
           />
           <button
             type="submit"

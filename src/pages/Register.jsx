@@ -68,7 +68,7 @@ function Register() {
                         name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required={true}
+                        // required={true}
                     />
                     <FormInput
                         type="password"
@@ -77,7 +77,7 @@ function Register() {
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required={true}
+                        // required={true}
                     />
                     <FormInput
                         type="password"
@@ -86,7 +86,7 @@ function Register() {
                         name="confirmPassword"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        required={true}
+                        // required={true}
                     />
                     <Button
                         type="submit"
